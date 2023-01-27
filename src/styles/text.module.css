@@ -1,0 +1,9 @@
+.monoCrop {
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; 
+}
+
+.multiCrop {
+    display: block;
+}
