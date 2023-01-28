@@ -24,12 +24,12 @@ export default function DeconnectDialog () {
 
     const handleDeconnecte = () => {
         dispatch(deconnected());
-       if(checked) {
         sessionStorage.clear();
+        dispatch(removeData());
+       if(checked) {
         localStorage.clear()
         dispatch(removeUser());
-       } 
-       removeData();
+       }
        setOpen(false);
        window.location = '/';
     };
