@@ -2,7 +2,7 @@ import { Toolbar, Drawer, Box as MuiBox, Stack } from '@mui/material';
 import IconButton from '../../../../components/IconButton';
 import Typography from '../../../../components/Typography';
 import DownloadItem from './DownloadItem';
-import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 export default function DownloadsMenuDrawer ({open, onClose, loadingList}) {
     return (
@@ -30,8 +30,8 @@ export default function DownloadsMenuDrawer ({open, onClose, loadingList}) {
         <Toolbar variant="dense" />
         <Toolbar  disableGutters>
             <MuiBox>
-                <IconButton title="Reduire" onClick={onClose}>
-                    <ArrowForwardIosRoundedIcon fontSize="small" />
+                <IconButton title="fermer" onClick={onClose}>
+                    <CloseRoundedIcon fontSize="small"/>
                 </IconButton>
             </MuiBox>
             <Typography

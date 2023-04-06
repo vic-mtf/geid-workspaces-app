@@ -4,12 +4,28 @@ import {
     CardMedia, 
     Stack,
     Box as MuiBox,
-    CircularProgress
+    CircularProgress,
+    Divider
 } from "@mui/material";
 import Typography from "../../components/Typography";
 import 'animate.css/source/attention_seekers/swing.css';
+import { useData } from "../../utils/DataProvider";
+import { useEffect, useRef } from "react";
+import _logo_geid from '../../assets/geid_logo_blue_without_title.webp';
 
-export default function Cover ({loading}) {
+export default function Cover ({startApp}) {
+    const [{loading}] = useData();
+    const emited = useRef(true);
+
+    useEffect(() => {
+        const root  = document.getElementById('root');
+        const name = '_load_all_data';
+        if(emited.current && startApp) {
+            emited.current = false;
+            const customEvent = new CustomEvent(name);
+            root.dispatchEvent(customEvent);
+        }
+    },[startApp]);
 
     return (
         <Box
@@ -48,12 +64,37 @@ export default function Cover ({loading}) {
                 flexDirection="column"
                 position="relative"
             >
-                <Typography fontWeight="bold" variant="h4" paragraph>
-                        Espace personnel
-                </Typography>
+                <Stack 
+                    spacing={1} 
+                    direction="row" 
+                    width={500} 
+                    my={1}
+                    divider={
+                        <Divider 
+                            flexItem 
+                            orientation="vertical" 
+                            sx={{
+                                bgcolor: 'text.primary',
+                                borderWidth: 1,
+                            }}
+                        />
+                    }
+                    display="flex"
+                    justifyContent="center"
+                >
+                    <CardMedia
+                        component="img"
+                        src={_logo_geid}
+                        sx={{width: 120}}
+                    />
+                    <Typography
+                        noWrap
+                        variant="h4"
+                    >Espace personnel</Typography>
+                </Stack>
                 {loading &&
                 <CircularProgress
-                    size={20}
+                    size={15}
                     color="inherit"
                     sx={{position: 'absolute', top: '150%'}}
                 />}

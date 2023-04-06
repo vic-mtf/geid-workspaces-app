@@ -66,7 +66,7 @@ export default function FormContent ({
             </Button>
             <Button
               type="submit"
-              variant="contained"
+              variant="outlined"
               color="primary"
             >
               Envoyer l'article

@@ -137,7 +137,7 @@ export default function RenameFile () {
             </Button>
             <Button 
                 onClick={handleDeleteFile}
-                variant="contained"
+                variant="outlined"
                 size="small"
                 sx={{textTransform: 'none'}}
             >

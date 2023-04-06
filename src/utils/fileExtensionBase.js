@@ -38,13 +38,13 @@ const fileExtensionBase = [
     docType: 'image',
   },
   {
-    exts: [ 'webm','qt', 'mov', 'ogg', 'avi', 'asf', 'wma', 'wmv', 'flv', 'mkv', 'mka', 'mks', 'mk3d', 'mp4', 'mp4a', 'mp4b', 'mp4r', 'mp4v', 'mp4p', 'mpg', 'mpeg', 'mxf'],
+    exts: [ 'webm','qt', 'mov', 'avi', 'asf', 'wmv', 'flv', 'mkv', 'mka', 'mks', 'mk3d', 'mp4', 'mp4a', 'mp4b', 'mp4r', 'mp4v', 'mp4p', 'mpg', 'mpeg', 'mxf'],
     icon: videoIcon,
     type: 'video',
     docType: 'video',
   },
   {
-    exts: ['mp3'],
+    exts: ['mp3', 'wav', 'ogg', 'wma', 'mid'],
     icon: audioIcon,
     type: 'audio',
     docType: 'audio',

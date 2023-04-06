@@ -53,16 +53,14 @@ export default function FormContent ({
             <Button
               onClick={onClose}
               color="primary"
-            >
-              Annuler
+            >Annuler
             </Button>
             <Button
               type="submit"
-              variant="contained"
+              variant="outlined"
               color="primary"
               disabled
-            >
-              Envoyer l'article
+            >Envoyer l'article
             </Button>
           </DialogActions>
           </form>

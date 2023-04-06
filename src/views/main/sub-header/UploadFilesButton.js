@@ -6,6 +6,7 @@ import getFileExtension, { getName } from "../../../utils/getFileExtention";
 import fileExtensionBase from "../../../utils/fileExtensionBase";
 import pluralize from "pluralize";
 import DownloadsMenuDrawer from "./Downloads-menu-drawer/DownloadsMenuDrawer";
+//import { useData } from "../../../utils/DataProvider";
 
 export default function UploadFilesButton () {
     const uploadList = useRef([]);
@@ -13,6 +14,7 @@ export default function UploadFilesButton () {
     const [open, setOpen] = useState(false);
     const {token, id: userId} =  useSelector(store => store.user);
     const [removeList, setRemoveList] = useState([]);
+    //const [,{docRefresh, photoRefresh, videoRefresh}] = useData();
 
     useEffect(() => {
         const rootEl = document.getElementById('root');
@@ -28,9 +30,15 @@ export default function UploadFilesButton () {
                     const upload = xhr.upload;
                     const { type, icon } = fileExtensionBase.find(({exts}) => 
                         ~exts.indexOf(getFileExtension(file.name))
-                    );
+                    ) || {};
+                    let path;
+                    if(type === 'video')
+                        path = 'videos';
+                    else if(type === 'image')
+                        path = 'videos';
+                    else path = 'documents';
+
                     const filename = getName(file.name)
-                    const path = type === 'audio' ? 'documens' : type + 's';
                     const infos = { userId, filename, path, file };
                     const data = new FormData();
                     Object.keys(infos).forEach(key => {
@@ -44,6 +52,13 @@ export default function UploadFilesButton () {
                             loading: false,
                         };
                         setLoadNumber(nbr => nbr - 1);
+                        // if(path === 'images') photoRefresh();
+                        // if(path === 'documents') docRefresh();
+                        // if(path === 'videos') videoRefresh();
+                        const root  = document.getElementById('root');
+                        const name = '_load_all_data';
+                        const customEvent = new CustomEvent(name);
+                        root.dispatchEvent(customEvent);
                     };
                     xhr.onabort = () => {
                         uploadList.current[_id] = {
@@ -108,7 +123,9 @@ export default function UploadFilesButton () {
         return ()  => {
             rootEl.removeEventListener('_upload_files', handleReveFile);
         }              
-    }, [token, userId]);
+    }, [token, userId
+        //docRefresh, photoRefresh, videoRefresh
+    ]);
 
     useEffect(() => {
         const root = document.getElementById('root');

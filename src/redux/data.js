@@ -10,6 +10,7 @@ const data = createSlice({
     reducers: {
         addData(state, actions) {
             const { key, data } = actions.payload;
+            console.log(data);
             state[key] = data;
             if(
                 state.documents &&

@@ -25,6 +25,7 @@ export default function Main () {
         if(pathname.match(new RegExp(_vid))) return _vid;
         if(pathname.match(new RegExp(_oth))) return _oth;
     }, [pathname]);
+    
     const { sort, order, display } = queryString.parse(search);
     const _data = useMemo(() => {
         let __data = [...(data[key] || [])];

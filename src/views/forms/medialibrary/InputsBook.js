@@ -2,8 +2,8 @@ import { Box, CardMedia, ListItemButton, Stack, TextField } from "@mui/material"
 import React, { useState } from "react";
 import InputControler from "../../../components/InputControler";
 import Typography from "../../../components/Typography";
-import Covers from "../covers/Covers";
 import BookTypology from "./BookTypology";
+import DocumentCoversPages from "../document-covers-pages/DocumentCoversPages";
 
 export default function InputsBook ({
     author,
@@ -100,7 +100,7 @@ export default function InputsBook ({
             > 
                 <TextField label="Description"/> 
             </InputControler> 
-            <Covers
+            <DocumentCoversPages
                 open={openCover}
                 onClose={() => setOpenCover(false)}
                 onCover={_cover => {
