@@ -11,7 +11,8 @@ import FormContent from "./FormContent";
 export default function MediaLibraryForm () {
     const [file, setFile] = useState(null);
     const typeInfos = useMemo(() => format[file?.type], [file?.type]);
-    const {id: userId, token} = useSelector(store => store.user);
+    const userId = useSelector(store => store.user.id);
+    const token = useSelector(store => store.user.token);
     const [, refresh, cancel] = useAxios({
       url: 'api/stuff/frozen',
       method: 'post',
@@ -42,7 +43,7 @@ export default function MediaLibraryForm () {
       if(typeInfos?.type === 'media')
         Object.keys(mediaFields).forEach(key => {
           if(!mediaFields[key]?.current) errors.push(key);
-          else datas[key] = bookFields[key]?.current;
+          else datas[key] = mediaFields[key]?.current;
         });
       else Object.keys(bookFields).forEach(key => {
         if(!bookFields[key]?.current) errors.push(key);

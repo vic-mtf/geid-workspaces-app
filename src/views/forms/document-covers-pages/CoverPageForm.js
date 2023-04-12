@@ -46,7 +46,7 @@ export default function CoverPageForm ({file, refresh, setFile}) {
         cancel();
         window.URL.revokeObjectURL(fileURL);
         setFile(null);
-    }, [fileURL, cancel, setFile, loading]);
+    }, [fileURL, cancel, setFile]);
 
     const handlerSendCover = useCallback(event => {
         event?.preventDefault();

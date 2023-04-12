@@ -1,5 +1,5 @@
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { AppBar, Stack, Toolbar, Tooltip } from "@mui/material";
+import { AppBar, Toolbar, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import Button from "../../../components/Button";
 import Typography from "../../../components/Typography";

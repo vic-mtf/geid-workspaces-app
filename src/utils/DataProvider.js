@@ -35,10 +35,11 @@ export default function DataProvider ({children}) {
           key: 'documents',
           data
         }));
-        // dispatch(addData({
-        //   key: 'others',
-        //   data: []
-        // }));
+        
+        dispatch(addData({
+          key: 'others',
+          data: []
+        }));
       })
     , [axiosParams, docRefetch, userId, dispatch]);
 

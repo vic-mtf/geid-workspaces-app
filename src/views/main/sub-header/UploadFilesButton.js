@@ -32,10 +32,11 @@ export default function UploadFilesButton () {
                         ~exts.indexOf(getFileExtension(file.name))
                     ) || {};
                     let path;
+                    console.log(type);
                     if(type === 'video')
                         path = 'videos';
                     else if(type === 'image')
-                        path = 'videos';
+                        path = 'images';
                     else path = 'documents';
 
                     const filename = getName(file.name)

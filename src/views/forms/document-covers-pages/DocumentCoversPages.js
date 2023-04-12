@@ -12,14 +12,17 @@ import Header from './Header';
 
 export default function DocumentCoversPages ({open, onClose, onCover}) {
     const { token } = useSelector(store => store.user);
-    const [{ data, loading}, /* refresh */] = useAxios({
+    const [{ data, loading}, refresh ] = useAxios({
             url: '/api/stuff/cover',
             headers: {'Authorization': `Bearer ${token}`},
         });
     
     return (
         <Dialog open={Boolean(open)} fullScreen >
-            <Header onClose={onClose}/>
+            <Header 
+                onClose={onClose}
+                refresh={refresh}
+            />
                 <DialogContent
                     component="div"
                     sx={{
@@ -30,7 +33,11 @@ export default function DocumentCoversPages ({open, onClose, onCover}) {
                         mx: 0,
                     }}
                 >
-                {Boolean(data?.length) && <Content data={data}/>}
+                {Boolean(data?.length) && 
+                <Content 
+                    data={data} 
+                    onChooseCoverPage={onCover}
+                />}
                 {!data?.length &&
                 <Typography 
                     align="center" 

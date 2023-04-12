@@ -64,7 +64,7 @@ const TextFieldController = forwardRef((props, ref) => {
         if(ref) ref.current = (!values.value.trim() || values.error) ? null : values.value;
         if(!values.value.trim() && !values.error)
             setValues({...values, error: true});
-    }, [values.value, checking]);
+    }, [checking, values, ref]);
    
     return (
         <FormControl
