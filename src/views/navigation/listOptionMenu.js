@@ -12,7 +12,7 @@ const listOptionMenu = [
     },
     {
         icon: <ImageOutlinedIcon fontSize="small" />,
-        label: 'Photos',
+        label: 'Images',
         key: '_photos',
         to: process.env.PUBLIC_URL + '/photos'
     },

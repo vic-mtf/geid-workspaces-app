@@ -4,13 +4,17 @@ import SearchInput from '../../components/SearchInput';
 import Typography from '../../components/Typography';
 import DeconnectDialog from './DeconnectDialog';
 import MainOption from './main-options/MainOption';
+import appConfig from '../../configs/app-config.json';
 
 export default function Header () {
     return (
         <React.Fragment>
             <AppBar 
                 position="fixed" 
-                sx={{ zIndex: theme => theme.zIndex.drawer + 1,}}>
+                sx={{ 
+                    zIndex: theme => theme.zIndex.drawer + 1,
+                    bgcolor: appConfig.colors.main,
+                }}>
                 <Toolbar variant="dense">
                     <Typography flexGrow={1} fontSize={18} fontWeight="bold" variant="h6" noWrap component="div">
                         Espace personnel
