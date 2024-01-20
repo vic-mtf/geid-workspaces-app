@@ -1,23 +1,34 @@
 import { createSlice } from "@reduxjs/toolkit";
 import persistReducer from "redux-persist/es/persistReducer";
 import storage from "redux-persist/lib/storage/session";
+import deepMerge from "../utils/deepMerge";
 
 const data = createSlice({
     name: 'data',
     initialState: {
-        isAllData: false
+        loaded: false,
     },
     reducers: {
+        updateData(state, actions) {
+            const { data } = actions.payload;
+            const states = deepMerge(state, data);
+            const { stringify, parse } = JSON;
+
+            console.log(parse(stringify(states)));
+            
+            Object.keys(states).forEach(key => {
+                state[key] = states[key];
+            });
+            const directories  = ['documents', 'images', 'videos', 'audios', 'others'];
+            const loaded = directories.every(directory => Array.isArray(state[directory]));
+            if(loaded) state.loaded = true; 
+        },
         addData(state, actions) {
             const { key, data } = actions.payload;
-            console.log(data);
             state[key] = data;
-            if(
-                state.documents &&
-                state.photos &&
-                state.videos &&
-                state.others
-            ) state.isAllData = true;
+            const directories  = ['documents', 'images', 'videos', 'others'];
+            const loaded = directories.every(directory => Array.isArray(state[directory]));
+            if(loaded) state.loaded = true;
         },
         removeData(state, actions) {
             const keys = actions.payload?.keys || 
@@ -37,7 +48,7 @@ const data = createSlice({
     }
 });
 
-export const { addData, removeData } = data.actions;
+export const { addData, removeData, updateData } = data.actions;
 export default persistReducer({
     storage,
     key:'__ROOT_GEID_DATA_APP'

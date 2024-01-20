@@ -4,17 +4,17 @@ import TestApp from '../test/App.test';
 
 const router = createBrowserRouter([
     {
-        element: <TestApp/>,
+        element: <TestApp delay={2}/>,
         path: '/test',
+    },
+    {
+        element: <Navigate to="/documents"/>,
+        path:  '/'
     },
     {
         element: <Workspace/>,
         path: '*'
     },
-    {
-        element: <Navigate to={process.env.PUBLIC_URL + "/documents"}/>,
-        path: process.env.PUBLIC_URL + '/'
-    }
 ]);
 
 export default router;

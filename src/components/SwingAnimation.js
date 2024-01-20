@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const SwingAnimation = ({ delay = 0, onFinish, children }) => {
+export default function SwingAnimation ({ delay, onFinish, children }) {
   const variants = {
     hidden: { rotate: 0 },
     swing: {
@@ -26,4 +26,8 @@ const SwingAnimation = ({ delay = 0, onFinish, children }) => {
   );
 };
 
-export default SwingAnimation;
+SwingAnimation.defaultProps = {
+    delay: 0,
+    onFinish: null,
+    children: null,
+};

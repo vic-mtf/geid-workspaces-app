@@ -1,4 +1,5 @@
-import Box from "../../components/Box"
+import React, { useCallback, useMemo, useEffect } from 'react';
+import Box from "../../components/Box";
 import _workspace_logo from '../../assets/5a3636b951df37.87798883151350239.webp';
 import { 
     CardMedia, 
@@ -9,23 +10,81 @@ import {
 } from "@mui/material";
 import Typography from "../../components/Typography";
 import 'animate.css/source/attention_seekers/swing.css';
-import { useData } from "../../utils/DataProvider";
-import { useEffect, useRef } from "react";
 import _logo_geid from '../../assets/geid_logo_blue_without_title.webp';
+import SwingAnimation from "../../components/SwingAnimation";
+import { useDispatch, useSelector } from 'react-redux';
+import openSignIn from "./openSignIn";
+import useGetData from '../../utils/useGetData';
+import channels from "../../utils/channels";
+import { decrypt } from '../../utils/crypt';
+import { updateUser } from '../../redux/user';
 
-export default function Cover ({startApp}) {
-    const [{loading}] = useData();
-    const emited = useRef(true);
+export default function Cover ({ setOpened }) {
+    const connected = useSelector(store => store.user.connected);
+    const loaded = useSelector(store => store.data.loaded);
+    const dispatch = useDispatch();
+    const [loadingDocs, getDocs] = useGetData({ 
+        key: 'documents', 
+        onBeforeUpdate (data) {
+          return {
+            ...data,
+            others: [],
+          }
+        }
+    });
+    const [loadingImages, getImages] = useGetData({ key: 'images' });
+    const [loadingVideos, getVideos] = useGetData({ 
+        key: 'videos', 
+        onBeforeUpdate (data) {
+            return {
+            ...data,
+                audios: [],
+            }
+        } 
+    });
+  
+    const loading = useMemo(() => 
+      [loadingDocs, loadingImages, loadingVideos].some(Boolean),
+      [loadingDocs, loadingImages, loadingVideos]
+    );
+    const getData = useCallback((data) => {
+        getDocs(data);
+        getImages(data);
+        getVideos(data);
+    }, [getDocs, getImages, getVideos]);
+
+    const handleFinish = useCallback(() => {
+        if(connected) getData()
+        else openSignIn();
+    },[getData, connected]);
+
 
     useEffect(() => {
-        const root  = document.getElementById('root');
-        const name = '_load_all_data';
-        if(emited.current && startApp) {
-            emited.current = false;
-            const customEvent = new CustomEvent(name);
-            root.dispatchEvent(customEvent);
+        const handleLogin = (event) => {
+            if(event.origin === window.location.origin && event.data) {
+                const data = {
+                    connected: true,
+                    ...decrypt(event.data),
+                };
+                dispatch(updateUser({ data }));
+                getData({
+                    urlProps: {
+                        token: data.token,
+                        userId: data.id,
+                    }
+                });
+
+            }
+        };
+        SIGN_IN_CHANNEL.addEventListener("message", handleLogin);
+        return () => {
+            SIGN_IN_CHANNEL.removeEventListener("message", handleLogin);
         }
-    },[startApp]);
+    }, [dispatch, getData]);
+
+    useEffect(() => {
+        if(loaded) setOpened(true);
+    },[loaded, setOpened])
 
     return (
         <Box
@@ -47,16 +106,17 @@ export default function Cover ({startApp}) {
             flex={1}
             spacing={1}
            >
-            <CardMedia
-                    component="img"
-                    src={_workspace_logo}
-                    draggable={false}
-                    sx={{
-                        height: 100,
-                        width: 100,
-                        animation: 'swing .5s 1s' ,
-                    }}
-            />
+            <SwingAnimation
+                delay={2}
+                onFinish={handleFinish}
+            >
+                <CardMedia
+                        component="img"
+                        src={_workspace_logo}
+                        draggable={false}
+                        sx={{ height: 100, width: 100 }}
+                />
+            </SwingAnimation>
             <MuiBox
                 display="flex"
                 justifyContent="center"
@@ -90,19 +150,25 @@ export default function Cover ({startApp}) {
                     <Typography
                         noWrap
                         variant="h4"
+                        color="text.primary"
                     >Espace personnel</Typography>
                 </Stack>
                 {loading &&
                 <CircularProgress
                     size={15}
-                    color="inherit"
-                    sx={{position: 'absolute', top: '150%'}}
+                    sx={{
+                        position: 'absolute', 
+                        top: '150%',
+                        color: 'text.primary'
+                    }}
                 />}
             </MuiBox>
            </Stack>
-           <Typography  variant="caption" paragraph>
+           <Typography variant="caption" paragraph color="text.primary">
                 Direction Archives et Nouvelles Technologie de l'Information et de la Communication ©2022
             </Typography>
         </Box>
     )
 }
+
+const SIGN_IN_CHANNEL = new BroadcastChannel(channels.signin);
