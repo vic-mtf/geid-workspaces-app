@@ -15,6 +15,9 @@ const router = createBrowserRouter([
         element: <Workspace/>,
         path: '*'
     },
-]);
+], 
+{
+    basename: process.env.PUBLIC_URL,
+});
 
 export default router;

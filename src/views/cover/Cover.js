@@ -56,7 +56,9 @@ export default function Cover ({ setOpened }) {
     const handleFinish = useCallback(() => {
         if(connected) getData()
         else openSignIn();
-    },[getData, connected]);
+
+        if(loaded) setOpened(true);
+    },[getData, connected, setOpened, loaded]);
 
 
     useEffect(() => {
@@ -81,10 +83,6 @@ export default function Cover ({ setOpened }) {
             SIGN_IN_CHANNEL.removeEventListener("message", handleLogin);
         }
     }, [dispatch, getData]);
-
-    useEffect(() => {
-        if(loaded) setOpened(true);
-    },[loaded, setOpened])
 
     return (
         <Box

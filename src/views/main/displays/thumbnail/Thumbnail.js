@@ -8,6 +8,7 @@ import fileExtensionBase from '../../../../utils/fileExtensionBase';
 import getFileExtension from '../../../../utils/getFileExtention';
 import File from '../file/File';
 import WrapperContent from './WrapperContent';
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 
 export default function Thumbnail ({data: _data}) {
     const [findName, setFindName] = useState('');
@@ -59,7 +60,12 @@ export default function Thumbnail ({data: _data}) {
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-            >Aucun élement</Typography>):
+                flexDirection="column"
+                variant="body1"
+                fontWeight="bold"
+            >
+                <InboxOutlinedIcon fontSize="large"/> Aucun élement
+            </Typography>):
             <Grid
                 component="div"
                 container
@@ -74,7 +80,9 @@ export default function Thumbnail ({data: _data}) {
                             <Grid
                                 component="div"
                                 item
-                                md={12/5}
+                                md={12 / 5}
+                                lg={12 / 6}
+                                xl={12 / 8}
                                 key={`${index}_${file.name}`}
                             > 
                                 <WrapperContent
@@ -86,7 +94,6 @@ export default function Thumbnail ({data: _data}) {
                                         flex={1}
                                         justifyContent="center"
                                         alignItems="center"
-                                        
                                     >
                                         <File
                                             {...infos}

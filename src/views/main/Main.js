@@ -17,7 +17,7 @@ export default function Main () {
    
     const key = useMemo(() => {
         const _doc = 'documents';
-        const _img = 'photos';
+        const _img = 'images';
         const _vid = 'videos';
         const _oth = 'others';
         if(!pathname || pathname.match(new RegExp(_doc))) return _doc;

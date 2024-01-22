@@ -5,28 +5,24 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 
 const listOptionMenu = [
     {
-        icon: <ArticleOutlinedIcon fontSize="small" />,
+        icon: ArticleOutlinedIcon,
         label: 'Documents',
-        key: '_documents',
-        to: process.env.PUBLIC_URL + '/documents'
+        to: '/documents'
     },
     {
-        icon: <ImageOutlinedIcon fontSize="small" />,
+        icon: ImageOutlinedIcon,
         label: 'Images',
-        key: '_photos',
-        to: process.env.PUBLIC_URL + '/photos'
+        to: '/images'
     },
     {
-        icon: <PlayCircleOutlinedIcon fontSize="small" />,
+        icon: PlayCircleOutlinedIcon,
         label: 'Vidéos',
-        key: '_videos',
-        to: process.env.PUBLIC_URL + '/videos'
+        to: '/videos'
     },
     {
-        icon: <InsertDriveFileOutlinedIcon fontSize="small" />,
+        icon: InsertDriveFileOutlinedIcon,
         label: 'Autres',
-        key: '_others',
-        to: process.env.PUBLIC_URL + '/others',
+        to: '/others',
     },
     
 ];

@@ -20,7 +20,12 @@ export default function SwingAnimation ({ delay, onFinish, children }) {
       variants={variants}
       initial="hidden"
       animate="swing"
-      onAnimationComplete={onFinish}
+      onAnimationComplete={event => {
+        window.setTimeout(() => {
+          if(typeof onFinish === 'function') 
+            onFinish(event)
+        }, delay * 1000)
+      }}
     >{children}
     </motion.div>
   );

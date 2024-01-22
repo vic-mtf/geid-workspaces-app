@@ -10,8 +10,6 @@ export default function App() {
   const loaded = useSelector(store => store.data.loaded);
   const [opened, setOpened] = useState(false);
 
-    console.log(loaded)
-
   return (
     <BoxGradient>
        { (connected && loaded && opened) ? 

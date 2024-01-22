@@ -11,10 +11,11 @@ export default function Photo (props) {
             justifyContent="center"
             alignItems="center"
             flexDirection="column"
+            position="relative"
+            gap={1}
         >
             <Box
                 p={.2}
-                mb={1}
                 display={loading ? 'none' : 'flex'}
                 sx={{ 
                     boxShadow: 5, 
@@ -32,6 +33,7 @@ export default function Photo (props) {
                     onLoad={() => setLoading(false)}
                     sx={{
                         width: "100%",
+                        maxHeight: 150,
                         borderRadius: 2,
                         border: theme => `2px solid ${theme.palette.divider}`
                     }}
@@ -41,18 +43,18 @@ export default function Photo (props) {
             {loading &&
             <Skeleton
                 variant="rectangular"
-                sx={{width: '100%', height: 130,}}
+                sx={{width: '100%', height: 120,}}
             />}
             <Typography
                 align="center"
+                width={150}
                 sx={{
-                    display: '-webkit-box',
-                    maxWidth: 200,
+                    // display: '-webkit-box',
+                    // maxWidth: 150,
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     textOverflow: 'ellipsis',
                     overflow: 'hidden',
-                    width: "100%",
                 }}
             >
                 {props.name?.replace(/_/ig, ' ')}

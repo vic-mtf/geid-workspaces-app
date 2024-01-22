@@ -7,7 +7,7 @@ import AppsMenu from "../AppsMenu";
 export default function AppsMenuButton () {
     const [anchorEl, setAnchorEl] = useState(null);
     const anchorRef = useRef();
-    console.log(anchorEl);
+ 
     return (
         <React.Fragment>
             <Tooltip title="Applications" arrow>

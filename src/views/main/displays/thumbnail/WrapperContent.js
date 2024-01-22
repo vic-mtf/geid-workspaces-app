@@ -4,7 +4,7 @@ import {
     ListItemText, 
     Menu, 
     MenuItem, 
-    Zoom
+    Fade
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useRef, useState } from 'react';
@@ -44,7 +44,7 @@ export default function WrapperContent ({
 
     return (
         <React.Fragment>
-            <Zoom in={!isRemoved}>
+            <Fade in={!isRemoved}>
                 <ListItemButton
                     sx={{
                         display: 'flex',
@@ -63,7 +63,7 @@ export default function WrapperContent ({
                 >
                     {children}
                 </ListItemButton>
-            </Zoom>
+            </Fade>
             <Menu
                 open={contextMenu !== null}
                 onClose={() => setContextMenu(null)}
