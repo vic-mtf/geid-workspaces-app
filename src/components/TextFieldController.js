@@ -101,8 +101,8 @@ const TextFieldController = forwardRef((props, ref) => {
                                             })) :
                                         handleChange('password')}
                                     onMouseDown={null}
-                                    edge="end"
-                                    size="small"
+                                    // edge="end"
+                                    // size="small"
                                 >
                                 {
                                     (showPasswordProps === null ?

@@ -1,6 +1,6 @@
 import { Box, CardMedia, ListItemButton, Stack, TextField } from "@mui/material";
 import React, { useState } from "react";
-import InputControler from "../../../components/InputControler";
+import InputController from "../../../components/InputController";
 import Typography from "../../../components/Typography";
 import BookTypology from "./BookTypology";
 import DocumentCoversPages from "../document-covers-pages/DocumentCoversPages";
@@ -21,7 +21,7 @@ export default function InputsBook ({
         <React.Fragment>
             <Stack direction='row' spacing={1}>
                 <Box>
-                    <InputControler  
+                    <InputController  
                         fullWidth
                         margin="dense"
                         trim={false}
@@ -31,7 +31,7 @@ export default function InputsBook ({
                         externalError={findError('title')}
                     >
                         <TextField label="Titre"/> 
-                    </InputControler>
+                    </InputController>
 
                     <BookTypology
                         margin="dense"
@@ -39,7 +39,7 @@ export default function InputsBook ({
                         externalError={findError('type')}
                    />
 
-                    <InputControler  
+                    <InputController  
                         fullWidth
                         margin="dense"
                         trim={false}
@@ -49,7 +49,7 @@ export default function InputsBook ({
                         externalError={findError('author')}
                     >
                         <TextField label="Auteur"/> 
-                    </InputControler>
+                    </InputController>
                 </Box>
                 
                 <Box>
@@ -86,7 +86,7 @@ export default function InputsBook ({
                     </ListItemButton>
                 </Box>
             </Stack>
-            <InputControler
+            <InputController
                 fullWidth
                 multiline
                 margin="dense"
@@ -99,7 +99,7 @@ export default function InputsBook ({
                 externalError={findError('type')}
             > 
                 <TextField label="Description"/> 
-            </InputControler> 
+            </InputController> 
             <DocumentCoversPages
                 open={openCover}
                 onClose={() => setOpenCover(false)}

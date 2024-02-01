@@ -47,17 +47,16 @@ export default function Cover ({ setOpened }) {
       [loadingDocs, loadingImages, loadingVideos].some(Boolean),
       [loadingDocs, loadingImages, loadingVideos]
     );
-    const getData = useCallback((data) => {
-        getDocs(data);
-        getImages(data);
-        getVideos(data);
+    const getData = useCallback(async data => {
+        await getDocs(data);
+        await getImages(data);
+        await getVideos(data);
+        setOpened(true)
     }, [getDocs, getImages, getVideos]);
 
     const handleFinish = useCallback(() => {
-        if(connected) getData()
+        if(connected) getData();
         else openSignIn();
-
-        if(loaded) setOpened(true);
     },[getData, connected, setOpened, loaded]);
 
 
@@ -169,4 +168,4 @@ export default function Cover ({ setOpened }) {
     )
 }
 
-const SIGN_IN_CHANNEL = new BroadcastChannel(channels.signin);
+const SIGN_IN_CHANNEL = new BroadcastChannel(channels.signIn);

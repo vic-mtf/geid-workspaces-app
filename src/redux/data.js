@@ -12,10 +12,6 @@ const data = createSlice({
         updateData(state, actions) {
             const { data } = actions.payload;
             const states = deepMerge(state, data);
-            const { stringify, parse } = JSON;
-
-            console.log(parse(stringify(states)));
-            
             Object.keys(states).forEach(key => {
                 state[key] = states[key];
             });

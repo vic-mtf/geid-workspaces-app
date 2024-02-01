@@ -13,7 +13,7 @@ export default function AppsMenuButton () {
             <Tooltip title="Applications" arrow>
                 <Box>
                     <IconButton 
-                        color="inherit"
+                        // color="inherit"
                         sx={{mx: 1}} 
                         ref={anchorRef}
                         onClick={() => {

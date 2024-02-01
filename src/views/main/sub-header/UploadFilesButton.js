@@ -6,6 +6,7 @@ import getFileExtension, { getName } from "../../../utils/getFileExtention";
 import fileExtensionBase from "../../../utils/fileExtensionBase";
 import pluralize from "pluralize";
 import DownloadsMenuDrawer from "./Downloads-menu-drawer/DownloadsMenuDrawer";
+import useGetData from "../../../utils/useGetData";
 //import { useData } from "../../../utils/DataProvider";
 
 export default function UploadFilesButton () {
@@ -14,7 +15,25 @@ export default function UploadFilesButton () {
     const [open, setOpen] = useState(false);
     const {token, id: userId} =  useSelector(store => store.user);
     const [removeList, setRemoveList] = useState([]);
-    //const [,{docRefresh, photoRefresh, videoRefresh}] = useData();
+    const [, getDocs] = useGetData({ 
+        key: 'documents', 
+        onBeforeUpdate (data) {
+          return {
+            ...data,
+            others: [],
+          }
+        }
+    });
+    const [, getImages] = useGetData({ key: 'images' });
+    const [, getVideos] = useGetData({ 
+        key: 'videos', 
+        onBeforeUpdate (data) {
+            return {
+            ...data,
+                audios: [],
+            }
+        } 
+    });
 
     useEffect(() => {
         const rootEl = document.getElementById('root');
@@ -32,7 +51,6 @@ export default function UploadFilesButton () {
                         ~exts.indexOf(getFileExtension(file.name))
                     ) || {};
                     let path;
-                    console.log(type);
                     if(type === 'video')
                         path = 'videos';
                     else if(type === 'image')
@@ -53,9 +71,9 @@ export default function UploadFilesButton () {
                             loading: false,
                         };
                         setLoadNumber(nbr => nbr - 1);
-                        // if(path === 'images') photoRefresh();
-                        // if(path === 'documents') docRefresh();
-                        // if(path === 'videos') videoRefresh();
+                        if(path === 'images') getImages();
+                        if(path === 'documents') getDocs();
+                        if(path === 'videos') getVideos();
                         const root  = document.getElementById('root');
                         const name = '_load_all_data';
                         const customEvent = new CustomEvent(name);
@@ -124,9 +142,7 @@ export default function UploadFilesButton () {
         return ()  => {
             rootEl.removeEventListener('_upload_files', handleReveFile);
         }              
-    }, [token, userId
-        //docRefresh, photoRefresh, videoRefresh
-    ]);
+    }, [token, userId, getImages, getVideos, getDocs]);
 
     useEffect(() => {
         const root = document.getElementById('root');

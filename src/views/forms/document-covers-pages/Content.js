@@ -13,7 +13,6 @@ export default function Content ({data, onChooseCoverPage}) {
     const theme = useTheme();
     const matchSmall = useMediaQuery(theme.breakpoints.between('xs', 'sm'));
     const matchMedium = useMediaQuery(theme.breakpoints.down('lg'));
-    console.log(data);
     return (
     <ImageList 
         cols={matchSmall ?  2 : matchMedium ? 4: 8}

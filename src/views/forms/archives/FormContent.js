@@ -59,7 +59,6 @@ export default function FormContent ({
               type="submit"
               variant="outlined"
               color="primary"
-              disabled
             >Envoyer l'article
             </Button>
           </DialogActions>

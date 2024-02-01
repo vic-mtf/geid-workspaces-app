@@ -3,7 +3,7 @@ import React, { useLayoutEffect, useMemo, useState } from 'react';
 import capStr from '../utils/capStr';
 import validateFields from '../utils/validateFields';
 
-export default function InputControler ({
+export default function InputController ({
     children, 
     regExp,
     multiline,
@@ -12,7 +12,7 @@ export default function InputControler ({
     type,
     trim,
     size,
-    autoControler,
+    autoController,
     valueRef,
     externalError,
     name,
@@ -27,7 +27,7 @@ export default function InputControler ({
         error: true,
     });
     const validate = validateFields[`validate${capStr(type)}`];
-    const validateFunc = (autoControler) ? validate :
+    const validateFunc = (autoController) ? validate :
     value => value.toString().trim().match(new RegExp(regExp));
     const error = useMemo(() => !!(externalError && (values.error)), 
         [
@@ -80,11 +80,11 @@ export default function InputControler ({
     )
 }
 
-InputControler.defaultProps = {
+InputController.defaultProps = {
     size: 'small',
     trim: true,
     regExp: /./,
-    autoControler: false,
+    autoController: false,
     defaultValue: '',
     emptyErrorMessage: 'Veuillez remplir ce champ.',
     invalidateErrorMessage: `Le champ n'est pas valable, 

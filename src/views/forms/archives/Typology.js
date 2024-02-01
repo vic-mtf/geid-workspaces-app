@@ -7,10 +7,9 @@ import { useSelector } from "react-redux";
 
 export default function Typology ({type, subType,  externalTypeError,  externalSubTypeError}) {
     const docTypes = useSelector(store => store?.user?.docTypes);
-    console.log(docTypes);
     const [values, setValues] = useState({
-        type: null,
-        subType: null,
+        type: type.current,
+        subType: subType.current,
         types: docTypes?.map(({name: label}, index) => ({label, id: index})),
         subTypes: docTypes[0]?.subtypes?.map((label, id) => ({label, id})),
         open: false,
@@ -43,7 +42,7 @@ export default function Typology ({type, subType,  externalTypeError,  externalS
         if(type && subType && values.type) {
             type.current = values?.type?.label;
             if(values.subType)
-                subType.current = values.subType;
+                subType.current = values.subType?.label;
             if(values.subTypes.length <= 1)
                 subType.current = values?.subTypes[0]?.label;
         }
@@ -110,7 +109,8 @@ export default function Typology ({type, subType,  externalTypeError,  externalS
                 <Autocomplete
                     size="small"
                     fullWidth
-                    disabled={values.subTypes.length  < 2 }
+                    key={values.type}
+                    disabled={values.subTypes.length  < 2 || !values.type}
                     value={values.subType}
                     title={values.subType?.label}
                     noOptionsText="Aucun élement"

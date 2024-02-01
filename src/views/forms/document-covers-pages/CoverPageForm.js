@@ -58,7 +58,6 @@ export default function CoverPageForm ({file, refresh, setFile}) {
         data.append('name', name || getName(file?.name));
         data.append('docTypes',JSON.stringify([type, subType]));
         data.append('file', file);
-        console.log(name, type, subType)
         if(errors.length)
             setCheckingErrors(errors);
         else;

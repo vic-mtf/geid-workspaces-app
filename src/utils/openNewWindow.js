@@ -20,7 +20,7 @@ const _args = {
 export default function openNewWindow (args = _args) {
     const {url, target, ...otherProps} = {..._args, ...args};
     const options = Object.keys(otherProps).map(key => `${key}=${otherProps[key]}`).join(', ');
-    const uri = `${process.env.PUBLIC_URL}${url}`.trim();
+    const uri = `${window.origin}${url}`.trim();
     const wd = window.open(uri,
         target,
         options,

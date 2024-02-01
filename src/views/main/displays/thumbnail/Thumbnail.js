@@ -45,7 +45,9 @@ export default function Thumbnail ({data: _data}) {
             document.getElementById('root')
             .removeEventListener('_search_data', handleFinfName);
         }
-    })
+    });
+
+    console.log(data);
     return (
         <Box
             overflow="auto"

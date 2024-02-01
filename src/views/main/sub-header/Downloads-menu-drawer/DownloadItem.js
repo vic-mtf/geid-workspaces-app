@@ -35,7 +35,6 @@ export default function DownloadItem (props) {
 
     useEffect(() => {
         const handleGetLoadData = ({loaded, total}) => {
-            //console.log(loaded, total);
             setUpload({loaded, total})
         };
         xhr.onreadystatechange = () => {

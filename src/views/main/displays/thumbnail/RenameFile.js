@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import Button from '../../../../components/Button';
-import InputControler from '../../../../components/InputControler';
+import InputController from '../../../../components/InputController';
 import useAxios from '../../../../utils/useAxios';
 import Typography from '../../../../components/Typography';
 import getFileExtension, { getName } from '../../../../utils/getFileExtention';
@@ -108,7 +108,7 @@ export default function RenameFile () {
                 display: 'flex'
             }}
           >
-            <InputControler
+            <InputController
                 defaultValue={file?.name && getName(file?.name).replace(/_/ig, ' ')}
                 inputRef={inputRef}
                 autoFocus
@@ -127,7 +127,7 @@ export default function RenameFile () {
                         }
                     }}
                 />
-            </InputControler>
+            </InputController>
           </DialogContent>
           <DialogActions>
             <Button 

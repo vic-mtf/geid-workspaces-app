@@ -1,12 +1,12 @@
 import { TextField } from "@mui/material";
 import React from "react";
-import InputControler from "../../../components/InputControler";
+import InputController from "../../../components/InputController";
 
 export default function InputsMedia ({title, description, findError}) {
     const message = 'Intitulé non valide ou trop court.';
     return (
         <React.Fragment>
-            <InputControler  
+            <InputController  
                 fullWidth
                 margin="dense"
                 valueRef={title}
@@ -16,8 +16,8 @@ export default function InputsMedia ({title, description, findError}) {
                 invalidateErrorMessage={message}
             >
                 <TextField label="Titre"/> 
-            </InputControler>
-            <InputControler  
+            </InputController>
+            <InputController  
                 multiline
                 fullWidth
                 margin="dense"
@@ -29,7 +29,7 @@ export default function InputsMedia ({title, description, findError}) {
                 trim={false}
             >
                 <TextField label="Description"/> 
-            </InputControler>
+            </InputController>
         </React.Fragment>
     )
 }

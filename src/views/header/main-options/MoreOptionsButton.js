@@ -11,7 +11,7 @@ export default function MoreOptionsButton ({options}) {
         <React.Fragment>
             <Tooltip title="Plus" arrow>
                 <IconButton
-                    color="inherit"
+                    // color="inherit"
                     sx={{mx: 1}} 
                     ref={anchorRef}
                     onClick={() => {

@@ -13,8 +13,8 @@ import checkAuth from '../../utils/checkAuth';
 import appsList from './appsList';
 
 export default function AppsMenu ({anchorEl, onClose}) {
-    const auth = useSelector(store => store.user?.auth);
-  
+    const auth = useSelector(store => store?.user?.auth);
+    
     return (
         <Menu 
             id="_apps" 
@@ -42,16 +42,10 @@ export default function AppsMenu ({anchorEl, onClose}) {
             }}
         >
           <CardContent component="div">
-            <Typography
-                variant="h6"
-                paragraph
-                fontSize={15}
-                fontWeight="bold"
-            >Applications</Typography>
             <Grid container spacing={1} component="div" >
                 {appsList.map((app, index) => 
                     checkAuth(auth, app.permissions) && 
-                (
+                    (
                     <Grid 
                         item 
                         xs={4} 
@@ -59,34 +53,54 @@ export default function AppsMenu ({anchorEl, onClose}) {
                         justifyContent="center" 
                         key={index}
                         component="div"
+                        position="relative" 
+                        height={90}
                     >
                         <CardActionArea
-                            sx={{borderRadius: 2}}
+                            sx={{borderRadius: 1, position: 'absolute'}}
                             LinkComponent={app.component || "a"}
                             href={app.href}
+                            title={app.name}
                         >
                             <Stack
                                 display="flex"
-                                m={1}
+                                m={.25}
                                 alignItems="center"
-                                spacing={.5}
+                                spacing={.2}
                                 component="div"
+                                sx={{
+                                    "& .app-name": {
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        width: 60
+                                    },
+                                    "&: hover": {
+                                        zIndex: theme => theme.zIndex.tooltip,
+                                        "& .app-name": {
+                                            whiteSpace: 'normal',
+                                            overflow: 'visible',
+                                            textOverflow: 'clip',
+                                            width: 'auto'
+                                        }
+                                    }
+                                }}
                             >
-                                
-                                    <CardMedia
-                                            component="img"
-                                            src={app.src}
-                                            srcSet={app.src}
-                                            draggable={false}
-                                            sx={{
-                                                height: 50,
-                                                width: 50,
-                                            }}
-                                    />
-                                    <Typography
-                                        align="center"
-                                        variant="caption"
-                                    >{app.name}</Typography> 
+                                <CardMedia
+                                        component="img"
+                                        src={app.src}
+                                        srcSet={app.src}
+                                        draggable={false}
+                                        sx={{
+                                            height: 60,
+                                            width: 60,
+                                        }}
+                                />
+                                <Typography
+                                    align="center"
+                                    variant="caption"
+                                    className='app-name'
+                                >{app.name}</Typography> 
                             </Stack>
                         </CardActionArea>
                     </Grid>

@@ -25,7 +25,7 @@ export default function Header ({refresh, onClose}) {
                     <Tooltip arrow title="Fermer" enterDelay={700}>
                         <IconButton
                             size="small"
-                            color="inherit"
+                            // color="inherit"
                             onClick={onClose}
                         >
                             <CloseRoundedIcon fontSize="small"/>

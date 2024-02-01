@@ -9,49 +9,45 @@ import FormContent from "./FormContent";
 
 export default function ArchivesFrom () {
     const [file, setFile] = useState(null);
-    const {id: userId, token} = useSelector(store => store.user);
+    const token = useSelector(store => store.user.token)
     const [, refresh, cancel] = useAxios({
-      url: 'api/stuff/frozen',
+      url: 'api/stuff/archives/',
       method: 'post',
-      headers: {'Authorization': `Bearer ${token}`}
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
     }, {manual: true});
     const [fieldsError, setFieldsError] = useState([]);
     const findError = field => !!~fieldsError?.indexOf(field);
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const docFields = {
-      origin: useRef(),
       type: useRef(),
-      activity: useRef(),
-      object: useRef(),
-      mission: useRef(),
+      subType: useRef(),
       designation: useRef(),
-      emergency: useRef(),
-      confidentiality: useRef(),
-      destination: useRef(),
       description: useRef(),
       folder: useRef(),
-      cover: useRef(),
     };
   
     const handleSendFile = file => event => {
       event.preventDefault();
       const errors = [];
-      const datas = { frozenType: 'ressource', };
-      const where = `${file?.type}s/${file?.name}`;
-      const name = file?.name?.replace(/_/ig, ' ');
+      const name = file?.name;
+      const data = {};
       if(fieldsError.length) setFieldsError([]);
       Object.keys(docFields).forEach(key => {
         if(!docFields[key]?.current) errors.push(key);
-        else if(key !== 'cover')
-          datas[key] = docFields[key]?.current;
-        datas.coverName = docFields.cover.current?.name;
+        else data[key] = docFields[key]?.current;
       });
+      data.type = { 
+        type: data.type, 
+        subType: data.subType,
+        doc: file?.doc?._id,
+      };
+      delete data.subType;
       if(errors.length) setFieldsError(errors);
       else {
         const timer = setTimeout(() => {
-          refresh({
-            data: { userId, where, datas }
-          })
+          refresh({ data })
           .then(() => {
             closeSnackbar();
             enqueueSnackbar(
@@ -64,7 +60,7 @@ export default function ArchivesFrom () {
                   className={textStyle.monoCrop}
                   padding
                 >{name}</Typography>
-                Le fichier a été envoyé à la mediathèque avec succès
+                Le fichier a été envoyé au service d'archivage
               </Typography>,
               { variant:'success'}
             )
@@ -80,7 +76,7 @@ export default function ArchivesFrom () {
                   className={textStyle.monoCrop}
                   padding
                 >{name}</Typography>
-                Impossible de soumettre ce fichier à la Médiathèque
+                Impossible de soumettre ce fichier !
               </Typography>,
               { variant: 'error'}
             )
@@ -96,7 +92,7 @@ export default function ArchivesFrom () {
               className={textStyle.monoCrop}
               padding
             >{name}</Typography>
-            L'envoi du fichier à la médiathèque en cours...
+            Transfert du fichier au service d'archivage en cours...
           </Typography>,
           { 
             action: id => (
@@ -115,9 +111,8 @@ export default function ArchivesFrom () {
         );
         setFile(null);
       }
-      docFields.cover.current = null;
     };
-
+    
     useEffect(() => {
       const rootEl = document.getElementById('root');
       const name = '_open_archives_form';
