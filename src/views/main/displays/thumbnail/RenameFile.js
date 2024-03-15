@@ -11,7 +11,7 @@ import Button from '../../../../components/Button';
 import InputController from '../../../../components/InputController';
 import useAxios from '../../../../utils/useAxios';
 import Typography from '../../../../components/Typography';
-import getFileExtension, { getName } from '../../../../utils/getFileExtention';
+import getFileExtension, { getName } from '../../../../utils/getFileExtension';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { Stack } from '@mui/system';

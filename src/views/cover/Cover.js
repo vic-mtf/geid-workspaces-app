@@ -21,7 +21,7 @@ import { updateUser } from '../../redux/user';
 
 export default function Cover ({ setOpened }) {
     const connected = useSelector(store => store.user.connected);
-    const loaded = useSelector(store => store.data.loaded);
+    // const loaded = useSelector(store => store.data.loaded);
     const dispatch = useDispatch();
     const [loadingDocs, getDocs] = useGetData({ 
         key: 'documents', 
@@ -52,12 +52,12 @@ export default function Cover ({ setOpened }) {
         await getImages(data);
         await getVideos(data);
         setOpened(true)
-    }, [getDocs, getImages, getVideos]);
+    }, [getDocs, getImages, getVideos, setOpened]);
 
     const handleFinish = useCallback(() => {
         if(connected) getData();
         else openSignIn();
-    },[getData, connected, setOpened, loaded]);
+    },[getData, connected]);
 
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Button from "../../../components/Button";
 import Typography from "../../../components/Typography";
 import useAxios from "../../../utils/useAxios";
@@ -20,19 +20,25 @@ export default function ArchivesFrom () {
     const [fieldsError, setFieldsError] = useState([]);
     const findError = field => !!~fieldsError?.indexOf(field);
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const docFields = {
-      type: useRef(),
-      subType: useRef(),
-      designation: useRef(),
-      description: useRef(),
-      folder: useRef(),
-    };
-  
+    const type = useRef();
+    const subType = useRef();
+    const designation = useRef();
+    const description = useRef();
+    const folder = useRef();
+    const getFieldsRef = useCallback(() => ({
+      type,
+      subType,
+      designation,
+      description,
+      folder,
+    }), [])
+
     const handleSendFile = file => event => {
       event.preventDefault();
       const errors = [];
       const name = file?.name;
-      const data = {};
+      const data = { doc: file?.doc?._id };
+      const docFields = getFieldsRef();
       if(fieldsError.length) setFieldsError([]);
       Object.keys(docFields).forEach(key => {
         if(!docFields[key]?.current) errors.push(key);
@@ -41,8 +47,9 @@ export default function ArchivesFrom () {
       data.type = { 
         type: data.type, 
         subType: data.subType,
-        doc: file?.doc?._id,
-      };
+      };      
+      console.log(data);
+
       delete data.subType;
       if(errors.length) setFieldsError(errors);
       else {
@@ -116,19 +123,25 @@ export default function ArchivesFrom () {
     useEffect(() => {
       const rootEl = document.getElementById('root');
       const name = '_open_archives_form';
+      const docFields = getFieldsRef();
       const handleOpenMediaForm = event => setFile(event.detail.file);
       rootEl.addEventListener(name, handleOpenMediaForm);
+      if(file === null) 
+        Object.keys(docFields).forEach(field => {
+          docFields[field].current = undefined;
+      });
       return () => {
         rootEl.removeEventListener(name, handleOpenMediaForm);
       }
-    });
+    }, [file, getFieldsRef]);
 
     return (
       <FormContent
         file={file}
+        key={file}
         findError={findError}
         handleSendFile={handleSendFile}
-        docFields={docFields}
+        docFields={getFieldsRef()}
         onClose={event => {
           event.preventDefault();
           setFile(null);

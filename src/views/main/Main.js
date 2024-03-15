@@ -4,12 +4,12 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ArchivesForm from "../forms/archives/ArchivesForm";
-//import Covers from "../forms/covers/Covers";
 import MediaLibraryForm from "../forms/medialibrary/MediaLibraryForm";
 import DetailFIle from "./displays/thumbnail/DetailFIle";
 import RenameFile from "./displays/thumbnail/RenameFile";
 import Thumbnail from "./displays/thumbnail/Thumbnail";
 import SubHeader from "./sub-header/SubHeader";
+import FilesForm from "../forms/files/FilesForm";
 
 export default function Main () {
     const data = useSelector(store => store.data);
@@ -65,6 +65,7 @@ export default function Main () {
             <DetailFIle/>
             <MediaLibraryForm/>
             <ArchivesForm/>
+            <FilesForm/>
         </React.Fragment>
     )
 }

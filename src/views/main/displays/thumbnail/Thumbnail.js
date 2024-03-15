@@ -5,7 +5,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import Typography from '../../../../components/Typography';
 import fileExtensionBase from '../../../../utils/fileExtensionBase';
-import getFileExtension from '../../../../utils/getFileExtention';
+import getFileExtension from '../../../../utils/getFileExtension';
 import File from '../file/File';
 import WrapperContent from './WrapperContent';
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';

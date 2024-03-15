@@ -1,19 +1,21 @@
 import React,{ useLayoutEffect, useMemo, useState } from "react"
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { FormControl, FormHelperText, MenuItem, Paper, Popper, Stack} from "@mui/material";
+import { FormControl, FormHelperText, MenuItem, Paper, Stack} from "@mui/material";
 import Typography from "../../../components/Typography";
 import { useSelector } from "react-redux";
+import styled from "@emotion/styled";
 
 export default function Typology ({type, subType,  externalTypeError,  externalSubTypeError}) {
     const docTypes = useSelector(store => store?.user?.docTypes);
     const [values, setValues] = useState({
-        type: type.current,
-        subType: subType.current,
-        types: docTypes?.map(({name: label}, index) => ({label, id: index})),
-        subTypes: docTypes[0]?.subtypes?.map((label, id) => ({label, id})),
+        type: null,
+        subType: null,
+        types: docTypes?.map(({ name }) => name),
+        subTypes: docTypes[0]?.subtypes?.map(({ name }) => name),
         open: false,
     });
+
     const funcEmptyError = useMemo(() => !!(externalTypeError && !values.type), 
         [
             externalTypeError, 
@@ -30,21 +32,22 @@ export default function Typology ({type, subType,  externalTypeError,  externalS
     );
 
     const handleType = (event, type) => {
+        const subTypes =  docTypes?.find(({ name }) => name === type)?.subtypes || [];
         setValues({
             ...values, 
             type,
             subType: null,
-            subTypes: (type && docTypes[type?.id]?.subtypes?.map((label, id) => ({label, id}))) || [] ,
+            subTypes
         });
     };
 
     useLayoutEffect(() => {
         if(type && subType && values.type) {
-            type.current = values?.type?.label;
+            type.current = values?.type;
             if(values.subType)
-                subType.current = values.subType?.label;
+                subType.current = values.subType;
             if(values.subTypes.length <= 1)
-                subType.current = values?.subTypes[0]?.label;
+                subType.current = values?.subTypes[0];
         }
         if(type && subType && !values.type) {
             type.current = null;
@@ -62,113 +65,23 @@ export default function Typology ({type, subType,  externalTypeError,  externalS
     return (
         <Stack direction="row" spacing={1}>
             <FormControl fullWidth>
-                <Autocomplete
-                    size="small"
-                    fullWidth
+                <CutomAutocomplete
                     options={values.types}
                     onChange={handleType}
                     value={values.type}
-                    noOptionsText={
-                        (<Typography color="red">Aucun élement</Typography>)
-                    }
-                    renderOption={(params) => (
-                        <MenuItem {...params} sx={{fontSize: 14}}>{params.key}</MenuItem>)
-                    }
-                    PaperComponent={
-                        (params) => (
-                            <Paper 
-                                sx={{
-                                    bgcolor: theme => theme.palette.background.paper +
-                                    theme.customOptions.opacity,
-                                    border: theme => `1px solid ${theme.palette.divider}`,
-                                    backdropFilter: theme => `blur(${theme.customOptions.blur})`,
-                                }}
-                            {...params}/>
-                        )
-                    }
-                    renderInput={(params) => (
-                        <TextField 
-                            {...params} 
-                            label="Type" 
-                            size="small" 
-                            margin="normal"
-                            error={funcEmptyError}
-                            InputProps={{
-                            ...params.InputProps,
-                            sx: {fontSize: 14},
-                            endAdornment: (params.InputProps.endAdornment),
-                            }}
-                        />
-                    )}
                 />
                 {funcEmptyError && <FormHelperText sx={{color: theme => theme.palette.error.main }}>
                     S'il vous plaît sélectionner un élément.
                 </FormHelperText>}
             </FormControl>
             <FormControl fullWidth>
-                <Autocomplete
-                    size="small"
-                    fullWidth
+                <CutomAutocomplete
                     key={values.type}
                     disabled={values.subTypes.length  < 2 || !values.type}
                     value={values.subType}
                     title={values.subType?.label}
-                    noOptionsText="Aucun élement"
                     onChange={(event, subType) => setValues({...values, subType})}
                     options={values.subTypes}
-                    renderOption={(params, index) => (
-                        <MenuItem {...params} >
-                            <Typography 
-                                variant="caption"
-                                title={params.key}
-                                key={index}
-                                sx={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                }}
-                            >
-                                {params.key}
-                            </Typography>
-                        </MenuItem>
-                        )
-                    }
-                    PopperComponent={(params) => (
-                        <Popper
-                            {...params}
-                        />
-                    )}
-                    PaperComponent={
-                        (params) => (
-                            <Paper 
-                                {...params}
-                                sx={{
-                                    bgcolor: theme => theme.palette.background.paper +
-                                    theme.customOptions.opacity,
-                                    border: theme => `1px solid ${theme.palette.divider}`,
-                                    backdropFilter: theme => `blur(${theme.customOptions.blur})`,
-                                }}
-                            />
-                        )
-                    }
-                    renderInput={(params) => (
-                        <TextField 
-                            {...params} 
-                            label="Sous type" 
-                            size="small" 
-                            margin="normal"
-                            error={roleEmptyError}
-                            InputProps={{
-                            ...params.InputProps,
-                            sx: {fontSize: 14},
-                            endAdornment: (
-                                <React.Fragment>
-                                    {params.InputProps.endAdornment}
-                                </React.Fragment>
-                            ),
-                            }}
-                        />
-                    )}
                 />
                 {roleEmptyError && <FormHelperText sx={{color: theme => theme.palette.error.main }}>
                     S'il vous plaît sélectionner un élément.
@@ -178,3 +91,37 @@ export default function Typology ({type, subType,  externalTypeError,  externalS
     )
 
 }
+
+const CutomAutocomplete = styled(Autocomplete)(() => ({}));
+
+CutomAutocomplete.defaultProps = {
+    size: "small",
+    fullWidth: true,
+    noOptionsText: (<Typography color="red">Aucun élement</Typography>),
+    renderOption: (params) => ( <MenuItem {...params} sx={{fontSize: 14}}>{params.key}</MenuItem>),
+    PaperComponent: (params) => (
+        <Paper 
+            sx={{
+                bgcolor: theme => theme.palette.background.paper +
+                theme.customOptions.opacity,
+                border: theme => `1px solid ${theme.palette.divider}`,
+                backdropFilter: theme => `blur(${theme.customOptions.blur})`,
+            }}
+        {...params}/>
+    ),
+    renderInput: (params) => (
+        <TextField 
+            {...params} 
+            label="Type" 
+            size="small" 
+            margin="normal"
+            // error={funcEmptyError}
+            InputProps={{
+                ...params.InputProps,
+                sx: {fontSize: 14},
+                endAdornment: params.InputProps.endAdornment,
+            }}
+        />
+    ),
+
+};

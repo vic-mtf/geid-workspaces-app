@@ -37,16 +37,13 @@ export default function TeleverseButton () {
                 anchorEl={anchorEl.current}
                 onClose={() => setOpenMenu(false)}
             >
-
                 <MenuItem
                     onClick={async () => {
                         const files = await getFile({multiple: true, accept: '*.*'});
+                        const name = '_open_files_form';
                         if(files) {
-                            const customEvent = new CustomEvent('_upload_files', {
-                                detail: {
-                                   files,
-                                   name: '_upload_files' ,
-                                }
+                            const customEvent = new CustomEvent(name, {
+                                detail: { files, name }
                             });
                             document.getElementById('root')
                             .dispatchEvent(customEvent);

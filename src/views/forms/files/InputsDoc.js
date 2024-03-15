@@ -1,12 +1,12 @@
 import { Box, Stack, TextField } from "@mui/material";
 import React from "react";
 import InputController from "../../../components/InputController";
-import Typology from "./Typology";
 
 export default function InputsDoc ({
     type,
     designation,
     subType,
+    tags,
     description,
     folder,
     findError
@@ -34,12 +34,24 @@ export default function InputsDoc ({
                     </InputController>
                 </Box>
             </Stack>
-            <Typology
+
+             {/* <Typology
                 margin="dense"
                 type={type}
                 subType={subType}
                 externalError={findError('type')}
-            />
+            /> */}
+            <InputController  
+                fullWidth
+                margin="dense"
+                trim
+                valueRef={tags}
+                regExp={/.{0,}/}
+                invalidateErrorMessage={message}
+                externalError={findError('tags')}
+            >
+                <TextField label="Mot clé"/> 
+            </InputController>
             <Stack direction='row' spacing={1}>
                 <Box display="flex" flex={1}>
                     <InputController  

@@ -11,7 +11,7 @@ import useAxios from "../../../utils/useAxios";
 import TextFieldController from '../../../components/TextFieldController';
 import { useCallback, useMemo, useRef, useState } from "react";
 import Button from "../../../components/Button";
-import { getName } from "../../../utils/getFileExtention";
+import { getName } from "../../../utils/getFileExtension";
 import DocTypeFrame from "../../../components/DocTypeFrame";
 import Cover from "./Cover";
 
@@ -20,7 +20,7 @@ export default function CoverPageForm ({file, refresh, setFile}) {
     const fileNameRef = useRef();
     const typeRef = useRef();
     const subTypeRef = useRef();
-    const [checkingErrors, setCheckingErrors] = useState([]);
+    const [, setCheckingErrors] = useState([]);
     const [{loading}, refetch, cancel] = useAxios({
         url: 'api/stuff/cover',
         method: 'post',

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Button from "../../../components/Button";
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
-import getFileExtension, { getName } from "../../../utils/getFileExtention";
+import getFileExtension, { getName } from "../../../utils/getFileExtension";
 import fileExtensionBase from "../../../utils/fileExtensionBase";
 import pluralize from "pluralize";
 import DownloadsMenuDrawer from "./Downloads-menu-drawer/DownloadsMenuDrawer";
@@ -37,7 +37,7 @@ export default function UploadFilesButton () {
 
     useEffect(() => {
         const rootEl = document.getElementById('root');
-        const handleReveFile = event => {
+        const handleReverseFile = event => {
             const files  = [...event.detail.files];
             files.forEach(file => {
                 let handleSend = null;
@@ -58,7 +58,8 @@ export default function UploadFilesButton () {
                     else path = 'documents';
 
                     const filename = getName(file.name)
-                    const infos = { userId, filename, path, file };
+                    const infos = { userId, filename, path, file, ...event.detail.doc };
+                    console.log(infos);
                     const data = new FormData();
                     Object.keys(infos).forEach(key => {
                         data.append(key, infos[key]);
@@ -138,9 +139,9 @@ export default function UploadFilesButton () {
                 })();
             });
         }
-        rootEl.addEventListener('_upload_files', handleReveFile) ;
+        rootEl.addEventListener('_upload_files', handleReverseFile) ;
         return ()  => {
-            rootEl.removeEventListener('_upload_files', handleReveFile);
+            rootEl.removeEventListener('_upload_files', handleReverseFile);
         }              
     }, [token, userId, getImages, getVideos, getDocs]);
 
@@ -175,7 +176,8 @@ export default function UploadFilesButton () {
                 onClose={() => setOpen(false)}
                 loadingList={
                     uploadList.current
-                    .filter(({_id}) => !removeList.find(item => item?._id === _id ))}
+                    .filter(({_id}) => !removeList.find(item => item?._id === _id ))
+                }
                 loadNumber={loadNumber}
             />
         </React.Fragment>
