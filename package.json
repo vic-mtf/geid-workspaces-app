@@ -37,7 +37,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "rm -r build.zip build;PUBLIC_URL=/apps/workspaces react-scripts build",
-    "deploy": "rm -r build.zip build;PUBLIC_URL=/apps/workspaces react-scripts build;zip -r build.zip build && scp build.zip root@137.184.96.252:server/GEID_Valise/public/geid-platform/workspaces",
+    "deploy": "rm -r build.zip build;PUBLIC_URL=/apps/workspaces react-scripts build;zip -r build.zip build && scp build.zip root@143.198.110.104:server/GEID_Valise/public/geid-platform/workspaces",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
