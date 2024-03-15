@@ -41,7 +41,7 @@ export default function CoverPageForm ({file, refresh, setFile}) {
     //     checking: [],
     // });
 
-    const handlehandleCancelCancel = useCallback(event => {
+    const handleCancelCancel = useCallback(event => {
         event?.preventDefault();
         cancel();
         window.URL.revokeObjectURL(fileURL);
@@ -67,11 +67,11 @@ export default function CoverPageForm ({file, refresh, setFile}) {
             }).then( () => {
                 if(typeof refresh === 'function')
                     refresh();
-                handlehandleCancelCancel();
+                handleCancelCancel();
             }).catch(error => {
                 console.log(error);
             });
-    }, [file, handlehandleCancelCancel, refetch, refresh]);
+    }, [file, handleCancelCancel, refetch, refresh]);
 
     return (
         <Dialog open={Boolean(file)}>
@@ -119,7 +119,7 @@ export default function CoverPageForm ({file, refresh, setFile}) {
                     <Button
                         size="small"
                         children="Annuler"
-                        onClick={handlehandleCancelCancel}
+                        onClick={handleCancelCancel}
                     />
                     <LoadingButton
                         size="small"

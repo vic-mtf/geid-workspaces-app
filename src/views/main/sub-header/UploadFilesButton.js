@@ -59,7 +59,6 @@ export default function UploadFilesButton () {
 
                     const filename = getName(file.name)
                     const infos = { userId, filename, path, file, ...event.detail.doc };
-                    console.log(infos);
                     const data = new FormData();
                     Object.keys(infos).forEach(key => {
                         data.append(key, infos[key]);

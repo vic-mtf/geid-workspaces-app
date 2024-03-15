@@ -48,7 +48,6 @@ export default function ArchivesFrom () {
         type: data.type, 
         subType: data.subType,
       };      
-      console.log(data);
 
       delete data.subType;
       if(errors.length) setFieldsError(errors);

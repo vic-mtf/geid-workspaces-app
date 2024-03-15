@@ -46,8 +46,6 @@ export default function Thumbnail ({data: _data}) {
             .removeEventListener('_search_data', handleFinfName);
         }
     });
-
-    console.log(data);
     return (
         <Box
             overflow="auto"
