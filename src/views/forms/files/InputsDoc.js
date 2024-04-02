@@ -44,7 +44,7 @@ export default function InputsDoc ({
             <InputController  
                 fullWidth
                 margin="dense"
-                trim
+                trim={false}
                 valueRef={tags}
                 regExp={/.{0,}/}
                 invalidateErrorMessage={message}

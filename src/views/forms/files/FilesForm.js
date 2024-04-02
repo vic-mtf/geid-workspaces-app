@@ -1,22 +1,28 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FormContent from "./FormContent";
 
 export default function FilesForm () {
     const [files, setFiles] = useState(null);
     const [fieldsError, setFieldsError] = useState([]);
     const findError = field => !!~fieldsError?.indexOf(field);
+    const designation = useRef();
+    const description = useRef();
+    const folder = useRef();
+    const tags = useRef();
 
-    const docFields = {
-      designation: useRef(),
-      description: useRef(),
-      folder: useRef(),
-      tags: useRef(),
-    };
-  
-    const handleSendFile = file => event => {
+    const getFieldDocs = useCallback(() => ({
+      designation,
+      description,
+      folder,
+      tags,
+    }), []);
+
+    const handleSendFile = useCallback(file => event => {
       event.preventDefault();
       const errors = [];
       const doc = {};
+      const docFields = getFieldDocs();
+      docFields.tags.current = docFields.tags.current?.split(/\s/) || [];
       if(fieldsError.length) setFieldsError([]);
       Object.keys(docFields).forEach(key => {
         if(!docFields[key]?.current) errors.push(key);
@@ -34,7 +40,7 @@ export default function FilesForm () {
         }
         setFiles(null);
       }
-    };
+    }, [fieldsError, files, getFieldDocs]);
     
     useEffect(() => {
       const rootEl = document.getElementById('root');
@@ -44,14 +50,14 @@ export default function FilesForm () {
       return () => {
         rootEl.removeEventListener(name, handleOpenMediaForm);
       }
-    });
+    }, []);
 
     return (
       <FormContent
         files={files}
         findError={findError}
         handleSendFile={handleSendFile}
-        docFields={docFields}
+        docFields={getFieldDocs()}
         setFiles={setFiles}
         onClose={event => {
           event.preventDefault();
