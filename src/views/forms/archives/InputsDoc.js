@@ -1,74 +1,61 @@
-import { Box, Stack, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import React from "react";
-import InputController from "../../../components/InputController";
 import Typology from "./Typology";
 
-export default function InputsDoc ({
-    type,
-    designation,
-    subType,
-    description,
-    folder,
-    findError
-}) {
+export default function InputsDoc({ register, errors, control }) {
+  const message = "Intitulé non valide ou trop court.";
 
-    const message = "Intitulé non valide ou trop court.";
+  return (
+    <React.Fragment>
+      <TextField
+        label='Désignation'
+        fullWidth
+        margin='dense'
+        {...register("designation", {
+          required: "Veuillez renseigner une désignation",
+          minLength: { value: 2, message },
+        })}
+        helperText={errors?.designation?.message}
+        color={errors?.designation ? "error" : "primary"}
+        FormHelperTextProps={{
+          sx: { color: "error.main" },
+        }}
+      />
 
-    return (
-        <React.Fragment>
-            <Stack direction='row' spacing={1}>
-                <Box
-                    display="flex"
-                    width="100%"
-                >
-                    <InputController  
-                        fullWidth
-                        margin="dense"
-                        trim={false}
-                        valueRef={designation}
-                        regExp={/.{2,}/}
-                        invalidateErrorMessage={message}
-                        externalError={findError('title')}
-                    >
-                        <TextField label="Désignation"/> 
-                    </InputController>
-                </Box>
-            </Stack>
-            <Typology
-                margin="dense"
-                type={type}
-                subType={subType}
-                externalError={findError('type')}
-            />
-            <Stack direction='row' spacing={1}>
-                <Box display="flex" flex={1}>
-                    <InputController  
-                        fullWidth
-                        margin="dense"
-                        trim={false}
-                        valueRef={folder}
-                        regExp={/.{2,}/}
-                        invalidateErrorMessage={message}
-                        externalError={findError('folder')}
-                    >
-                        <TextField label="Activité / Mission / Dossier"/> 
-                    </InputController>
-                </Box>
-            </Stack>
-            <InputController
-                fullWidth
-                multiline
-                margin="dense"
-                rows={3}
-                label="Description"
-                valueRef={description}
-                regExp={/.{10,}/}
-                trim={false}
-                invalidateErrorMessage={message}
-                externalError={findError('description')}
-            > 
-                <TextField label="Description"/> 
-            </InputController> 
-        </React.Fragment>
-    )
+      <Typology margin='dense' control={control} errors={errors} />
+
+      <TextField
+        label='Activité / Mission / Dossier'
+        fullWidth
+        margin='dense'
+        {...register("folder", {
+          required:
+            "Veuillez renseigner une activité, une mission ou un dossier",
+          minLength: { value: 2, message },
+        })}
+        helperText={errors?.folder?.message}
+        color={errors?.designation ? "error" : "primary"}
+        FormHelperTextProps={{
+          sx: { color: "error.main" },
+        }}
+      />
+
+      <TextField
+        label='Déscription'
+        fullWidth
+        multiline
+        margin='dense'
+        rows={3}
+        {...register("description", {
+          required: "Veuillez renseigner la description du document",
+          minLength: { value: 5, message },
+        })}
+        helperText={errors?.description?.message}
+        color={errors?.designation ? "error" : "primary"}
+        FormHelperTextProps={{
+          sx: { color: "error.main" },
+        }}
+      />
+    </React.Fragment>
+  );
 }
