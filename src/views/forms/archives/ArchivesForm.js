@@ -28,13 +28,13 @@ export default function ArchivesFrom() {
     (fields) => {
       const data = {
         ...fields,
+        doc: file?.doc?._id,
         type: {
           type: fields.type,
-          subType: fields.subType,
+          subtype: fields.subType,
         },
       };
-      delete fields.subType;
-
+      delete data.subType;
       const name = file?.name;
       const timer = setTimeout(() => {
         refresh({ data })
