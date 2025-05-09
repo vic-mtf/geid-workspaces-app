@@ -16,7 +16,7 @@ export default function InputsDoc({ register, errors, control }) {
           minLength: { value: 2, message },
         })}
         helperText={errors?.designation?.message}
-        color={errors?.designation ? "error" : "primary"}
+        error={!!errors?.designation}
         FormHelperTextProps={{
           sx: { color: "error.main" },
         }}
@@ -25,7 +25,22 @@ export default function InputsDoc({ register, errors, control }) {
       <Typology margin='dense' control={control} errors={errors} />
 
       <TextField
-        label='Activité / Mission / Dossier'
+        label='Etagère/Rayon'
+        fullWidth
+        margin='dense'
+        {...register("tags", {
+          required: "Veuillez renseigner l'etagère ou le rayon du document",
+          minLength: { value: 2, message },
+        })}
+        error={!!errors?.tags}
+        helperText={errors?.tags?.message}
+        FormHelperTextProps={{
+          sx: { color: "error.main" },
+        }}
+      />
+
+      <TextField
+        label='Dossier'
         fullWidth
         margin='dense'
         {...register("folder", {
@@ -34,7 +49,7 @@ export default function InputsDoc({ register, errors, control }) {
           minLength: { value: 2, message },
         })}
         helperText={errors?.folder?.message}
-        color={errors?.designation ? "error" : "primary"}
+        error={!!errors?.folder}
         FormHelperTextProps={{
           sx: { color: "error.main" },
         }}
@@ -51,7 +66,7 @@ export default function InputsDoc({ register, errors, control }) {
           minLength: { value: 5, message },
         })}
         helperText={errors?.description?.message}
-        color={errors?.designation ? "error" : "primary"}
+        error={!!errors?.description}
         FormHelperTextProps={{
           sx: { color: "error.main" },
         }}

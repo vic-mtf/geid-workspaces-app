@@ -33,6 +33,7 @@ export default function ArchivesFrom() {
           type: fields.type,
           subtype: fields.subType,
         },
+        tags: fields.tags?.split(/\s/),
       };
       delete data.subType;
       const name = file?.name;
