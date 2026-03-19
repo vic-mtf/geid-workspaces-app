@@ -1,5 +1,5 @@
 import React from 'react';
-import defaultIcon from './icons8-info-64.png';
+import defaultIcon from '@/icons/icons8-info-64.png';
 
 interface ImgToIconProps {
     src?: string;

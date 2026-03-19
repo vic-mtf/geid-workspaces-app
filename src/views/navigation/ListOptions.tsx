@@ -1,6 +1,6 @@
 import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom';
-import listOptionMenu from './listOptionMenu';
+import listOptionMenu from '@/views/navigation/listOptionMenu';
 import React from 'react';
 
 export default function ListOptions () {

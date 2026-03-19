@@ -1,19 +1,8 @@
-import {
-    Avatar,
-    Badge,
-    Box as MuiBox,
-    CardContent,
-    Divider,
-    IconButton,
-    Menu,
-    Stack
-} from '@mui/material';
-import Box from '../../components/Box';
+import { Avatar, Badge, Box as MuiBox, Button, CardContent, Divider, IconButton, Menu, Stack, Typography } from '@mui/material';
+import Box from '@/components/Box';
 import AddAPhotoRoundedIcon from '@mui/icons-material/AddAPhotoRounded';
-import Typography from '../../components/Typography';
 import { useSelector } from 'react-redux';
-import Button from '../../components/Button';
-import { RootState } from '../../types';
+import { RootState } from '@/types';
 
 interface ProfileMenuProps {
     anchorEl: HTMLElement | null;

@@ -1,10 +1,9 @@
 import React,{ useLayoutEffect, useMemo, useState } from "react"
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { FormControl, FormHelperText, MenuItem, Paper, Popper, Stack} from "@mui/material";
-import Typography from "../../../components/Typography";
+import { FormControl, FormHelperText, MenuItem, Paper, Popper, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../types";
+import { RootState } from "@/types";
 
 interface TypologyProps {
     type?: React.MutableRefObject<string | null>;

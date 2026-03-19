@@ -1,9 +1,9 @@
 import { createTheme } from "@mui/material";
-import appConfig from "../configs/app-config.json";
+import appConfig from "@/configs/app-config.json";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import useAutoMode from "./useAutoMode";
-import { RootState } from "../types";
+import useAutoMode from "@/utils/useAutoMode";
+import { RootState } from "@/types";
 
 const useTheme = () => {
   const autoMode = useAutoMode();
@@ -30,6 +30,23 @@ const useTheme = () => {
     customOptions: {
       opacity: Math.round(255 * opacity).toString(16),
       blur: `${blur}px`,
+    },
+    components: {
+      MuiButton: {
+        defaultProps: { size: "small" },
+        styleOverrides: {
+          root: { textTransform: "none", borderRadius: 4 },
+        },
+      },
+      MuiTypography: {
+        defaultProps: { variant: "body2" },
+      },
+      MuiAvatar: {
+        defaultProps: { variant: "rounded" },
+        styleOverrides: {
+          root: { borderRadius: 4 },
+        },
+      },
     },
   });
 };

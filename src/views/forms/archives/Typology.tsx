@@ -1,11 +1,10 @@
 import React, { useMemo } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { FormControl, MenuItem, Stack } from "@mui/material";
-import Typography from "../../../components/Typography";
+import { FormControl, MenuItem, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { Controller } from "react-hook-form";
-import { RootState } from "../../../types";
+import { RootState } from "@/types";
 
 interface TypologyProps {
     control: any;

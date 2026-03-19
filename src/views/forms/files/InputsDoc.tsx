@@ -1,6 +1,6 @@
 import { Box, Stack, TextField } from "@mui/material";
 import React from "react";
-import InputController from "../../../components/InputController";
+import InputController from "@/components/InputController";
 
 interface InputsDocProps {
     designation?: React.MutableRefObject<string | null>;

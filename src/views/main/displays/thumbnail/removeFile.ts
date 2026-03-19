@@ -1,7 +1,6 @@
 import React from "react";
-import Button from "../../../../components/Button";
-import Typography from "../../../../components/Typography";
-import textStyle from "../../../../styles/text.module.css";
+import textStyle from "@/styles/text.module.css";
+import { Button, Typography } from "@mui/material";
 
 export default function removeFile (file: any): void {
     let timer: ReturnType<typeof setTimeout> | null = null;

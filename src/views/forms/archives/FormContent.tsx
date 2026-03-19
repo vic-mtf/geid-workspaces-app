@@ -1,8 +1,6 @@
 import React from "react";
-import Button from "../../../components/Button";
-import Typography from "../../../components/Typography";
-import InputsDoc from "./InputsDoc";
-import { DialogTitle, DialogContent, DialogActions, Box } from "@mui/material";
+import InputsDoc from "@/views/forms/archives/InputsDoc";
+import { Box, Button, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 
 interface FormContentProps {

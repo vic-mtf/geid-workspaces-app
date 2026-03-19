@@ -1,7 +1,7 @@
 import { CssBaseline, Box as MuiBox } from "@mui/material";
-import Header from "./header/Header";
-import Main from "./main/Main";
-import Navigation from "./navigation/Navigation";
+import Header from "@/views/header/Header";
+import Main from "@/views/main/Main";
+import Navigation from "@/views/navigation/Navigation";
 
 export default function Workspace () {
     return (

@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import useAxios from "./useAxios";
+import useAxios from "@/utils/useAxios";
 import { useDispatch, useSelector } from "react-redux";
-import { updateData } from "../redux/data";
-import { RootState } from "../types";
+import { updateData } from "@/redux/data";
+import { RootState } from "@/types";
 
 const { stringify } = JSON;
 

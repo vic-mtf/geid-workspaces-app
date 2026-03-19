@@ -1,9 +1,8 @@
-import { Box, CardMedia, ListItemButton, Stack, TextField } from "@mui/material";
+import { Box, CardMedia, ListItemButton, Stack, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import InputController from "../../../components/InputController";
-import Typography from "../../../components/Typography";
-import BookTypology from "./BookTypology";
-import DocumentCoversPages from "../document-covers-pages/DocumentCoversPages";
+import InputController from "@/components/InputController";
+import BookTypology from "@/views/forms/medialibrary/BookTypology";
+import DocumentCoversPages from "@/views/forms/document-covers-pages/DocumentCoversPages";
 
 interface InputsBookProps {
     author?: React.MutableRefObject<string | null>;

@@ -1,5 +1,5 @@
 import { Drawer, Toolbar, Box as MuiBox } from "@mui/material";
-import ListOptions from "./ListOptions";
+import ListOptions from "@/views/navigation/ListOptions";
 
 export const drawerWidth = 250;
 export default function Navigation () {

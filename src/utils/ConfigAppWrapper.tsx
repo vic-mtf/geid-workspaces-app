@@ -1,8 +1,8 @@
-import useTheme from "./useTheme";
+import useTheme from "@/utils/useTheme";
 import { useSelector } from "react-redux";
 import { useLayoutEffect, useMemo } from "react";
 import { ThemeProvider } from "@mui/material";
-import { RootState } from "../types";
+import { RootState } from "@/types";
 
 export default function ConfigAppWrapper({ children }: { children: React.ReactNode }) {
   const { lang } = useSelector((store: RootState) => store.app);

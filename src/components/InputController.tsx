@@ -1,7 +1,7 @@
 import { FormControl, FormHelperText } from '@mui/material';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
-import capStr from '../utils/capStr';
-import validateFields from '../utils/validateFields';
+import capStr from '@/utils/capStr';
+import validateFields from '@/utils/validateFields';
 
 interface InputControllerProps {
     children: React.ReactElement;

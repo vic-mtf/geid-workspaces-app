@@ -1,5 +1,5 @@
-import AppsMenuButton from "./AppsMenuButton";
-import ProfileMenuButton from "./ProfileMenuButton";
+import AppsMenuButton from "@/views/header/main-options/AppsMenuButton";
+import ProfileMenuButton from "@/views/header/main-options/ProfileMenuButton";
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';

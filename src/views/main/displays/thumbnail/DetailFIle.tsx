@@ -1,16 +1,7 @@
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Stack,
-    CardMedia,
-} from '@mui/material';
+import { Button, CardMedia, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import Button from '../../../../components/Button';
-import Typography from '../../../../components/Typography';
-import optionLocalDate from '../../../../utils/optionLocalDate';
-import capStr from '../../../../utils/capStr';
+import optionLocalDate from '@/utils/optionLocalDate';
+import capStr from '@/utils/capStr';
 
 export default function DetailFIle () {
     const [file, setFile] = useState<any>(null);

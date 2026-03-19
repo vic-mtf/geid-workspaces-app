@@ -1,20 +1,13 @@
 import { LoadingButton } from "@mui/lab";
-import {
-    Dialog,
-    DialogContent,
-    Grid,
-    Stack,
-    DialogActions,
-} from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, Grid, Stack } from "@mui/material";
 import { useSelector } from "react-redux";
-import useAxios from "../../../utils/useAxios";
-import TextFieldController from '../../../components/TextFieldController';
+import useAxios from "@/utils/useAxios";
+import TextFieldController from '@/components/TextFieldController';
 import { useCallback, useMemo, useRef, useState } from "react";
-import Button from "../../../components/Button";
-import { getName } from "../../../utils/getFileExtension";
-import DocTypeFrame from "../../../components/DocTypeFrame";
-import Cover from "./Cover";
-import { RootState } from "../../../types";
+import { getName } from "@/utils/getFileExtension";
+import DocTypeFrame from "@/components/DocTypeFrame";
+import Cover from "@/views/forms/document-covers-pages/Cover";
+import { RootState } from "@/types";
 
 interface CoverPageFormProps {
     file?: File | null;

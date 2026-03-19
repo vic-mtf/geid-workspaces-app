@@ -1,6 +1,6 @@
 import { TextField } from "@mui/material";
 import React from "react";
-import Typology from "./Typology";
+import Typology from "@/views/forms/archives/Typology";
 
 interface InputsDocProps {
     register: any;

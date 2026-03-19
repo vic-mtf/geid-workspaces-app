@@ -6,8 +6,8 @@ import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import React from 'react';
-import removeFile from './removeFile';
-import { ActionOption } from '../../../../types';
+import removeFile from '@/views/main/displays/thumbnail/removeFile';
+import { ActionOption } from '@/types';
 
 const actions: ActionOption[] = [
     {

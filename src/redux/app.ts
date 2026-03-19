@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import persistReducer from "redux-persist/es/persistReducer";
 import storage from "redux-persist/lib/storage";
-import appConfig from "../configs/app-config.json";
-import { AppSliceState } from "../types";
+import appConfig from "@/configs/app-config.json";
+import { AppSliceState } from "@/types";
 
 const {
   lang,

@@ -1,21 +1,12 @@
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    CircularProgress,
-} from '@mui/material';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import Button from '../../../../components/Button';
-import InputController from '../../../../components/InputController';
-import useAxios from '../../../../utils/useAxios';
-import Typography from '../../../../components/Typography';
-import getFileExtension, { getName } from '../../../../utils/getFileExtension';
+import InputController from '@/components/InputController';
+import useAxios from '@/utils/useAxios';
+import getFileExtension, { getName } from '@/utils/getFileExtension';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { Stack } from '@mui/system';
-import { RootState } from '../../../../types';
+import { RootState } from '@/types';
 
 export default function RenameFile () {
     const [file, setFile] = useState<any>(null);

@@ -1,13 +1,11 @@
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { AppBar, Toolbar, Tooltip } from "@mui/material";
+import { AppBar, Button, Toolbar, Tooltip, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Button from "../../../components/Button";
-import Typography from "../../../components/Typography";
-import getFile from "../../../utils/getFile";
-import IconButton from "../../../components/IconButton";
+import getFile from "@/utils/getFile";
+import IconButton from "@/components/IconButton";
 import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import CoverForm from "./CoverPageForm";
+import CoverForm from "@/views/forms/document-covers-pages/CoverPageForm";
 
 interface HeaderProps {
     refresh?: () => void;

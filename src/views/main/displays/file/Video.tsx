@@ -1,5 +1,4 @@
-import { Box, Skeleton } from "@mui/material"
-import Typography from "../../../../components/Typography"
+import { Box, Skeleton, Typography } from "@mui/material"
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import React, { useState } from "react";
 

@@ -1,6 +1,5 @@
-import { Box, Skeleton } from "@mui/material";
+import { Box, Skeleton, Typography } from "@mui/material";
 import { useState } from "react";
-import Typography from "../../../../components/Typography";
 
 interface PhotoProps {
     url?: string;

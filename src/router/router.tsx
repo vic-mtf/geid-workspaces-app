@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import Workspace from "../views/Workspace";
+import Workspace from "@/views/Workspace";
 
 const router = createBrowserRouter(
   [

@@ -2,7 +2,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import PlayCircleOutlinedIcon from '@mui/icons-material/PlayCircleOutlined';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import { NavOption } from '../../types';
+import { NavOption } from '@/types';
 
 const listOptionMenu: NavOption[] = [
     {

@@ -1,7 +1,7 @@
-import _archives_logo from '../../assets/crdoy0js-removebg-preview.webp';
-import _media_logo from '../../assets/5a229b479641b7.26338722151221741.webp';
-import _group_speak_logo from '../../assets/group_speak.webp';
-import { AppItem } from '../../types';
+import _archives_logo from '@/assets/crdoy0js-removebg-preview.webp';
+import _media_logo from '@/assets/5a229b479641b7.26338722151221741.webp';
+import _group_speak_logo from '@/assets/group_speak.webp';
+import { AppItem } from '@/types';
 
 const appsList: AppItem[] = [
     {

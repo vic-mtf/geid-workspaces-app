@@ -1,12 +1,11 @@
-import { Toolbar } from "@mui/material";
+import { Button, Toolbar } from "@mui/material";
 import { Stack } from "@mui/system";
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import Button from "../../../components/Button";
-import SortButton from "./SortButton";
-import UploadFilesButton from "./UploadFilesButton";
-import TeleverseButton from "./TeleverseButton";
-import DisplayButton from "./DisplayButton";
+import SortButton from "@/views/main/sub-header/SortButton";
+import UploadFilesButton from "@/views/main/sub-header/UploadFilesButton";
+import TeleverseButton from "@/views/main/sub-header/TeleverseButton";
+import DisplayButton from "@/views/main/sub-header/DisplayButton";
 
 export default function SubHeader () {
     return (

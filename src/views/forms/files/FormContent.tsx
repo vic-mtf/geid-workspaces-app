@@ -1,17 +1,9 @@
 import React, { useMemo } from "react";
-import Button from "../../../components/Button";
-import Typography from "../../../components/Typography";
-import InputsDoc from "./InputsDoc";
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Box as MuiBox
-} from '@mui/material';
-import FileItem from "./FileItem";
-import getFileInfos from "../../../utils/getFileInfos";
-import normaliseOctetSize from "../../../utils/normaliseOctetSize";
+import InputsDoc from "@/views/forms/files/InputsDoc";
+import { Box as MuiBox, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import FileItem from "@/views/forms/files/FileItem";
+import getFileInfos from "@/utils/getFileInfos";
+import normaliseOctetSize from "@/utils/normaliseOctetSize";
 
 interface FormContentProps {
     files: File[] | null;

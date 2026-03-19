@@ -1,7 +1,6 @@
-import { Toolbar, Drawer, Box as MuiBox, Stack } from '@mui/material';
-import IconButton from '../../../../components/IconButton';
-import Typography from '../../../../components/Typography';
-import DownloadItem from './DownloadItem';
+import { Box as MuiBox, Drawer, Stack, Toolbar, Typography } from '@mui/material';
+import IconButton from '@/components/IconButton';
+import DownloadItem from '@/views/main/sub-header/Downloads-menu-drawer/DownloadItem';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 interface DownloadsMenuDrawerProps {

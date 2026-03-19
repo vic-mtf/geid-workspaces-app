@@ -1,15 +1,10 @@
 import React from 'react';
-import {
-    Dialog,
-    DialogContent,
-    CircularProgress,
-} from '@mui/material';
-import useAxios from '../../../utils/useAxios';
+import { CircularProgress, Dialog, DialogContent, Typography } from '@mui/material';
+import useAxios from '@/utils/useAxios';
 import { useSelector } from 'react-redux';
-import Typography from '../../../components/Typography';
-import Content from './Content';
-import Header from './Header';
-import { RootState } from '../../../types';
+import Content from '@/views/forms/document-covers-pages/Content';
+import Header from '@/views/forms/document-covers-pages/Header';
+import { RootState } from '@/types';
 
 interface DocumentCoversPagesProps {
     open: boolean;

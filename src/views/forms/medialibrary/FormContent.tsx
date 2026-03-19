@@ -1,16 +1,8 @@
 import React from "react";
-import Button from "../../../components/Button";
-import Typography from "../../../components/Typography";
-import InputsBook from "./InputsBook";
-import InputsMedia from "./InputsMedia";
+import InputsBook from "@/views/forms/medialibrary/InputsBook";
+import InputsMedia from "@/views/forms/medialibrary/InputsMedia";
 
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-} from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 
 interface FormContentProps {
     file: any;

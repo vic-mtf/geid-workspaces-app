@@ -1,24 +1,17 @@
 import React, { useCallback, useMemo, useEffect } from 'react';
-import Box from "../../components/Box";
-import _workspace_logo from '../../assets/5a3636b951df37.87798883151350239.webp';
-import {
-    CardMedia,
-    Stack,
-    Box as MuiBox,
-    CircularProgress,
-    Divider
-} from "@mui/material";
-import Typography from "../../components/Typography";
+import Box from "@/components/Box";
+import _workspace_logo from '@/assets/5a3636b951df37.87798883151350239.webp';
+import { Box as MuiBox, CardMedia, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import 'animate.css/source/attention_seekers/swing.css';
-import _logo_geid from '../../assets/geid_logo_blue_without_title.webp';
-import SwingAnimation from "../../components/SwingAnimation";
+import _logo_geid from '@/assets/geid_logo_blue_without_title.webp';
+import SwingAnimation from "@/components/SwingAnimation";
 import { useDispatch, useSelector } from 'react-redux';
-import openSignIn from "./openSignIn";
-import useGetData from '../../utils/useGetData';
-import channels from "../../utils/channels";
-import { decrypt } from '../../utils/crypt';
-import { updateUser } from '../../redux/user';
-import { RootState } from '../../types';
+import openSignIn from "@/views/cover/openSignIn";
+import useGetData from '@/utils/useGetData';
+import channels from "@/utils/channels";
+import { decrypt } from '@/utils/crypt';
+import { updateUser } from '@/redux/user';
+import { RootState } from '@/types';
 
 interface CoverProps {
     setOpened: (val: boolean) => void;

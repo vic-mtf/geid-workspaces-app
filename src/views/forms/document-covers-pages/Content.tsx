@@ -1,13 +1,4 @@
-import {
-    CardActionArea,
-    CardMedia,
-    ImageList,
-    ImageListItem,
-    ImageListItemBar,
-    useMediaQuery,
-    useTheme
-} from "@mui/material";
-import Typography from "../../../components/Typography";
+import { CardActionArea, CardMedia, ImageList, ImageListItem, ImageListItemBar, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 interface ContentProps {
     data: any[];

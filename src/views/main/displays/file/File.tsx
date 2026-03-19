@@ -1,6 +1,6 @@
-import Doc from './Doc';
-import Photo from './Photo';
-import Video from './Video';
+import Doc from '@/views/main/displays/file/Doc';
+import Photo from '@/views/main/displays/file/Photo';
+import Video from '@/views/main/displays/file/Video';
 
 interface FileProps {
     type?: string;

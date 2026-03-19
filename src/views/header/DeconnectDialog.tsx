@@ -1,21 +1,9 @@
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
-    Box as MuiBox,
-    FormControl,
-    FormControlLabel,
-    Checkbox
-} from '@mui/material';
+import { Box as MuiBox, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import Button from '../../components/Button';
-import Typography from '../../components/Typography';
-import { removeUser } from '../../redux/app';
-import { removeData } from '../../redux/data';
-import { deconnected } from '../../redux/user';
+import { removeUser } from '@/redux/app';
+import { removeData } from '@/redux/data';
+import { deconnected } from '@/redux/user';
 
 export default function DeconnectDialog () {
     const [open, setOpen] = useState(false);

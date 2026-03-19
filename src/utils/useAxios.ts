@@ -1,6 +1,6 @@
 import axios from "axios";
 import { makeUseAxios } from "axios-hooks";
-import store from "../redux/store";
+import store from "@/redux/store";
 
 const useAxios = makeUseAxios({
   axios: axios.create({

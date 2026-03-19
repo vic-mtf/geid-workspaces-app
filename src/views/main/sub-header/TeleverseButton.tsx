@@ -1,11 +1,10 @@
 import React, { useRef, useState } from "react";
-import { ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
-import Button from "../../../components/Button";
+import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import getFile from "../../../utils/getFile";
+import getFile from "@/utils/getFile";
 
 export default function TeleverseButton () {
     const [openMenu, setOpenMenu] = useState(false);

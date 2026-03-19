@@ -1,16 +1,8 @@
-import {
-    CardActionArea,
-    CardContent,
-    CardMedia,
-    Grid,
-    Menu,
-    Stack
-} from '@mui/material';
+import { CardActionArea, CardContent, CardMedia, Grid, Menu, Stack, Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
-import Typography from '../../components/Typography';
-import checkAuth from '../../utils/checkAuth';
-import appsList from './appsList';
-import { RootState } from '../../types';
+import checkAuth from '@/utils/checkAuth';
+import appsList from '@/views/header/appsList';
+import { RootState } from '@/types';
 
 interface AppsMenuProps {
     anchorEl: HTMLElement | null;

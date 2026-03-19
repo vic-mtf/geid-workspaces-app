@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import persistReducer from "redux-persist/es/persistReducer";
 import storage from "redux-persist/lib/storage/session";
-import deepMerge from "../utils/deepMerge";
-import { DataSliceState } from "../types";
+import deepMerge from "@/utils/deepMerge";
+import { DataSliceState } from "@/types";
 
 const data = createSlice({
   name: "data",

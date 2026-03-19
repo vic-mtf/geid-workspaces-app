@@ -9,11 +9,11 @@ import {
 import { useSnackbar } from 'notistack';
 import React, { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import optionLocalDate from '../../../../utils/optionLocalDate';
-import useAxios from '../../../../utils/useAxios';
-import actions from './actions';
-import SubMenu from './SubMenu';
-import { RootState } from '../../../../types';
+import optionLocalDate from '@/utils/optionLocalDate';
+import useAxios from '@/utils/useAxios';
+import actions from '@/views/main/displays/thumbnail/actions';
+import SubMenu from '@/views/main/displays/thumbnail/SubMenu';
+import { RootState } from '@/types';
 
 interface WrapperContentProps {
     children?: React.ReactNode;

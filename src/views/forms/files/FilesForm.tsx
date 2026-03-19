@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import FormContent from "./FormContent";
+import FormContent from "@/views/forms/files/FormContent";
 
 export default function FilesForm () {
     const [files, setFiles] = useState<File[] | null>(null);

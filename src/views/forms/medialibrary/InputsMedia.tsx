@@ -1,6 +1,6 @@
 import { TextField } from "@mui/material";
 import React from "react";
-import InputController from "../../../components/InputController";
+import InputController from "@/components/InputController";
 
 interface InputsMediaProps {
     title?: React.MutableRefObject<string | null>;

@@ -1,5 +1,5 @@
 import { Chip } from '@mui/material';
-import textOverflowMiddle from "../../../utils/textOverflowMiddle";
+import textOverflowMiddle from "@/utils/textOverflowMiddle";
 
 interface FileItemProps {
     name?: string;

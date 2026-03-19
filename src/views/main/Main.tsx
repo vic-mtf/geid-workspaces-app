@@ -3,14 +3,14 @@ import queryString from "query-string";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import ArchivesForm from "../forms/archives/ArchivesForm";
-import MediaLibraryForm from "../forms/medialibrary/MediaLibraryForm";
-import DetailFIle from "./displays/thumbnail/DetailFIle";
-import RenameFile from "./displays/thumbnail/RenameFile";
-import Thumbnail from "./displays/thumbnail/Thumbnail";
-import SubHeader from "./sub-header/SubHeader";
-import FilesForm from "../forms/files/FilesForm";
-import { RootState } from "../../types";
+import ArchivesForm from "@/views/forms/archives/ArchivesForm";
+import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
+import DetailFIle from "@/views/main/displays/thumbnail/DetailFIle";
+import RenameFile from "@/views/main/displays/thumbnail/RenameFile";
+import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
+import SubHeader from "@/views/main/sub-header/SubHeader";
+import FilesForm from "@/views/forms/files/FilesForm";
+import { RootState } from "@/types";
 
 export default function Main () {
     const data = useSelector((store: RootState) => store.data);

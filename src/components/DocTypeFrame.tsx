@@ -1,10 +1,9 @@
 import React,{ useCallback, useMemo, useState } from "react"
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { FormControl, FormHelperText, MenuItem, Paper, Popper, Stack} from "@mui/material";
-import Typography from "./Typography";
+import { FormControl, FormHelperText, MenuItem, Paper, Popper, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
-import { RootState } from "../types";
+import { RootState } from "@/types";
 
 interface DocTypeFrameProps {
     typeRef?: React.MutableRefObject<string | null>;

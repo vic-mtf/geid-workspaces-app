@@ -1,10 +1,9 @@
-import { AppBar, Toolbar, Box as MuiBox } from '@mui/material';
+import { AppBar, Box as MuiBox, Toolbar, Typography } from '@mui/material';
 import React from 'react';
-import SearchInput from '../../components/SearchInput';
-import Typography from '../../components/Typography';
-import DeconnectDialog from './DeconnectDialog';
-import MainOption from './main-options/MainOption';
-import appConfig from '../../configs/app-config.json';
+import SearchInput from '@/components/SearchInput';
+import DeconnectDialog from '@/views/header/DeconnectDialog';
+import MainOption from '@/views/header/main-options/MainOption';
+import appConfig from '@/configs/app-config.json';
 
 export default function Header () {
     return (

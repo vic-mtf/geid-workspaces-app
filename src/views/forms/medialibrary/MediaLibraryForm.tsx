@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Button from "../../../components/Button";
-import Typography from "../../../components/Typography";
-import format from "../format";
-import useAxios from "../../../utils/useAxios";
+import format from "@/views/forms/format";
+import useAxios from "@/utils/useAxios";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
-import textStyle from '../../../styles/text.module.css';
-import FormContent from "./FormContent";
-import { RootState } from "../../../types";
+import textStyle from '@/styles/text.module.css';
+import FormContent from "@/views/forms/medialibrary/FormContent";
+import { RootState } from "@/types";
+import { Button, Typography } from "@mui/material";
 
 export default function MediaLibraryForm () {
     const [file, setFile] = useState<any>(null);

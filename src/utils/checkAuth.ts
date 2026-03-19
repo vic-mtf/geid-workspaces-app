@@ -1,4 +1,4 @@
-import { UserAuth } from "../types";
+import { UserAuth } from "@/types";
 
 export default function checkAuth(auth?: UserAuth, permissions: string[] = []): boolean {
   let validate = auth?.name === "admin" || permissions?.length === 0;

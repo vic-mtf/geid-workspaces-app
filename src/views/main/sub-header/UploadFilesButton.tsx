@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import Button from "../../../components/Button";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
-import getFileExtension, { getName } from "../../../utils/getFileExtension";
-import fileExtensionBase from "../../../utils/fileExtensionBase";
+import getFileExtension, { getName } from "@/utils/getFileExtension";
+import fileExtensionBase from "@/utils/fileExtensionBase";
 import pluralize from "pluralize";
-import DownloadsMenuDrawer from "./Downloads-menu-drawer/DownloadsMenuDrawer";
-import useGetData from "../../../utils/useGetData";
-import { RootState } from "../../../types";
+import DownloadsMenuDrawer from "@/views/main/sub-header/Downloads-menu-drawer/DownloadsMenuDrawer";
+import useGetData from "@/utils/useGetData";
+import { RootState } from "@/types";
 
 export default function UploadFilesButton () {
     const uploadList = useRef<any[]>([]);

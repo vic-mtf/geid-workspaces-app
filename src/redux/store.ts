@@ -8,9 +8,9 @@ import {
   REGISTER,
 } from "redux-persist";
 import persistStore from "redux-persist/es/persistStore";
-import app from "./app";
-import user from "./user";
-import data from "./data";
+import app from "@/redux/app";
+import user from "@/redux/user";
+import data from "@/redux/data";
 
 const store = configureStore({
   reducer: { app, user, data },

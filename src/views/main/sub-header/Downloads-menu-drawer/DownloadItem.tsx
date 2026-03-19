@@ -1,28 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import {
-    Box as MuiBox,
-    Card,
-    CardContent,
-    CardMedia,
-    Divider,
-    LinearProgress,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Toolbar
-} from '@mui/material';
+import { Box as MuiBox, Button, Card, CardContent, CardMedia, Divider, LinearProgress, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import Typography from '../../../../components/Typography';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import IconButton from '../../../../components/IconButton';
-import Button from '../../../../components/Button';
+import IconButton from '@/components/IconButton';
 import FileDownloadDoneRoundedIcon from '@mui/icons-material/FileDownloadDoneRounded';
-import normaliseOctetSize from '../../../../utils/normaliseOctetSize';
+import normaliseOctetSize from '@/utils/normaliseOctetSize';
 import { useDispatch } from 'react-redux';
-import { addData } from '../../../../redux/data';
+import { addData } from '@/redux/data';
 import { useSnackbar } from 'notistack';
-import textStyle from '../../../../styles/text.module.css';
+import textStyle from '@/styles/text.module.css';
 
 interface DownloadItemProps {
     file?: File;

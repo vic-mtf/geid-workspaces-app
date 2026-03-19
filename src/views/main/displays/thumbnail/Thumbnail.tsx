@@ -1,15 +1,11 @@
-import {
-  Grid,
-  Box
-} from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import Typography from '../../../../components/Typography';
-import fileExtensionBase from '../../../../utils/fileExtensionBase';
-import getFileExtension from '../../../../utils/getFileExtension';
-import File from '../file/File';
-import WrapperContent from './WrapperContent';
+import fileExtensionBase from '@/utils/fileExtensionBase';
+import getFileExtension from '@/utils/getFileExtension';
+import File from '@/views/main/displays/file/File';
+import WrapperContent from '@/views/main/displays/thumbnail/WrapperContent';
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
-import { FileItem } from '../../../../types';
+import { FileItem } from '@/types';
 
 interface ThumbnailProps {
     data?: FileItem[];

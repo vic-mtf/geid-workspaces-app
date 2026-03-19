@@ -1,6 +1,5 @@
-import { Box } from "@mui/material";
-import Typography from "../../../../components/Typography";
-import style from '../../../../styles/paper.module.css';
+import { Box, Typography } from "@mui/material";
+import style from '@/styles/paper.module.css';
 
 interface DocProps {
     icon?: string;

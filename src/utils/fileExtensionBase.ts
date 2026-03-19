@@ -1,11 +1,11 @@
-import pdfIcon from '../icons/icons8-adobe-acrobat-48.png';
-import powerPointIcon from '../icons/icons8-microsoft-powerpoint-2019-48.png';
-import photoIcon from '../icons/icons8-photos-48.png';
-import videoIcon from '../icons/icons8-film-48.png';
-import excelIcon from '../icons/icons8-microsoft-excel-2019.svg';
-import wordIcon from '../icons/icons8-microsoft-word-2019.svg';
-import audioIcon from '../icons/icons8-notes-de-musique-48.png';
-import { FileExtensionInfo } from "../types";
+import pdfIcon from '@/icons/icons8-adobe-acrobat-48.png';
+import powerPointIcon from '@/icons/icons8-microsoft-powerpoint-2019-48.png';
+import photoIcon from '@/icons/icons8-photos-48.png';
+import videoIcon from '@/icons/icons8-film-48.png';
+import excelIcon from '@/icons/icons8-microsoft-excel-2019.svg';
+import wordIcon from '@/icons/icons8-microsoft-word-2019.svg';
+import audioIcon from '@/icons/icons8-notes-de-musique-48.png';
+import { FileExtensionInfo } from "@/types";
 
 const fileExtensionBase: FileExtensionInfo[] = [
   {

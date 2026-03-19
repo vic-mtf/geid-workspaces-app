@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import Button from "../../../components/Button";
-import Typography from "../../../components/Typography";
-import useAxios from "../../../utils/useAxios";
+import useAxios from "@/utils/useAxios";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
-import textStyle from "../../../styles/text.module.css";
-import FormContent from "./FormContent";
-import { Dialog } from "@mui/material";
-import { RootState } from "../../../types";
+import textStyle from "@/styles/text.module.css";
+import FormContent from "@/views/forms/archives/FormContent";
+import { Button, Dialog, Typography } from "@mui/material";
+import { RootState } from "@/types";
 
 export default function ArchivesFrom() {
   const [file, setFile] = useState<any>(null);
