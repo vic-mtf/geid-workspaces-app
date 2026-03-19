@@ -1,0 +1,188 @@
+import React,{ useLayoutEffect, useMemo, useState } from "react"
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import { FormControl, FormHelperText, MenuItem, Paper, Popper, Stack} from "@mui/material";
+import Typography from "../../../components/Typography";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../types";
+
+interface TypologyProps {
+    type?: React.MutableRefObject<string | null>;
+    subType?: React.MutableRefObject<string | null>;
+    externalTypeError?: boolean;
+    externalSubTypeError?: boolean;
+}
+
+export default function Typology ({type, subType, externalTypeError, externalSubTypeError}: TypologyProps) {
+    const docTypes = useSelector((store: RootState) => store?.user?.docTypes) || [];
+    const [values, setValues] = useState<any>({
+        type: type?.current,
+        subType: subType?.current,
+        types: docTypes?.map(({name: label}, index) => ({label, id: index})),
+        subTypes: docTypes[0]?.subtypes?.map((label, id) => ({label, id})),
+        open: false,
+    });
+    const funcEmptyError = useMemo(() => !!(externalTypeError && !values.type),
+        [
+            externalTypeError,
+            values.type
+        ]
+    );
+
+    const roleEmptyError = useMemo(() => !!(externalSubTypeError && !values.subType && values.subTypes.length > 1),
+        [
+            externalSubTypeError,
+            values.subType,
+            values.subTypes.length,
+        ]
+    );
+
+    const handleType = (_event: any, _type: any) => {
+        setValues({
+            ...values,
+            type: _type,
+            subType: null,
+            subTypes: (_type && docTypes[_type?.id]?.subtypes?.map((label: string, id: number) => ({label, id}))) || [] ,
+        });
+    };
+
+    useLayoutEffect(() => {
+        if(type && subType && values.type) {
+            type.current = values?.type?.label;
+            if(values.subType)
+                subType.current = values.subType?.label;
+            if(values.subTypes.length <= 1)
+                subType.current = values?.subTypes[0]?.label;
+        }
+        if(type && subType && !values.type) {
+            type.current = null;
+            subType.current = null;
+        }
+    }, [
+        type,
+        subType,
+        values.type,
+        values.subType,
+        values.types,
+        values.subTypes
+    ]);
+
+    return (
+        <Stack direction="row" spacing={1}>
+            <FormControl fullWidth>
+                <Autocomplete
+                    size="small"
+                    fullWidth
+                    options={values.types}
+                    onChange={handleType}
+                    value={values.type}
+                    noOptionsText={
+                        (<Typography color="red">Aucun élement</Typography>)
+                    }
+                    renderOption={(params) => (
+                        <MenuItem {...params} sx={{fontSize: 14}}>{params.key}</MenuItem>)
+                    }
+                    PaperComponent={
+                        (params) => (
+                            <Paper
+                                sx={{
+                                    bgcolor: (theme: any) => theme.palette.background.paper +
+                                    theme.customOptions.opacity,
+                                    border: (theme: any) => `1px solid ${theme.palette.divider}`,
+                                    backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
+                                }}
+                            {...params}/>
+                        )
+                    }
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Type"
+                            size="small"
+                            margin="normal"
+                            error={funcEmptyError}
+                            InputProps={{
+                            ...params.InputProps,
+                            sx: {fontSize: 14},
+                            endAdornment: (params.InputProps.endAdornment),
+                            }}
+                        />
+                    )}
+                />
+                {funcEmptyError && <FormHelperText sx={{color: (theme: any) => theme.palette.error.main }}>
+                    S'il vous plaît sélectionner un élément.
+                </FormHelperText>}
+            </FormControl>
+            <FormControl fullWidth>
+                <Autocomplete
+                    size="small"
+                    fullWidth
+                    key={values.type}
+                    disabled={values.subTypes.length  < 2 || !values.type}
+                    value={values.subType}
+                    title={values.subType?.label}
+                    noOptionsText="Aucun élement"
+                    onChange={(_event, subType) => setValues({...values, subType})}
+                    options={values.subTypes}
+                    renderOption={(params, index) => (
+                        <MenuItem {...params} >
+                            <Typography
+                                variant="caption"
+                                title={params.key}
+                                key={index}
+                                sx={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                }}
+                            >
+                                {params.key}
+                            </Typography>
+                        </MenuItem>
+                        )
+                    }
+                    PopperComponent={(params) => (
+                        <Popper
+                            {...params}
+                        />
+                    )}
+                    PaperComponent={
+                        (params) => (
+                            <Paper
+                                {...params}
+                                sx={{
+                                    bgcolor: (theme: any) => theme.palette.background.paper +
+                                    theme.customOptions.opacity,
+                                    border: (theme: any) => `1px solid ${theme.palette.divider}`,
+                                    backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
+                                }}
+                            />
+                        )
+                    }
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Sous type"
+                            size="small"
+                            margin="normal"
+                            error={roleEmptyError}
+                            InputProps={{
+                            ...params.InputProps,
+                            sx: {fontSize: 14},
+                            endAdornment: (
+                                <React.Fragment>
+                                    {params.InputProps.endAdornment}
+                                </React.Fragment>
+                            ),
+                            }}
+                        />
+                    )}
+                />
+                {roleEmptyError && <FormHelperText sx={{color: (theme: any) => theme.palette.error.main }}>
+                    S'il vous plaît sélectionner un élément.
+                </FormHelperText>}
+            </FormControl>
+        </Stack>
+    )
+
+}

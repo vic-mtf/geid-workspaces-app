@@ -1,0 +1,32 @@
+const width = window.innerWidth * 10;
+const height = window.innerHeight * 10;
+const left = (window.innerWidth - width) / 2;
+const top = (window.innerHeight - height) / 2;
+
+const _args: Record<string, any> = {
+    //url: '',
+    width,
+    height,
+    top,
+    left,
+    target: '_blank',
+    popup: 'yes',
+    //fullscreen: 'yes',
+    location: 'no',
+    menubar: 'no',
+    status: 'no'
+};
+
+export default function openNewWindow (args: Record<string, any> = _args): Window | null {
+    const {url, target, ...otherProps} = {..._args, ...args};
+    const options = Object.keys(otherProps).map(key => `${key}=${otherProps[key]}`).join(', ');
+    const uri = `${window.origin}${url}`.trim();
+    const wd = window.open(uri,
+        target,
+        options,
+    );
+    window.addEventListener('beforeunload', () => {
+        if(wd && !wd.closed) wd.close();
+    });
+    return wd;
+}
