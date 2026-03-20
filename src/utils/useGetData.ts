@@ -37,16 +37,20 @@ const useGetData = ({ key, urlProps, onBeforeUpdate }: UseGetDataOptions) => {
     [onBeforeUpdate]
   );
   const getData = useCallback(
-    (data?: any) =>
-      refetch(getUrlData({ path: key, ...(urlProps || data?.urlProps) })).then(
-        ({ data }: any) => {
+    (data?: any) => {
+      // Support folder navigation: data.folder = sous-dossier courant
+      const subFolder: string = data?.folder ?? "";
+      const fullPath = subFolder ? `${key}/${subFolder}` : key;
+      return refetch(getUrlData({ path: fullPath, ...(urlProps || data?.urlProps) })).then(
+        ({ data: responseData }: any) => {
           dispatch(
             updateData({
-              data: onBefore({ [key]: data }),
+              data: onBefore({ [key]: responseData }),
             })
           );
         }
-      ),
+      );
+    },
     [getUrlData, dispatch, refetch, key, onBefore, urlProps]
   );
 

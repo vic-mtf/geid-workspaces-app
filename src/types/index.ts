@@ -90,6 +90,7 @@ export interface FileItem {
   createdAt?: string;
   docType?: string;
   size?: number;
+  isDirectory?: boolean;
   [key: string]: any;
 }
 

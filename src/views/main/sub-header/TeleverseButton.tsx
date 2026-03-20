@@ -1,69 +1,91 @@
 import React, { useRef, useState } from "react";
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
-import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
+import PublishRoundedIcon from "@mui/icons-material/PublishRounded";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import getFile from "@/utils/getFile";
 
-export default function TeleverseButton () {
-    const [openMenu, setOpenMenu] = useState(false);
-    const anchorEl = useRef<HTMLButtonElement>(null);
+export default function TeleverseButton() {
+  const [openMenu, setOpenMenu] = useState(false);
+  const anchorEl = useRef<HTMLButtonElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
 
-    return (
-        <React.Fragment>
-            <Button
-                startIcon={<PublishRoundedIcon/>}
-                endIcon={<ExpandMoreRoundedIcon/>}
-                color="inherit"
-                ref={anchorEl}
-                onClick={() => setOpenMenu(true)}
-            >Téléverser</Button>
-            <Menu
-                open={openMenu}
-                variant="selectedMenu"
-                MenuListProps={{
-                    dense: true,
-                }}
-                PaperProps={{
-                    sx: {
-                        bgcolor: (theme: any) => theme.palette.background.paper +
-                        theme.customOptions.opacity,
-                        border: (theme: any) => `1px solid ${theme.palette.divider}`,
-                        backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
-                    }
-                }}
-                anchorEl={anchorEl.current}
-                onClose={() => setOpenMenu(false)}
-            >
-                <MenuItem
-                    onClick={async () => {
-                        const files = await getFile({multiple: true, accept: '*.*'});
-                        const name = '_open_files_form';
-                        if(files) {
-                            const customEvent = new CustomEvent(name, {
-                                detail: { files, name }
-                            });
-                            document.getElementById('root')
-                            ?.dispatchEvent(customEvent);
-                            setOpenMenu(false);
-                        }
-                    }}
-                >
-                    <ListItemIcon>
-                        <InsertDriveFileOutlinedIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary="Fichier" />
-                </MenuItem>
-                <MenuItem
-                    disabled
-                >
-                    <ListItemIcon>
-                        <FolderOutlinedIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary="Dossier" />
-                </MenuItem>
-            </Menu>
-        </React.Fragment>
+  const dispatchFiles = (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    if (fileArray.length === 0) return;
+    const name = "_open_files_form";
+    document.getElementById("root")?.dispatchEvent(
+      new CustomEvent(name, { detail: { files: fileArray, name } })
     );
+  };
+
+  return (
+    <React.Fragment>
+      <Button
+        startIcon={<PublishRoundedIcon />}
+        endIcon={<ExpandMoreRoundedIcon />}
+        color="inherit"
+        ref={anchorEl}
+        onClick={() => setOpenMenu(true)}
+      >
+        Téléverser
+      </Button>
+      <Menu
+        open={openMenu}
+        variant="selectedMenu"
+        MenuListProps={{ dense: true }}
+        PaperProps={{
+          sx: {
+            bgcolor: (theme: any) =>
+              theme.palette.background.paper + theme.customOptions.opacity,
+            border: (theme: any) => `1px solid ${theme.palette.divider}`,
+            backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
+          },
+        }}
+        anchorEl={anchorEl.current}
+        onClose={() => setOpenMenu(false)}
+      >
+        <MenuItem
+          onClick={async () => {
+            const files = await getFile({ multiple: true, accept: "*.*" });
+            if (files) dispatchFiles(files as unknown as FileList);
+            setOpenMenu(false);
+          }}
+        >
+          <ListItemIcon>
+            <InsertDriveFileOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Fichier(s)" />
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            folderInputRef.current?.click();
+            setOpenMenu(false);
+          }}
+        >
+          <ListItemIcon>
+            <FolderOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Dossier" />
+        </MenuItem>
+      </Menu>
+
+      {/* Input caché pour la sélection de dossier */}
+      <input
+        ref={folderInputRef}
+        type="file"
+        style={{ display: "none" }}
+        // @ts-ignore — webkitdirectory est une propriété non-standard mais supportée
+        webkitdirectory=""
+        multiple
+        onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            dispatchFiles(e.target.files);
+          }
+          e.target.value = "";
+        }}
+      />
+    </React.Fragment>
+  );
 }
