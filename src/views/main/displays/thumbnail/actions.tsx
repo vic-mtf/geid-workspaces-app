@@ -16,6 +16,7 @@ import {
     openArchivesForm,
     openMediaLibraryForm,
     openPreviewDialog,
+    openShareDialog,
 } from '@/redux/ui';
 import { ActionOption } from '@/types';
 
@@ -92,8 +93,7 @@ const actions: ActionOption[] = [
         label: 'Partager',
         icon: <ShareOutlinedIcon/>,
         onClick: (file: any) => {
-            // Dispatched via shareDialogFile state in WrapperContent / ListView
-            file?._onShare?.(file);
+            store.dispatch(openShareDialog(file));
         }
     },
     {

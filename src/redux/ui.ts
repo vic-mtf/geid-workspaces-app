@@ -17,6 +17,7 @@ export interface UiSliceState {
   archivesForm: DialogState;
   mediaLibraryForm: DialogState;
   previewDialog: DialogState;
+  shareDialog: DialogState;
   filesForm: FilesDialogState;
   uploadFiles: { files: File[]; doc: Record<string, unknown> } | null;
   searchQuery: string;
@@ -34,6 +35,7 @@ const ui = createSlice({
     archivesForm: initialDialogState,
     mediaLibraryForm: initialDialogState,
     previewDialog: initialDialogState,
+    shareDialog: initialDialogState,
     filesForm: { open: false, files: null },
     uploadFiles: null,
     searchQuery: "",
@@ -71,6 +73,12 @@ const ui = createSlice({
     closePreviewDialog(state) {
       state.previewDialog = initialDialogState;
     },
+    openShareDialog(state, action: PayloadAction<FileItem>) {
+      state.shareDialog = { open: true, file: action.payload };
+    },
+    closeShareDialog(state) {
+      state.shareDialog = initialDialogState;
+    },
     openFilesForm(state, action: PayloadAction<File[]>) {
       state.filesForm = { open: true, files: action.payload };
     },
@@ -106,6 +114,8 @@ export const {
   closeMediaLibraryForm,
   openPreviewDialog,
   closePreviewDialog,
+  openShareDialog,
+  closeShareDialog,
   openFilesForm,
   closeFilesForm,
   triggerUploadFiles,

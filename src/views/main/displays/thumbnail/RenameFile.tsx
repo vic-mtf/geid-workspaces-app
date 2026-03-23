@@ -36,7 +36,7 @@ export default function RenameFile () {
             data: {
               oldFilename: file?.name,
               filename: valueRef.current + '.' + getFileExtension(file?.name ?? ''),
-              path: file?.type + 's',
+              path: file?._currentPath || (file?.type + 's'),
               userId,
           },
         }).then(() => {

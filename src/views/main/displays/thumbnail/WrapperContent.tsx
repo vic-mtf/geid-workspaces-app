@@ -42,7 +42,16 @@ export default function WrapperContent({
   ...otherProps
 }: WrapperContentProps) {
   const dispatch = useDispatch();
-  const file = { createdAt, name, type, url, isDirectory, ...otherProps };
+
+  // Calcule le chemin courant (catégorie + sous-dossier)
+  const getCurrentPath = () => {
+    const params = new URLSearchParams(search);
+    const folder = params.get("folder") || "";
+    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
+    return folder ? `${cat}/${folder}` : cat;
+  };
+
+  const file = { createdAt, name, type, url, isDirectory, ...otherProps, _currentPath: getCurrentPath() };
   const date = new Date(createdAt || "");
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number } | null>(null);
   const menuRootRef = useRef<HTMLElement>(null);
@@ -69,14 +78,6 @@ export default function WrapperContent({
     if (isDirectory && onFolderClick && name) {
       onFolderClick(name);
     }
-  };
-
-  // Calcule le chemin courant pour les actions sur dossiers
-  const getCurrentPath = () => {
-    const params = new URLSearchParams(search);
-    const folder = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folder ? `${cat}/${folder}` : cat;
   };
 
   const handleDeleteFolder = async () => {

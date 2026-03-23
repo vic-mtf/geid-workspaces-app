@@ -12,7 +12,7 @@ import FilePreview from "@/views/preview/FilePreview";
 import ShareDialog from "@/views/dialogs/ShareDialog";
 import DropZoneUpload from "@/components/dnd/DropZoneUpload";
 import MainLayout from "@/components/Main";
-import { closePreviewDialog } from "@/redux/ui";
+import { closePreviewDialog, closeShareDialog } from "@/redux/ui";
 import { connectWorkspaceSocket, disconnectWorkspaceSocket } from "@/services/socket";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
 import SubHeader from "@/views/main/sub-header/SubHeader";
@@ -35,7 +35,7 @@ export default function Main() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
   const previewDialog = useSelector((store: RootState) => store.ui.previewDialog);
-  const [shareFile, setShareFile] = useState<{ id: string; name: string } | null>(null);
+  const shareDialog = useSelector((store: RootState) => store.ui.shareDialog);
   const { pathname, search } = useLocation();
 
   // Données locales au lieu de Redux pour éviter les données stale
@@ -152,10 +152,10 @@ export default function Main() {
         onClose={() => dispatch(closePreviewDialog())}
       />
       <ShareDialog
-        open={!!shareFile}
-        fileId={shareFile?.id ?? null}
-        fileName={shareFile?.name ?? null}
-        onClose={() => setShareFile(null)}
+        open={shareDialog.open}
+        fileId={shareDialog.file?.doc?._id || shareDialog.file?._id || null}
+        fileName={shareDialog.file?.name ?? null}
+        onClose={() => dispatch(closeShareDialog())}
       />
     </React.Fragment>
   );
