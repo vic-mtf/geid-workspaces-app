@@ -13,18 +13,16 @@ import {
     openDetailDialog,
     openArchivesForm,
     openMediaLibraryForm,
+    openPreviewDialog,
 } from '@/redux/ui';
 import { ActionOption } from '@/types';
 
 const actions: ActionOption[] = [
     {
-        label: 'Ouvrir',
+        label: 'Aperçu',
         icon: <LaunchOutlinedIcon/>,
         onClick: (file: any) => {
-            const link = document.createElement('a');
-            link.href = file?.url;
-            link.target = '_blank';
-            link.click();
+            store.dispatch(openPreviewDialog(file));
         }
     },
     {

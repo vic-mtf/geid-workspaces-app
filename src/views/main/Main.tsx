@@ -1,12 +1,16 @@
 import { Toolbar, Box as MuiBox, Divider } from "@mui/material";
 import queryString from "query-string";
 import React, { useMemo, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
+import ListView from "@/views/main/displays/list/ListView";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
 import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
 import DetailFile from "@/views/main/displays/thumbnail/DetailFIle";
 import RenameFile from "@/views/main/displays/thumbnail/RenameFile";
+import FilePreview from "@/views/preview/FilePreview";
+import DropZoneUpload from "@/components/dnd/DropZoneUpload";
+import { closePreviewDialog } from "@/redux/ui";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
 import SubHeader from "@/views/main/sub-header/SubHeader";
 import FilesForm from "@/views/forms/files/FilesForm";
@@ -22,8 +26,11 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function Main() {
+  const dispatch = useDispatch();
   const data = useSelector((store: RootState) => store.data);
   const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
+  const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
+  const previewDialog = useSelector((store: RootState) => store.ui.previewDialog);
   const { pathname, search } = useLocation();
 
   const key = useMemo(() => {
@@ -101,15 +108,26 @@ export default function Main() {
         <SubHeader />
         <Divider />
         <FolderBreadcrumb categoryLabel={CATEGORY_LABELS[key] ?? key} />
-        <MuiBox height="calc(100% - 100px)" overflow="hidden">
-          {(!display || display === "thumbnail") && <Thumbnail data={_data} />}
-        </MuiBox>
+        <DropZoneUpload>
+          <MuiBox height="calc(100% - 100px)" overflow="hidden">
+            {viewMode === "list" ? (
+              <ListView data={_data} />
+            ) : (
+              <Thumbnail data={_data} />
+            )}
+          </MuiBox>
+        </DropZoneUpload>
       </MuiBox>
       <RenameFile />
       <DetailFile />
       <MediaLibraryForm />
       <ArchivesForm />
       <FilesForm />
+      <FilePreview
+        open={previewDialog.open}
+        file={previewDialog.file}
+        onClose={() => dispatch(closePreviewDialog())}
+      />
     </React.Fragment>
   );
 }

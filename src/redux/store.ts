@@ -12,9 +12,10 @@ import app from "@/redux/app";
 import user from "@/redux/user";
 import data from "@/redux/data";
 import ui from "@/redux/ui";
+import workspace from "@/redux/workspace";
 
 const store = configureStore({
-  reducer: { app, user, data, ui },
+  reducer: { app, user, data, ui, workspace },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

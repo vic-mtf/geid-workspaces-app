@@ -1,38 +1,35 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import SegmentRoundedIcon from '@mui/icons-material/SegmentRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import { useLocation, useNavigate } from "react-router-dom";
-import queryString from "query-string";
+import { useSelector, useDispatch } from "react-redux";
+import { setViewMode, ViewMode } from "@/redux/workspace";
+import { RootState } from "@/types";
 
-const listDisplayMode = [
+const listDisplayMode: { label: string; key: string; icon: React.ReactNode; mode: ViewMode }[] = [
     {
         label: 'Vignette',
-        key: '_saquare',
+        key: '_grid',
         icon: <GridViewOutlinedIcon/>,
-        search: 'thumbnail'
+        mode: 'grid',
     },
     {
         label: 'Liste',
         key: '_list',
         icon: <SegmentRoundedIcon/>,
-        search: 'list',
-        disabled: true,
-    }
-]
+        mode: 'list',
+    },
+];
 
 export default function DisplayButton () {
+    const dispatch = useDispatch();
     const [openMenu, setOpenMenu] = useState(false);
-    const { search } = useLocation();
-    const navigateTo = useNavigate();
     const anchorEl = useRef<HTMLButtonElement>(null);
-    const { display } = queryString.parse(search);
-    const btnSelected = useMemo(() => listDisplayMode.find(
-        option => option.search === (display || 'thumbnail')
-        ),
-    [display]);
+    const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
+
+    const btnSelected = listDisplayMode.find(opt => opt.mode === viewMode) || listDisplayMode[0];
 
     return (
         <React.Fragment>
@@ -46,9 +43,7 @@ export default function DisplayButton () {
             <Menu
                 open={openMenu}
                 variant="selectedMenu"
-                MenuListProps={{
-                    dense: true,
-                }}
+                MenuListProps={{ dense: true }}
                 PaperProps={{
                     sx: {
                         bgcolor: (theme: any) => theme.palette.background.paper +
@@ -60,39 +55,21 @@ export default function DisplayButton () {
                 anchorEl={anchorEl.current}
                 onClose={() => setOpenMenu(false)}
             >
-                {
-                    listDisplayMode.map(({
-                        icon,
-                        label,
-                        key,
-                        search:display,
-                        disabled,
-                    }) => (
-                        <MenuItem
-                            key={key}
-                            onClick={() => {
-                                navigateTo('?'+
-                                    queryString.stringify({
-                                        ...queryString.parse(search),
-                                        display,
-                                    })
-                                )
-                                setOpenMenu(false);
-                            }}
-                            disabled={disabled}
-                        >
-                            <ListItemIcon
-                               children={
-                                key === btnSelected?.key && <CheckRoundedIcon/>
-                                }
-                            />
-                            <ListItemIcon>{icon}</ListItemIcon>
-                            <ListItemText
-                                primary={label}
-                            />
-                        </MenuItem>
-                    ))
-                }
+                {listDisplayMode.map(({ icon, label, key, mode }) => (
+                    <MenuItem
+                        key={key}
+                        onClick={() => {
+                            dispatch(setViewMode(mode));
+                            setOpenMenu(false);
+                        }}
+                    >
+                        <ListItemIcon>
+                            {mode === viewMode ? <CheckRoundedIcon/> : null}
+                        </ListItemIcon>
+                        <ListItemIcon>{icon}</ListItemIcon>
+                        <ListItemText primary={label} />
+                    </MenuItem>
+                ))}
             </Menu>
         </React.Fragment>
     );

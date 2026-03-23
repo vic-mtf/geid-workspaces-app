@@ -3,6 +3,10 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 
 const Workspace = lazy(() => import("@/views/Workspace"));
+const Main = lazy(() => import("@/views/main/Main"));
+const FavoritesView = lazy(() => import("@/views/favorites/FavoritesView"));
+const RecentView = lazy(() => import("@/views/recent/RecentView"));
+const TrashView = lazy(() => import("@/views/trash/TrashView"));
 
 function Loading() {
   return (
@@ -12,35 +16,25 @@ function Loading() {
   );
 }
 
-function LazyWorkspace() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <Workspace />
-    </Suspense>
-  );
+function Lazy({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<Loading />}>{children}</Suspense>;
 }
 
 const router = createBrowserRouter(
   [
     {
       path: "/",
-      element: <Navigate to="/documents" replace />,
-    },
-    {
-      path: "/documents",
-      element: <LazyWorkspace />,
-    },
-    {
-      path: "/images",
-      element: <LazyWorkspace />,
-    },
-    {
-      path: "/videos",
-      element: <LazyWorkspace />,
-    },
-    {
-      path: "/others",
-      element: <LazyWorkspace />,
+      element: <Lazy><Workspace /></Lazy>,
+      children: [
+        { index: true, element: <Navigate to="/documents" replace /> },
+        { path: "documents", element: <Lazy><Main /></Lazy> },
+        { path: "images", element: <Lazy><Main /></Lazy> },
+        { path: "videos", element: <Lazy><Main /></Lazy> },
+        { path: "others", element: <Lazy><Main /></Lazy> },
+        { path: "favorites", element: <Lazy><FavoritesView /></Lazy> },
+        { path: "recent", element: <Lazy><RecentView /></Lazy> },
+        { path: "trash", element: <Lazy><TrashView /></Lazy> },
+      ],
     },
     {
       path: "*",

@@ -1,6 +1,6 @@
 import { CssBaseline, Box as MuiBox } from "@mui/material";
+import { Outlet } from "react-router-dom";
 import Header from "@/views/header/Header";
-import Main from "@/views/main/Main";
 import Navigation from "@/views/navigation/Navigation";
 import MobileBottomNav from "@/views/navigation/MobileBottomNav";
 
@@ -10,7 +10,7 @@ export default function Workspace () {
       <CssBaseline />
       <Header/>
       <Navigation/>
-      <Main/>
+      <Outlet />
       <MobileBottomNav/>
     </MuiBox>
     )
