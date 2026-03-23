@@ -11,13 +11,11 @@ export default function FilesForm () {
     const findError = (field: string) => !!~fieldsError?.indexOf(field);
     const designation = useRef<string | null>(null);
     const description = useRef<string | null>(null);
-    const folder = useRef<string | null>(null);
     const tags = useRef<string | null>(null);
 
     const getFieldDocs = useCallback(() => ({
       designation,
       description,
-      folder,
       tags,
     }), []);
 

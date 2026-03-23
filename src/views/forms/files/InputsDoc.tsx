@@ -4,20 +4,15 @@ import InputController from "@/components/InputController";
 
 interface InputsDocProps {
     designation?: React.MutableRefObject<string | null>;
-    subType?: React.MutableRefObject<string | null>;
     tags?: React.MutableRefObject<string | null>;
     description?: React.MutableRefObject<string | null>;
-    folder?: React.MutableRefObject<string | null>;
     findError: (field: string) => boolean;
-    type?: any;
 }
 
 export default function InputsDoc ({
     designation,
-    subType,
     tags,
     description,
-    folder,
     findError
 }: InputsDocProps) {
 
@@ -55,21 +50,6 @@ export default function InputsDoc ({
             >
                 <TextField label="Mot clé"/>
             </InputController>
-            <Stack direction='row' spacing={1}>
-                <Box display="flex" flex={1}>
-                    <InputController
-                        fullWidth
-                        margin="dense"
-                        trim={false}
-                        valueRef={folder}
-                        regExp={/.{2,}/}
-                        invalidateErrorMessage={message}
-                        externalError={findError('folder')}
-                    >
-                        <TextField label="Activité / Mission / Dossier"/>
-                    </InputController>
-                </Box>
-            </Stack>
             <InputController
                 fullWidth
                 multiline

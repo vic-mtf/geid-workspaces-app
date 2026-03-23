@@ -1,57 +1,45 @@
 import { Drawer, useMediaQuery, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 
-export const DRAWER_WIDTH = 280;
+export const drawerWidth = 280;
 
 interface CustomDrawerProps {
-  open: boolean;
-  onClose: () => void;
-  children: ReactNode;
+  direction?: "left" | "right";
+  open?: boolean;
+  children?: ReactNode;
+  onClose?: () => void;
   alwaysOpenOnDesktop?: boolean;
 }
 
 export default function CustomDrawer({
-  open,
+  direction = "left",
+  open = false,
+  children = null,
   onClose,
-  children,
-  alwaysOpenOnDesktop = true,
+  alwaysOpenOnDesktop = false,
 }: CustomDrawerProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  if (isMobile) {
-    return (
-      <Drawer
-        variant="temporary"
-        open={open}
-        onClose={onClose}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: "100vw",
-            boxSizing: "border-box",
-            background: "none",
-            bgcolor: "background.default",
-          },
-        }}
-      >
-        {children}
-      </Drawer>
-    );
-  }
+  const actualOpen = !isMobile && alwaysOpenOnDesktop ? true : open;
 
   return (
     <Drawer
-      variant={alwaysOpenOnDesktop ? "persistent" : "temporary"}
-      open={alwaysOpenOnDesktop || open}
+      variant={isMobile ? "temporary" : "persistent"}
+      open={actualOpen}
+      anchor={direction}
       onClose={onClose}
+      ModalProps={{ keepMounted: true }}
       sx={{
-        width: DRAWER_WIDTH,
+        width: !isMobile && alwaysOpenOnDesktop ? drawerWidth : 0,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: DRAWER_WIDTH,
+          width: isMobile ? "100vw" : drawerWidth,
           boxSizing: "border-box",
-          background: "none",
+          bgcolor: "background.paper",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >

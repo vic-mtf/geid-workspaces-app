@@ -1,44 +1,62 @@
-import { BottomNavigation, BottomNavigationAction, Paper, useMediaQuery, useTheme } from "@mui/material";
+import React, { useMemo, useCallback } from "react";
+import {
+  BottomNavigation,
+  BottomNavigationAction,
+  Paper,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import listOptionMenu from "@/views/navigation/listOptionMenu";
-import React from "react";
+import { mainMenu, quickAccess } from "@/views/navigation/listOptionMenu";
+
+const allTabs = [...mainMenu, ...quickAccess];
 
 export default function MobileBottomNav() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  const value = useMemo(
+    () => allTabs.find((t) => pathname === t.to || pathname.startsWith(t.to + "?"))?.to ?? "/documents",
+    [pathname]
+  );
+
+  const handleChange = useCallback(
+    (_: React.SyntheticEvent, newValue: string) => {
+      navigate(newValue);
+    },
+    [navigate]
+  );
 
   if (!isMobile) return null;
 
-  const currentIndex = listOptionMenu.findIndex((opt) =>
-    pathname.includes(opt.to)
-  );
-
   return (
     <Paper
+      elevation={0}
       sx={{
         position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
         zIndex: (t) => t.zIndex.appBar,
+        borderTop: 1,
+        borderColor: "divider",
       }}
-      elevation={3}
     >
-      <BottomNavigation
-        value={currentIndex >= 0 ? currentIndex : 0}
-        onChange={(_e, newValue) => {
-          const option = listOptionMenu[newValue];
-          if (option) navigate(option.to + search);
-        }}
-        showLabels
-      >
-        {listOptionMenu.map((option) => (
+      <BottomNavigation value={value} onChange={handleChange} showLabels>
+        {allTabs.map(({ icon, label, to }) => (
           <BottomNavigationAction
-            key={option.to}
-            label={option.label}
-            icon={React.createElement(option.icon)}
+            key={to}
+            label={label}
+            value={to}
+            icon={React.createElement(icon, { fontSize: "small" })}
+            sx={{
+              minWidth: 0,
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: "10px !important",
+              },
+            }}
           />
         ))}
       </BottomNavigation>

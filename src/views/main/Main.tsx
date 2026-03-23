@@ -1,4 +1,4 @@
-import { Toolbar, Box as MuiBox, Divider } from "@mui/material";
+import { Toolbar, Box as MuiBox, Divider, useTheme, useMediaQuery } from "@mui/material";
 import queryString from "query-string";
 import React, { useMemo, useEffect, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,6 +11,7 @@ import RenameFile from "@/views/main/displays/thumbnail/RenameFile";
 import FilePreview from "@/views/preview/FilePreview";
 import ShareDialog from "@/views/dialogs/ShareDialog";
 import DropZoneUpload from "@/components/dnd/DropZoneUpload";
+import MainLayout from "@/components/Main";
 import { closePreviewDialog } from "@/redux/ui";
 import { connectWorkspaceSocket, disconnectWorkspaceSocket } from "@/services/socket";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
@@ -29,6 +30,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export default function Main() {
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const data = useSelector((store: RootState) => store.data);
   const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
   const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
@@ -36,7 +39,6 @@ export default function Main() {
   const [shareFile, setShareFile] = useState<{ id: string; name: string } | null>(null);
   const { pathname, search } = useLocation();
 
-  // Connect socket on mount
   useEffect(() => {
     connectWorkspaceSocket();
     return () => disconnectWorkspaceSocket();
@@ -73,13 +75,11 @@ export default function Main() {
     [getDocs, getImages, getVideos]
   );
 
-  // Recharge le répertoire courant quand on navigue dans les dossiers
   useEffect(() => {
     getByKey(key, folder);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, folder]);
 
-  // Recharge quand un composant déclenche triggerReload()
   useEffect(() => {
     if (reloadTrigger > 0) {
       getByKey(key, folder);
@@ -87,7 +87,7 @@ export default function Main() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reloadTrigger]);
 
-  const { sort, order, display } = queryString.parse(search);
+  const { sort, order } = queryString.parse(search);
 
   const _data = useMemo(() => {
     let __data = [...((data as any)[key] || [])];
@@ -105,20 +105,24 @@ export default function Main() {
         (a: any, b: any) =>
           new Date(a?.createdAt).getTime() - new Date(b?.createdAt).getTime()
       );
-    if (!order || order === "ascending") { /* ascending is default */ }
     if (order === "descending") __data = __data?.reverse();
     return __data;
   }, [key, data, sort, order]);
 
   return (
     <React.Fragment>
-      <MuiBox component="main" sx={{ flexGrow: 1, px: 0.5, width: "100%" }}>
+      <MainLayout>
         <Toolbar variant="dense" />
         <SubHeader />
         <Divider />
         <FolderBreadcrumb categoryLabel={CATEGORY_LABELS[key] ?? key} />
         <DropZoneUpload>
-          <MuiBox height="calc(100% - 100px)" overflow="hidden">
+          <MuiBox
+            overflow="auto"
+            display="flex"
+            flex={1}
+            sx={{ pb: isMobile ? "56px" : 0 }}
+          >
             {viewMode === "list" ? (
               <ListView data={_data} />
             ) : (
@@ -126,7 +130,7 @@ export default function Main() {
             )}
           </MuiBox>
         </DropZoneUpload>
-      </MuiBox>
+      </MainLayout>
       <RenameFile />
       <DetailFile />
       <MediaLibraryForm />
