@@ -30,7 +30,7 @@ export default function ArchivesFrom() {
         doc: file?.doc?._id,
         type: {
           type: fields.type,
-          subtype: fields.subType,
+          subType: fields.subType || undefined,
         },
         tags: fields.tags?.split(/\s/),
       };
