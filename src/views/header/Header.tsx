@@ -1,11 +1,15 @@
 import { AppBar, Box as MuiBox, Toolbar, Typography } from '@mui/material';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import SearchInput from '@/components/SearchInput';
 import DeconnectDialog from '@/views/header/DeconnectDialog';
 import MainOption from '@/views/header/main-options/MainOption';
 import appConfig from '@/configs/app-config.json';
+import { setSearchQuery } from '@/redux/ui';
 
 export default function Header () {
+    const dispatch = useDispatch();
+
     return (
         <React.Fragment>
             <AppBar
@@ -20,13 +24,7 @@ export default function Header () {
                     </Typography>
                     <SearchInput
                         onChange={(event: any) => {
-                            const customEvent = new CustomEvent('_search_data', {
-                                detail: {
-                                    value: event.target.value,
-                                    name: '_search_data',
-                                }
-                            });
-                            document.getElementById('root')?.dispatchEvent(customEvent);
+                            dispatch(setSearchQuery(event.target.value));
                         }}
                     />
                     <MuiBox component="div" display="flex" justifyContent="right" sx={{ flexGrow: 1}}>

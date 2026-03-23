@@ -8,16 +8,18 @@ import UploadFilesButton from "@/views/main/sub-header/UploadFilesButton";
 import TeleverseButton from "@/views/main/sub-header/TeleverseButton";
 import DisplayButton from "@/views/main/sub-header/DisplayButton";
 import { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { triggerReload } from "@/redux/ui";
 import CreateFolderDialog from "@/views/main/CreateFolderDialog";
 
 export default function SubHeader() {
+  const dispatch = useDispatch();
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
 
   const handleCreated = () => {
-    // Déclenche un rechargement du répertoire courant
-    document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
+    dispatch(triggerReload());
   };
 
   return (

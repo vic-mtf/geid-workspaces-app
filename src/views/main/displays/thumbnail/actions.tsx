@@ -7,6 +7,13 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import React from 'react';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
+import store from '@/redux/store';
+import {
+    openRenameDialog,
+    openDetailDialog,
+    openArchivesForm,
+    openMediaLibraryForm,
+} from '@/redux/ui';
 import { ActionOption } from '@/types';
 
 const actions: ActionOption[] = [
@@ -35,7 +42,9 @@ const actions: ActionOption[] = [
                 link.click();
                 URL.revokeObjectURL(url);
             })
-
+            .catch(() => {
+                file?.enqueueSnackbar?.("Le téléchargement a échoué.", { variant: "error" });
+            });
         }
     },
     {
@@ -47,17 +56,7 @@ const actions: ActionOption[] = [
         label: 'Renommer',
         icon: <EditOutlinedIcon/>,
         onClick: (file: any) => {
-            const customEvent = new CustomEvent(
-                '_open_rename_file_name',
-                {
-                    detail : {
-                        name: '_open_rename_file_name',
-                        file,
-                    }
-                }
-            );
-            document.getElementById('root')
-            ?.dispatchEvent(customEvent);
+            store.dispatch(openRenameDialog(file));
         }
     },
     {
@@ -67,19 +66,13 @@ const actions: ActionOption[] = [
             {
                 label: 'Le service d\'archivage',
                 onClick: (file: any) => {
-                    const name = '_open_archives_form';
-                    const customEvent = new CustomEvent(name, { detail : {name,file, } });
-                    document.getElementById('root')
-                    ?.dispatchEvent(customEvent);
+                    store.dispatch(openArchivesForm(file));
                 }
             },
             {
                 label: 'La mediathèque',
                 onClick: (file: any) => {
-                    const name = '_open_media_library_form';
-                    const customEvent = new CustomEvent(name, { detail : {name,file, } });
-                    document.getElementById('root')
-                    ?.dispatchEvent(customEvent);
+                    store.dispatch(openMediaLibraryForm(file));
                 }
             }
         ]
@@ -93,20 +86,9 @@ const actions: ActionOption[] = [
         label: 'Detail',
         icon: <InfoOutlinedIcon/>,
         onClick: (file: any) => {
-            const customEvent = new CustomEvent(
-                '_open_detail_file',
-                {
-                    detail : {
-                        name: '_open_detail_file',
-                        file,
-                    }
-                }
-            );
-            document.getElementById('root')
-            ?.dispatchEvent(customEvent);
+            store.dispatch(openDetailDialog(file));
         }
     },
-
 ];
 
 export default actions;

@@ -1,28 +1,28 @@
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import InputController from '@/components/InputController';
 import useAxios from '@/utils/useAxios';
-import getFileExtension, { getName } from '@/utils/getFileExtension';
-import { useSelector } from 'react-redux';
+import { getName } from '@/utils/getFileExtension';
+import getFileExtension from '@/utils/getFileExtension';
+import { useSelector, useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { Stack } from '@mui/system';
 import { RootState } from '@/types';
+import { closeRenameDialog, triggerReload } from '@/redux/ui';
 
 export default function RenameFile () {
-    const [file, setFile] = useState<any>(null);
+    const dispatch = useDispatch();
+    const { open, file } = useSelector((store: RootState) => store.ui.renameDialog);
     const { token, id: userId } = useSelector((store: RootState) => store.user);
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [, refresh] = useAxios({
         method: 'put',
         url: '/api/stuff/workspace',
-        headers: {
-            'Authorization': `Bearer ${token}`
-          },
     }, {manual: true});
     const inputRef = useRef<HTMLInputElement>(null);
     const valueRef = useRef<string | null>(null);
 
-    const handleDeleteFile = () => {
+    const handleRename = () => {
         enqueueSnackbar(
             <Stack direction="row">
              <CircularProgress color="inherit" size={20}/>
@@ -31,46 +31,36 @@ export default function RenameFile () {
             {
                 autoHideDuration: null,
             }
-        )
+        );
         refresh({
             data: {
               oldFilename: file?.name,
-              filename: valueRef.current + '.' + getFileExtension(file.name),
+              filename: valueRef.current + '.' + getFileExtension(file?.name ?? ''),
               path: file?.type + 's',
               userId,
           },
         }).then(() => {
-            closeSnackbar()
+            closeSnackbar();
             enqueueSnackbar(
-                <Typography>Le fichier a été renommé </Typography>,
+                <Typography>Le fichier a été renommé</Typography>,
                 { variant: 'success'}
-            )
+            );
+            dispatch(triggerReload());
         }).catch(() => {
-            closeSnackbar()
+            closeSnackbar();
             enqueueSnackbar(
                 <Typography>
                     Impossible de changer le nom du fichier
                 </Typography>,
                  { variant: 'error'}
-            )
+            );
         });
-        setFile(null);
-    }
-
-    useEffect(() => {
-        const handleRenameFile = (event: any) => {
-            setFile(event.detail.file)};
-        document.getElementById('root')
-        ?.addEventListener('_open_rename_file_name', handleRenameFile);
-        return () => {
-            document.getElementById('root')
-        ?.removeEventListener('_open_rename_file_name', handleRenameFile);
-        }
-    }, [setFile]);
+        dispatch(closeRenameDialog());
+    };
 
     return (
         <Dialog
-            open={!!file}
+            open={open}
             onAnimationEnd={() => {
                 if(file) {
                     inputRef.current?.focus();
@@ -123,12 +113,12 @@ export default function RenameFile () {
           </DialogContent>
           <DialogActions>
             <Button
-                onClick={() => setFile(null)}
+                onClick={() => dispatch(closeRenameDialog())}
             >
               Annuler
             </Button>
             <Button
-                onClick={handleDeleteFile}
+                onClick={handleRename}
                 variant="outlined"
                 size="small"
                 sx={{textTransform: 'none'}}
@@ -137,5 +127,5 @@ export default function RenameFile () {
             </Button>
           </DialogActions>
         </Dialog>
-    )
+    );
 }

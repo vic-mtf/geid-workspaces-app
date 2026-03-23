@@ -63,8 +63,8 @@ export default function CoverPageForm ({file, refresh, setFile}: CoverPageFormPr
                 if(typeof refresh === 'function')
                     refresh();
                 handleCancelCancel();
-            }).catch((error: any) => {
-                console.log(error);
+            }).catch(() => {
+                // Erreur silencieuse — l'utilisateur voit l'état du formulaire
             });
     }, [file, handleCancelCancel, refetch, refresh]);
 

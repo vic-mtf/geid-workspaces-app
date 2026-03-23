@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
 import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
-import DetailFIle from "@/views/main/displays/thumbnail/DetailFIle";
+import DetailFile from "@/views/main/displays/thumbnail/DetailFIle";
 import RenameFile from "@/views/main/displays/thumbnail/RenameFile";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
 import SubHeader from "@/views/main/sub-header/SubHeader";
@@ -23,6 +23,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export default function Main() {
   const data = useSelector((store: RootState) => store.data);
+  const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
   const { pathname, search } = useLocation();
 
   const key = useMemo(() => {
@@ -62,13 +63,13 @@ export default function Main() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, folder]);
 
-  // Écoute l'événement _reload_current_dir (après création/suppression/renommage d'un dossier)
+  // Recharge quand un composant déclenche triggerReload()
   useEffect(() => {
-    const root = document.getElementById("root");
-    const handler = () => getByKey(key, folder);
-    root?.addEventListener("_reload_current_dir", handler);
-    return () => root?.removeEventListener("_reload_current_dir", handler);
-  }, [key, folder, getByKey]);
+    if (reloadTrigger > 0) {
+      getByKey(key, folder);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reloadTrigger]);
 
   const { sort, order, display } = queryString.parse(search);
 
@@ -105,7 +106,7 @@ export default function Main() {
         </MuiBox>
       </MuiBox>
       <RenameFile />
-      <DetailFIle />
+      <DetailFile />
       <MediaLibraryForm />
       <ArchivesForm />
       <FilesForm />

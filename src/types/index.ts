@@ -56,6 +56,7 @@ export interface RootState {
   app: AppSliceState;
   user: UserSliceState;
   data: DataSliceState;
+  ui: import("@/redux/ui").UiSliceState;
 }
 
 // User types

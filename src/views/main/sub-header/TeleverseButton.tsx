@@ -1,12 +1,15 @@
 import React, { useRef, useState } from "react";
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { useDispatch } from "react-redux";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import PublishRoundedIcon from "@mui/icons-material/PublishRounded";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import getFile from "@/utils/getFile";
+import { openFilesForm } from "@/redux/ui";
 
 export default function TeleverseButton() {
+  const dispatch = useDispatch();
   const [openMenu, setOpenMenu] = useState(false);
   const anchorEl = useRef<HTMLButtonElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -14,10 +17,7 @@ export default function TeleverseButton() {
   const dispatchFiles = (files: FileList | File[]) => {
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
-    const name = "_open_files_form";
-    document.getElementById("root")?.dispatchEvent(
-      new CustomEvent(name, { detail: { files: fileArray, name } })
-    );
+    dispatch(openFilesForm(fileArray));
   };
 
   return (

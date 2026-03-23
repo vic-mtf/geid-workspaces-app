@@ -1,8 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import FormContent from "@/views/forms/files/FormContent";
+import { RootState } from "@/types";
+import { closeFilesForm, triggerUploadFiles } from "@/redux/ui";
 
 export default function FilesForm () {
-    const [files, setFiles] = useState<File[] | null>(null);
+    const dispatch = useDispatch();
+    const { open, files } = useSelector((store: RootState) => store.ui.filesForm);
     const [fieldsError, setFieldsError] = useState<string[]>([]);
     const findError = (field: string) => !!~fieldsError?.indexOf(field);
     const designation = useRef<string | null>(null);
@@ -17,7 +21,7 @@ export default function FilesForm () {
       tags,
     }), []);
 
-    const handleSendFile = useCallback((file: any) => (event: React.FormEvent) => {
+    const handleSendFile = useCallback((_file: any) => (event: React.FormEvent) => {
       event.preventDefault();
       const errors: string[] = [];
       const doc: Record<string, any> = {};
@@ -31,27 +35,12 @@ export default function FilesForm () {
       });
       if(errors.length) setFieldsError(errors);
       else {
-        const name = '_upload_files';
         if(files) {
-            const customEvent = new CustomEvent(name, {
-                detail: { files, name, doc }
-            });
-            document.getElementById('root')
-            ?.dispatchEvent(customEvent);
+          dispatch(triggerUploadFiles({ files, doc }));
         }
-        setFiles(null);
+        dispatch(closeFilesForm());
       }
-    }, [fieldsError, files, getFieldDocs]);
-
-    useEffect(() => {
-      const rootEl = document.getElementById('root');
-      const name = '_open_files_form';
-      const handleOpenMediaForm = (event: any) => setFiles([...event.detail.files]);
-      rootEl?.addEventListener(name, handleOpenMediaForm);
-      return () => {
-        rootEl?.removeEventListener(name, handleOpenMediaForm);
-      }
-    }, []);
+    }, [fieldsError, files, getFieldDocs, dispatch]);
 
     return (
       <FormContent
@@ -59,10 +48,12 @@ export default function FilesForm () {
         findError={findError}
         handleSendFile={handleSendFile}
         docFields={getFieldDocs()}
-        setFiles={setFiles}
+        setFiles={(f: File[] | null) => {
+          if (f === null) dispatch(closeFilesForm());
+        }}
         onClose={(event: React.MouseEvent) => {
           event.preventDefault();
-          setFiles(null);
+          dispatch(closeFilesForm());
         }}
       />
     );

@@ -11,9 +11,10 @@ import persistStore from "redux-persist/es/persistStore";
 import app from "@/redux/app";
 import user from "@/redux/user";
 import data from "@/redux/data";
+import ui from "@/redux/ui";
 
 const store = configureStore({
-  reducer: { app, user, data },
+  reducer: { app, user, data, ui },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

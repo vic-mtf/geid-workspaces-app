@@ -1,22 +1,22 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import format from "@/views/forms/format";
 import useAxios from "@/utils/useAxios";
 import { useSnackbar } from "notistack";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import textStyle from '@/styles/text.module.css';
 import FormContent from "@/views/forms/medialibrary/FormContent";
 import { RootState } from "@/types";
 import { Button, Typography } from "@mui/material";
+import { closeMediaLibraryForm } from "@/redux/ui";
 
 export default function MediaLibraryForm () {
-    const [file, setFile] = useState<any>(null);
+    const dispatch = useDispatch();
+    const { open, file } = useSelector((store: RootState) => store.ui.mediaLibraryForm);
     const typeInfos = useMemo(() => format[(file?.type as string)], [file?.type]);
     const userId = useSelector((store: RootState) => store.user.id);
-    const token = useSelector((store: RootState) => store.user.token);
     const [, refresh, cancel] = useAxios({
       url: 'api/stuff/frozen',
       method: 'post',
-      headers: {'Authorization': `Bearer ${token}`}
     }, {manual: true});
     const [fieldsError, setFieldsError] = useState<string[]>([]);
     const findError = (field: string) => !!~fieldsError?.indexOf(field);
@@ -33,12 +33,12 @@ export default function MediaLibraryForm () {
       description: useRef<string | null>(null),
     };
 
-    const handleSendFile = (file: any) => (event: React.FormEvent) => {
+    const handleSendFile = (f: any) => (event: React.FormEvent) => {
       event.preventDefault();
       const errors: string[] = [];
       const datas: Record<string, any> = { frozenType: typeInfos?.key };
-      const where = `${file?.type}s/${file?.name}`;
-      const name = file?.name?.replace(/_/ig, ' ');
+      const where = `${f?.type}s/${f?.name}`;
+      const name = f?.name?.replace(/_/ig, ' ');
       if(fieldsError.length) setFieldsError([]);
       if(typeInfos?.type === 'media')
         Object.keys(mediaFields).forEach(key => {
@@ -74,7 +74,7 @@ export default function MediaLibraryForm () {
                 Le fichier a été envoyé à la mediathèque avec succès
               </Typography>,
               { variant:'success'}
-            )
+            );
           }).catch(() => {
             closeSnackbar();
             enqueueSnackbar(
@@ -90,7 +90,7 @@ export default function MediaLibraryForm () {
                 Impossible de soumettre ce fichier à la Médiathèque
               </Typography>,
               { variant: 'error'}
-            )
+            );
           });
         }, 3000);
         enqueueSnackbar(
@@ -120,20 +120,10 @@ export default function MediaLibraryForm () {
             autoHideDuration: null,
           }
         );
-        setFile(null);
+        dispatch(closeMediaLibraryForm());
       }
       bookFields.cover.current = null;
     };
-
-    useEffect(() => {
-      const rootEl = document.getElementById('root');
-      const name = '_open_media_library_form';
-      const handleOpenMediaForm = (event: Event) => setFile((event as CustomEvent).detail.file);
-      rootEl?.addEventListener(name, handleOpenMediaForm);
-      return () => {
-        rootEl?.removeEventListener(name, handleOpenMediaForm);
-      }
-    });
 
     return (
       <FormContent
@@ -145,7 +135,7 @@ export default function MediaLibraryForm () {
         bookFields={bookFields}
         onClose={(event: React.MouseEvent) => {
           event.preventDefault();
-          setFile(null);
+          dispatch(closeMediaLibraryForm());
         }}
       />
     );
