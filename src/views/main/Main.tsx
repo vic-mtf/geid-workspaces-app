@@ -1,7 +1,8 @@
 import { Toolbar, Box as MuiBox, Divider, useTheme, useMediaQuery } from "@mui/material";
 import queryString from "query-string";
-import React, { useMemo, useEffect, useCallback, useState } from "react";
+import React, { useMemo, useEffect, useCallback, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { CircularProgress } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import ListView from "@/views/main/displays/list/ListView";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
@@ -19,6 +20,7 @@ import SubHeader from "@/views/main/sub-header/SubHeader";
 import FilesForm from "@/views/forms/files/FilesForm";
 import FolderBreadcrumb from "@/views/main/FolderBreadcrumb";
 import useGetData from "@/utils/useGetData";
+import { updateData } from "@/redux/data";
 import { RootState } from "@/types";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -37,6 +39,7 @@ export default function Main() {
   const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
   const previewDialog = useSelector((store: RootState) => store.ui.previewDialog);
   const [shareFile, setShareFile] = useState<{ id: string; name: string } | null>(null);
+  const [loading, setLoading] = useState(false);
   const { pathname, search } = useLocation();
 
   useEffect(() => {
@@ -75,8 +78,12 @@ export default function Main() {
     [getDocs, getImages, getVideos]
   );
 
+  // Vide les données et recharge quand on change de catégorie ou de dossier
   useEffect(() => {
-    getByKey(key, folder);
+    // Vider les données de la catégorie courante pour éviter d'afficher des données stale
+    dispatch(updateData({ data: { [key]: [] } }));
+    setLoading(true);
+    getByKey(key, folder).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, folder]);
 
@@ -124,7 +131,11 @@ export default function Main() {
             minHeight={0}
             sx={{ pb: isMobile ? "56px" : 0 }}
           >
-            {viewMode === "list" ? (
+            {loading ? (
+              <MuiBox display="flex" justifyContent="center" alignItems="center" flex={1}>
+                <CircularProgress size={28} />
+              </MuiBox>
+            ) : viewMode === "list" ? (
               <ListView data={_data} />
             ) : (
               <Thumbnail data={_data} />
