@@ -1,8 +1,7 @@
-import { Box } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { VirtuosoGrid } from "react-virtuoso";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import getFileExtension from "@/utils/getFileExtension";
 import File from "@/views/main/displays/file/File";
@@ -14,32 +13,6 @@ import { FileItem, RootState } from "@/types";
 interface ThumbnailProps {
   data?: FileItem[];
 }
-
-const gridComponents = {
-  List: ({ style, children, ...props }: any) => (
-    <Box
-      {...props}
-      style={style}
-      sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "repeat(2, 1fr)",
-          sm: "repeat(3, 1fr)",
-          md: "repeat(4, 1fr)",
-          lg: "repeat(5, 1fr)",
-          xl: "repeat(7, 1fr)",
-        },
-        gap: 0.5,
-        p: 1,
-      }}
-    >
-      {children}
-    </Box>
-  ),
-  Item: ({ children, ...props }: any) => (
-    <Box {...props}>{children}</Box>
-  ),
-};
 
 export default function Thumbnail({ data: _data }: ThumbnailProps) {
   const searchQuery = useSelector((store: RootState) => store.ui.searchQuery);
@@ -74,41 +47,49 @@ export default function Thumbnail({ data: _data }: ThumbnailProps) {
   }
 
   return (
-    <VirtuosoGrid
-      style={{ height: "100%", width: "100%" }}
-      totalCount={data.length}
-      components={gridComponents}
-      itemContent={(index) => {
-        const file = data[index];
-        if (!file) return null;
+    <Box overflow="auto" flex={1} p={1}>
+      <Grid container spacing={0.5}>
+        {data.map((file, index) => {
+          if (file.isDirectory) {
+            return (
+              <Grid
+                item
+                xs={6} sm={4} md={3} lg={2} xl={12 / 7}
+                key={`dir_${index}_${file.name}`}
+              >
+                <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick}>
+                  <Box display="flex" flex={1} justifyContent="center" alignItems="center">
+                    <FolderItem name={file.name} />
+                  </Box>
+                </WrapperContent>
+              </Grid>
+            );
+          }
 
-        if (file.isDirectory) {
-          return (
-            <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick}>
-              <Box display="flex" flex={1} justifyContent="center" alignItems="center">
-                <FolderItem name={file.name} />
-              </Box>
-            </WrapperContent>
+          const infos = fileExtensionBase.find(({ exts }) =>
+            ~exts.indexOf(getFileExtension(file.name) ?? "")
           );
-        }
 
-        const infos = fileExtensionBase.find(({ exts }) =>
-          ~exts.indexOf(getFileExtension(file.name) ?? "")
-        );
-
-        return (
-          <WrapperContent {...infos} {...file}>
-            <Box display="flex" flex={1} justifyContent="center" alignItems="center">
-              <File
-                {...infos}
-                name={file.name}
-                date={file.createdAt}
-                url={file.url}
-              />
-            </Box>
-          </WrapperContent>
-        );
-      }}
-    />
+          return (
+            <Grid
+              item
+              xs={6} sm={4} md={3} lg={2} xl={12 / 7}
+              key={`${index}_${file.name}`}
+            >
+              <WrapperContent {...infos} {...file}>
+                <Box display="flex" flex={1} justifyContent="center" alignItems="center">
+                  <File
+                    {...infos}
+                    name={file.name}
+                    date={file.createdAt}
+                    url={file.url}
+                  />
+                </Box>
+              </WrapperContent>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </Box>
   );
 }
