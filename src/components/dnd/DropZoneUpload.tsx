@@ -40,7 +40,10 @@ export default function DropZoneUpload({ children }: DropZoneUploadProps) {
   return (
     <Box
       position="relative"
-      height="100%"
+      display="flex"
+      flexDirection="column"
+      flex={1}
+      minHeight={0}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}

@@ -121,6 +121,7 @@ export default function Main() {
             overflow="auto"
             display="flex"
             flex={1}
+            minHeight={0}
             sx={{ pb: isMobile ? "56px" : 0 }}
           >
             {viewMode === "list" ? (
