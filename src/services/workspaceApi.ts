@@ -85,6 +85,19 @@ const workspaceApi = {
   // Activity
   getActivity: (limit = 50, before?: string) =>
     axiosInstance.get("/api/stuff/workspace/activity", { params: { limit, before } }),
+
+  // Share
+  shareWithUser: (fileId: string, targetUserId: string, permission = "view") =>
+    axiosInstance.post("/api/stuff/workspace/share", { fileId, targetUserId, permission }),
+
+  createShareLink: (fileId: string) =>
+    axiosInstance.post("/api/stuff/workspace/share/link", { fileId }),
+
+  revokeShare: (id: string, targetUserId?: string) =>
+    axiosInstance.delete(`/api/stuff/workspace/share/${id}`, { data: { targetUserId } }),
+
+  getSharedWithMe: () =>
+    axiosInstance.get("/api/stuff/workspace/shared"),
 };
 
 export default workspaceApi;

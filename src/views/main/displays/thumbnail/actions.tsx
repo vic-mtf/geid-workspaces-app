@@ -5,9 +5,11 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import React from 'react';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
 import store from '@/redux/store';
+import workspaceApi from '@/services/workspaceApi';
 import {
     openRenameDialog,
     openDetailDialog,
@@ -46,9 +48,20 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Supprimer',
-        icon: <DeleteOutlinedIcon/>,
-        onClick: removeFile as any,
+        label: 'Ajouter aux favoris',
+        icon: <StarOutlinedIcon/>,
+        onClick: (file: any) => {
+            if (file?._id || file?.doc?._id) {
+                const id = file._id || file.doc._id;
+                workspaceApi.toggleFavorite(id)
+                    .then(() => {
+                        file?.enqueueSnackbar?.("Favori mis à jour.", { variant: "success" });
+                    })
+                    .catch(() => {
+                        file?.enqueueSnackbar?.("Impossible de modifier le favori.", { variant: "error" });
+                    });
+            }
+        }
     },
     {
         label: 'Renommer',
@@ -77,11 +90,19 @@ const actions: ActionOption[] = [
     },
     {
         label: 'Partager',
-        disabled: true,
-        icon: <ShareOutlinedIcon/>
+        icon: <ShareOutlinedIcon/>,
+        onClick: (file: any) => {
+            // Dispatched via shareDialogFile state in WrapperContent / ListView
+            file?._onShare?.(file);
+        }
     },
     {
-        label: 'Detail',
+        label: 'Supprimer',
+        icon: <DeleteOutlinedIcon/>,
+        onClick: removeFile as any,
+    },
+    {
+        label: 'Détail',
         icon: <InfoOutlinedIcon/>,
         onClick: (file: any) => {
             store.dispatch(openDetailDialog(file));

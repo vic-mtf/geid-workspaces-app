@@ -1,6 +1,6 @@
 import { Toolbar, Box as MuiBox, Divider } from "@mui/material";
 import queryString from "query-string";
-import React, { useMemo, useEffect, useCallback } from "react";
+import React, { useMemo, useEffect, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ListView from "@/views/main/displays/list/ListView";
@@ -9,8 +9,10 @@ import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
 import DetailFile from "@/views/main/displays/thumbnail/DetailFIle";
 import RenameFile from "@/views/main/displays/thumbnail/RenameFile";
 import FilePreview from "@/views/preview/FilePreview";
+import ShareDialog from "@/views/dialogs/ShareDialog";
 import DropZoneUpload from "@/components/dnd/DropZoneUpload";
 import { closePreviewDialog } from "@/redux/ui";
+import { connectWorkspaceSocket, disconnectWorkspaceSocket } from "@/services/socket";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
 import SubHeader from "@/views/main/sub-header/SubHeader";
 import FilesForm from "@/views/forms/files/FilesForm";
@@ -31,7 +33,14 @@ export default function Main() {
   const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
   const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
   const previewDialog = useSelector((store: RootState) => store.ui.previewDialog);
+  const [shareFile, setShareFile] = useState<{ id: string; name: string } | null>(null);
   const { pathname, search } = useLocation();
+
+  // Connect socket on mount
+  useEffect(() => {
+    connectWorkspaceSocket();
+    return () => disconnectWorkspaceSocket();
+  }, []);
 
   const key = useMemo(() => {
     if (pathname.match(/images/)) return "images";
@@ -127,6 +136,12 @@ export default function Main() {
         open={previewDialog.open}
         file={previewDialog.file}
         onClose={() => dispatch(closePreviewDialog())}
+      />
+      <ShareDialog
+        open={!!shareFile}
+        fileId={shareFile?.id ?? null}
+        fileName={shareFile?.name ?? null}
+        onClose={() => setShareFile(null)}
       />
     </React.Fragment>
   );
