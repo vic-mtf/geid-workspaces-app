@@ -9,73 +9,47 @@ interface InputsDocProps {
 }
 
 export default function InputsDoc({ register, errors, control }: InputsDocProps) {
-  const message = "Intitulé non valide ou trop court.";
-
   return (
     <React.Fragment>
       <TextField
-        label='Désignation'
+        label="Titre du document"
         fullWidth
-        margin='dense'
+        margin="dense"
+        size="small"
         {...register("designation", {
-          required: "Veuillez renseigner une désignation",
-          minLength: { value: 2, message },
+          required: "Veuillez donner un titre à votre document",
+          minLength: { value: 2, message: "Le titre doit contenir au moins 2 caractères" },
         })}
         helperText={errors?.designation?.message}
         error={!!errors?.designation}
-        FormHelperTextProps={{
-          sx: { color: "error.main" },
-        }}
       />
 
-      <Typology margin='dense' control={control} errors={errors} />
+      <Typology margin="dense" control={control} errors={errors} />
 
       <TextField
-        label='Etagère/Rayon'
-        fullWidth
-        margin='dense'
-        {...register("tags", {
-          required: "Veuillez renseigner l'etagère ou le rayon du document",
-          minLength: { value: 2, message },
-        })}
-        error={!!errors?.tags}
-        helperText={errors?.tags?.message}
-        FormHelperTextProps={{
-          sx: { color: "error.main" },
-        }}
-      />
-
-      <TextField
-        label='Dossier'
-        fullWidth
-        margin='dense'
-        {...register("folder", {
-          required:
-            "Veuillez renseigner une activité, une mission ou un dossier",
-          minLength: { value: 2, message },
-        })}
-        helperText={errors?.folder?.message}
-        error={!!errors?.folder}
-        FormHelperTextProps={{
-          sx: { color: "error.main" },
-        }}
-      />
-
-      <TextField
-        label='Déscription'
+        label="Description"
         fullWidth
         multiline
-        margin='dense'
+        margin="dense"
+        size="small"
         rows={3}
+        placeholder="Décrivez brièvement le contenu du document..."
         {...register("description", {
-          required: "Veuillez renseigner la description du document",
-          minLength: { value: 5, message },
+          required: "Veuillez ajouter une description du document",
+          minLength: { value: 5, message: "La description doit contenir au moins 5 caractères" },
         })}
         helperText={errors?.description?.message}
         error={!!errors?.description}
-        FormHelperTextProps={{
-          sx: { color: "error.main" },
-        }}
+      />
+
+      <TextField
+        label="Mots-clés (facultatif)"
+        fullWidth
+        margin="dense"
+        size="small"
+        placeholder="Ex : budget 2024, rapport, finance..."
+        {...register("tags")}
+        helperText="Séparez les mots-clés par des espaces pour faciliter la recherche"
       />
     </React.Fragment>
   );
