@@ -4,17 +4,17 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
+import { useSelector } from "react-redux";
+import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import getFileExtension from "@/utils/getFileExtension";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
 import optionLocalDate from "@/utils/optionLocalDate";
 import actions from "@/views/main/displays/thumbnail/actions";
 import SubMenu from "@/views/main/displays/thumbnail/SubMenu";
+import EmptyState from "@/components/EmptyState";
 import { useSnackbar } from "notistack";
 import useAxios from "@/utils/useAxios";
 import { FileItem, RootState } from "@/types";
@@ -46,26 +46,18 @@ export default function ListView({ data }: ListViewProps) {
   };
 
   if (!filteredData?.length) {
-    return (
-      <Typography
-        align="center" color="text.secondary" height="100%"
-        display="flex" alignItems="center" justifyContent="center"
-        flexDirection="column" variant="body1" fontWeight="bold"
-      >
-        <InboxOutlinedIcon fontSize="large" /> Aucun élément
-      </Typography>
-    );
+    return <EmptyState />;
   }
 
   return (
-    <TableContainer sx={{ height: "85vh", overflow: "auto" }}>
+    <TableContainer sx={{ flex: 1, overflow: "auto", width: "100%" }}>
       <Table size="small" stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: "bold" }}>Nom</TableCell>
-            <TableCell sx={{ fontWeight: "bold", width: 150 }}>Date</TableCell>
-            <TableCell sx={{ fontWeight: "bold", width: 100 }}>Taille</TableCell>
-            <TableCell sx={{ width: 48 }} />
+            <TableCell sx={{ fontWeight: 600, fontSize: 13 }}>Nom</TableCell>
+            <TableCell sx={{ fontWeight: 600, fontSize: 13, width: 150 }}>Date</TableCell>
+            <TableCell sx={{ fontWeight: 600, fontSize: 13, width: 100 }}>Taille</TableCell>
+            <TableCell sx={{ width: 44 }} />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -80,20 +72,20 @@ export default function ListView({ data }: ListViewProps) {
               <TableRow
                 key={`${index}_${file.name}`}
                 hover
-                sx={{ cursor: "pointer" }}
+                sx={{ cursor: "pointer", "&:last-child td": { borderBottom: 0 } }}
                 onClick={() => {
                   if (file.isDirectory && file.name) handleFolderClick(file.name);
                   else if (file.url) window.open(file.url, "_blank");
                 }}
               >
                 <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
+                  <Box display="flex" alignItems="center" gap={1.5}>
                     {file.isDirectory ? (
-                      <FolderOutlinedIcon color="primary" fontSize="small" />
+                      <FolderRoundedIcon sx={{ fontSize: 22 }} color="primary" />
                     ) : infos?.icon ? (
                       <Box component="img" src={infos.icon} sx={{ width: 20, height: 20 }} />
                     ) : (
-                      <InsertDriveFileOutlinedIcon fontSize="small" color="action" />
+                      <InsertDriveFileOutlinedIcon sx={{ fontSize: 20 }} color="action" />
                     )}
                     <Typography variant="body2" noWrap>
                       {file.name?.replace(/_/gi, " ")}
@@ -101,18 +93,18 @@ export default function ListView({ data }: ListViewProps) {
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" fontSize={13}>
                     {file.createdAt
-                      ? new Date(file.createdAt).toLocaleDateString(undefined, optionLocalDate)
-                      : "—"}
+                      ? new Date(file.createdAt).toLocaleDateString("fr-FR", optionLocalDate)
+                      : "\u2014"}
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" color="text.secondary">
-                    {file.isDirectory ? "—" : normaliseOctetSize(file.size || 0)}
+                  <Typography variant="body2" color="text.secondary" fontSize={13}>
+                    {file.isDirectory ? "\u2014" : normaliseOctetSize(file.size || 0)}
                   </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell padding="none">
                   {!file.isDirectory && (
                     <IconButton
                       size="small"
@@ -121,7 +113,7 @@ export default function ListView({ data }: ListViewProps) {
                         setMenuAnchor({ el: e.currentTarget, file: { ...infos, ...file } });
                       }}
                     >
-                      <MoreVertIcon fontSize="small" />
+                      <MoreVertRoundedIcon fontSize="small" />
                     </IconButton>
                   )}
                 </TableCell>

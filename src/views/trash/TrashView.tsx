@@ -1,11 +1,13 @@
-import { Box, Typography, CircularProgress, Button, Stack, Toolbar } from "@mui/material";
+import { Box, Typography, CircularProgress, Button, Stack, Toolbar, Divider } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import workspaceApi from "@/services/workspaceApi";
 import ListView from "@/views/main/displays/list/ListView";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import MainLayout from "@/components/Main";
+import EmptyState from "@/components/EmptyState";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import { RootState } from "@/types";
 
@@ -43,12 +45,12 @@ export default function TrashView() {
   };
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, px: 0.5, width: "100%" }}>
+    <MainLayout>
       <Toolbar variant="dense" />
-      <Box px={2} py={1}>
+      <Box px={2} py={1.5}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6" fontWeight="bold" display="flex" alignItems="center" gap={1}>
-            <DeleteOutlinedIcon color="error" /> Corbeille
+          <Typography variant="h6" fontSize={16} fontWeight="bold" display="flex" alignItems="center" gap={1}>
+            <DeleteOutlineRoundedIcon fontSize="small" color="error" /> Corbeille
           </Typography>
           {data.length > 0 && (
             <Button
@@ -68,15 +70,23 @@ export default function TrashView() {
           </Typography>
         )}
       </Box>
-      {loading ? (
-        <Box display="flex" justifyContent="center" py={4}>
-          <CircularProgress />
-        </Box>
-      ) : viewMode === "list" ? (
-        <ListView data={data} />
-      ) : (
-        <Thumbnail data={data} />
-      )}
-    </Box>
+      <Divider />
+      <Box overflow="auto" display="flex" flex={1}>
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" flex={1}>
+            <CircularProgress size={28} />
+          </Box>
+        ) : data.length === 0 ? (
+          <EmptyState
+            icon={<DeleteOutlineRoundedIcon sx={{ fontSize: 56 }} color="disabled" />}
+            message="La corbeille est vide"
+          />
+        ) : viewMode === "list" ? (
+          <ListView data={data} />
+        ) : (
+          <Thumbnail data={data} />
+        )}
+      </Box>
+    </MainLayout>
   );
 }

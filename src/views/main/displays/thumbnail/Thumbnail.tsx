@@ -1,128 +1,114 @@
-import { Box, Grid, Typography } from "@mui/material";
-import { useMemo } from "react";
+import { Box } from "@mui/material";
+import { useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { VirtuosoGrid } from "react-virtuoso";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import getFileExtension from "@/utils/getFileExtension";
 import File from "@/views/main/displays/file/File";
 import FolderItem from "@/views/main/displays/thumbnail/FolderItem";
 import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
-import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
+import EmptyState from "@/components/EmptyState";
 import { FileItem, RootState } from "@/types";
 
 interface ThumbnailProps {
   data?: FileItem[];
 }
 
+const gridComponents = {
+  List: ({ style, children, ...props }: any) => (
+    <Box
+      {...props}
+      style={style}
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "repeat(2, 1fr)",
+          sm: "repeat(3, 1fr)",
+          md: "repeat(4, 1fr)",
+          lg: "repeat(5, 1fr)",
+          xl: "repeat(7, 1fr)",
+        },
+        gap: 0.5,
+        p: 1,
+      }}
+    >
+      {children}
+    </Box>
+  ),
+  Item: ({ children, ...props }: any) => (
+    <Box {...props}>{children}</Box>
+  ),
+};
+
 export default function Thumbnail({ data: _data }: ThumbnailProps) {
-  const findName = useSelector((store: RootState) => store.ui.searchQuery);
+  const searchQuery = useSelector((store: RootState) => store.ui.searchQuery);
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
 
   const data = useMemo(
     () =>
       _data?.filter((item) => {
-        if (findName?.trim() === "") return true;
-        const worlds = findName.split(/\s/).filter((word: string) => word?.trim());
-        let found = false;
-        worlds.forEach((word: string) => {
-          const _word = word.toLowerCase().trim();
-          if (
-            (_word.length > 2 &&
-              ~(item?.name?.toLowerCase() ?? "").indexOf(_word)) ||
-            ~(item?.name?.replace(/_/gi, " ").toLowerCase() ?? "").indexOf(
-              findName?.toLowerCase()?.trim() ?? ""
-            )
-          )
-            found = true;
+        if (!searchQuery?.trim()) return true;
+        const words = searchQuery.split(/\s/).filter((w: string) => w?.trim());
+        return words.some((word: string) => {
+          const w = word.toLowerCase().trim();
+          return w.length > 1 && (item?.name?.toLowerCase() ?? "").includes(w);
         });
-        return found;
-      }),
-    [findName, _data]
+      }) ?? [],
+    [searchQuery, _data]
   );
 
-  const handleFolderClick = (folderName: string) => {
-    const params = new URLSearchParams(search);
-    const currentFolder = params.get("folder") || "";
-    const newFolder = currentFolder ? `${currentFolder}/${folderName}` : folderName;
-    navigate(`${pathname}?folder=${encodeURIComponent(newFolder)}`);
-  };
+  const handleFolderClick = useCallback(
+    (folderName: string) => {
+      const params = new URLSearchParams(search);
+      const currentFolder = params.get("folder") || "";
+      const newFolder = currentFolder ? `${currentFolder}/${folderName}` : folderName;
+      navigate(`${pathname}?folder=${encodeURIComponent(newFolder)}`);
+    },
+    [search, pathname, navigate]
+  );
+
+  if (data.length === 0) {
+    return <EmptyState />;
+  }
 
   return (
-    <Box overflow="auto" p={1} height="85vh">
-      {data?.length === 0 ? (
-        <Typography
-          align="center"
-          color="text.secondary"
-          height="100%"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          flexDirection="column"
-          variant="body1"
-          fontWeight="bold"
-        >
-          <InboxOutlinedIcon fontSize="large" /> Aucun élément
-        </Typography>
-      ) : (
-        <Grid component="div" container>
-          {data?.map((file, index) => {
-            if (file.isDirectory) {
-              return (
-                <Grid
-                  component="div"
-                  item
-                  md={12 / 5}
-                  lg={12 / 6}
-                  xl={12 / 8}
-                  key={`dir_${index}_${file.name}`}
-                >
-                  <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick}>
-                    <Box
-                      display="flex"
-                      flex={1}
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <FolderItem name={file.name} />
-                    </Box>
-                  </WrapperContent>
-                </Grid>
-              );
-            }
+    <VirtuosoGrid
+      style={{ height: "100%", width: "100%" }}
+      totalCount={data.length}
+      components={gridComponents}
+      itemContent={(index) => {
+        const file = data[index];
+        if (!file) return null;
 
-            const infos = fileExtensionBase.find(({ exts }) =>
-              ~exts.indexOf(getFileExtension(file.name) ?? "")
-            );
-            return (
-              <Grid
-                component="div"
-                item
-                md={12 / 5}
-                lg={12 / 6}
-                xl={12 / 8}
-                key={`${index}_${file.name}`}
-              >
-                <WrapperContent {...infos} {...file}>
-                  <Box
-                    display="flex"
-                    flex={1}
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <File
-                      {...infos}
-                      name={file.name}
-                      date={file.createdAt}
-                      url={file.url}
-                    />
-                  </Box>
-                </WrapperContent>
-              </Grid>
-            );
-          })}
-        </Grid>
-      )}
-    </Box>
+        if (file.isDirectory) {
+          return (
+            <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick}>
+              <Box display="flex" flex={1} justifyContent="center" alignItems="center">
+                <FolderItem name={file.name} />
+              </Box>
+            </WrapperContent>
+          );
+        }
+
+        const infos = fileExtensionBase.find(({ exts }) =>
+          ~exts.indexOf(getFileExtension(file.name) ?? "")
+        );
+
+        return (
+          <WrapperContent {...infos} {...file}>
+            <Box display="flex" flex={1} justifyContent="center" alignItems="center">
+              <File
+                {...infos}
+                name={file.name}
+                date={file.createdAt}
+                url={file.url}
+              />
+            </Box>
+          </WrapperContent>
+        );
+      }}
+    />
   );
 }
