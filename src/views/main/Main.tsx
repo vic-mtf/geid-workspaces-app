@@ -1,8 +1,7 @@
-import { Toolbar, Box as MuiBox, Divider, useTheme, useMediaQuery } from "@mui/material";
+import { Toolbar, Box as MuiBox, Divider, useTheme, useMediaQuery, CircularProgress } from "@mui/material";
 import queryString from "query-string";
-import React, { useMemo, useEffect, useCallback, useState, useRef } from "react";
+import React, { useMemo, useEffect, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { CircularProgress } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import ListView from "@/views/main/displays/list/ListView";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
@@ -19,8 +18,8 @@ import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
 import SubHeader from "@/views/main/sub-header/SubHeader";
 import FilesForm from "@/views/forms/files/FilesForm";
 import FolderBreadcrumb from "@/views/main/FolderBreadcrumb";
-import useGetData from "@/utils/useGetData";
-import { updateData } from "@/redux/data";
+import useAxios from "@/utils/useAxios";
+import { useGetUrlData } from "@/utils/useGetData";
 import { RootState } from "@/types";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -34,13 +33,17 @@ export default function Main() {
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const data = useSelector((store: RootState) => store.data);
-  const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
   const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
   const previewDialog = useSelector((store: RootState) => store.ui.previewDialog);
   const [shareFile, setShareFile] = useState<{ id: string; name: string } | null>(null);
-  const [loading, setLoading] = useState(false);
   const { pathname, search } = useLocation();
+
+  // Données locales au lieu de Redux pour éviter les données stale
+  const [localData, setLocalData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const getUrlData = useGetUrlData();
+  const [, refetch] = useAxios(null as any, { manual: true });
 
   useEffect(() => {
     connectWorkspaceSocket();
@@ -59,37 +62,32 @@ export default function Main() {
     [search]
   );
 
-  const [, getDocs] = useGetData({
-    key: "documents",
-    onBeforeUpdate(d: any) { return { ...d, others: [] }; },
-  });
-  const [, getImages] = useGetData({ key: "images" });
-  const [, getVideos] = useGetData({
-    key: "videos",
-    onBeforeUpdate(d: any) { return { ...d, audios: [] }; },
-  });
+  const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
 
-  const getByKey = useCallback(
-    (k: string, f: string) => {
-      if (k === "images") return getImages({ folder: f });
-      if (k === "videos") return getVideos({ folder: f });
-      return getDocs({ folder: f });
-    },
-    [getDocs, getImages, getVideos]
-  );
-
-  // Vide les données et recharge quand on change de catégorie ou de dossier
-  useEffect(() => {
-    // Vider les données de la catégorie courante pour éviter d'afficher des données stale
-    dispatch(updateData({ data: { [key]: [] } }));
+  // Charge les données directement via API — plus de dépendance au Redux data
+  const loadData = useCallback(() => {
+    const fullPath = folder ? `${key}/${folder}` : key;
     setLoading(true);
-    getByKey(key, folder).finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, folder]);
+    refetch(getUrlData({ path: fullPath }))
+      .then(({ data: responseData }: any) => {
+        setLocalData(Array.isArray(responseData) ? responseData : []);
+      })
+      .catch(() => {
+        setLocalData([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [key, folder, refetch, getUrlData]);
+
+  useEffect(() => {
+    setLocalData([]); // Vider immédiatement
+    loadData();
+  }, [key, folder, loadData]);
 
   useEffect(() => {
     if (reloadTrigger > 0) {
-      getByKey(key, folder);
+      loadData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reloadTrigger]);
@@ -97,9 +95,9 @@ export default function Main() {
   const { sort, order } = queryString.parse(search);
 
   const _data = useMemo(() => {
-    let __data = [...((data as any)[key] || [])];
+    let __data = [...localData];
     if (!sort || sort === "name")
-      __data?.sort((a: any, b: any) => {
+      __data.sort((a: any, b: any) => {
         if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
         const nameA = (a?.name || "").toUpperCase();
         const nameB = (b?.name || "").toUpperCase();
@@ -108,13 +106,13 @@ export default function Main() {
         return 0;
       });
     if (sort === "date")
-      __data?.sort(
+      __data.sort(
         (a: any, b: any) =>
           new Date(a?.createdAt).getTime() - new Date(b?.createdAt).getTime()
       );
-    if (order === "descending") __data = __data?.reverse();
+    if (order === "descending") __data = __data.reverse();
     return __data;
-  }, [key, data, sort, order]);
+  }, [localData, sort, order]);
 
   return (
     <React.Fragment>
