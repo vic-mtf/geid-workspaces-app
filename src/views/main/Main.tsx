@@ -1,8 +1,9 @@
 import { Toolbar, Box as MuiBox, Divider } from "@mui/material";
 import queryString from "query-string";
 import React, { useMemo, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { updateData } from "@/redux/data";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
 import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
 import DetailFIle from "@/views/main/displays/thumbnail/DetailFIle";
@@ -34,6 +35,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export default function Main() {
   const data = useSelector((store: RootState) => store.data);
+  const dispatch = useDispatch();
   const { pathname, search } = useLocation();
 
   const isSpecialView = useMemo(() => {
@@ -74,8 +76,9 @@ export default function Main() {
     [getDocs, getImages, getVideos]
   );
 
-  // Recharge le répertoire courant quand on navigue dans les dossiers
+  // Vide les données stale puis recharge quand on change de catégorie ou sous-dossier
   useEffect(() => {
+    dispatch(updateData({ data: { [key]: [] } }));
     getByKey(key, folder);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, folder]);
