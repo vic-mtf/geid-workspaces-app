@@ -8,8 +8,6 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import React from 'react';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
-import store from '@/redux/store';
-import workspaceApi from '@/services/workspaceApi';
 import {
     openRenameDialog,
     openDetailDialog,
@@ -25,7 +23,7 @@ const actions: ActionOption[] = [
         label: 'Aperçu',
         icon: <LaunchOutlinedIcon/>,
         onClick: (file: any) => {
-            store.dispatch(openPreviewDialog(file));
+            file?._dispatch?.(openPreviewDialog(file));
         }
     },
     {
@@ -54,13 +52,17 @@ const actions: ActionOption[] = [
         onClick: (file: any) => {
             if (file?._id || file?.doc?._id) {
                 const id = file._id || file.doc._id;
-                workspaceApi.toggleFavorite(id)
-                    .then(() => {
-                        file?.enqueueSnackbar?.("Favori mis à jour.", { variant: "success" });
-                    })
-                    .catch(() => {
-                        file?.enqueueSnackbar?.("Impossible de modifier le favori.", { variant: "error" });
-                    });
+                fetch(`${import.meta.env.VITE_SERVER_BASE_URL}/api/stuff/workspace/favorite/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${file?.user?.token}` },
+                })
+                .then((res) => {
+                    if (res.ok) file?.enqueueSnackbar?.("Favori mis à jour.", { variant: "success" });
+                    else file?.enqueueSnackbar?.("Impossible de modifier le favori.", { variant: "error" });
+                })
+                .catch(() => {
+                    file?.enqueueSnackbar?.("Impossible de modifier le favori.", { variant: "error" });
+                });
             }
         }
     },
@@ -68,7 +70,7 @@ const actions: ActionOption[] = [
         label: 'Renommer',
         icon: <EditOutlinedIcon/>,
         onClick: (file: any) => {
-            store.dispatch(openRenameDialog(file));
+            file?._dispatch?.(openRenameDialog(file));
         }
     },
     {
@@ -78,13 +80,13 @@ const actions: ActionOption[] = [
             {
                 label: 'Le service d\'archivage',
                 onClick: (file: any) => {
-                    store.dispatch(openArchivesForm(file));
+                    file?._dispatch?.(openArchivesForm(file));
                 }
             },
             {
                 label: 'La mediathèque',
                 onClick: (file: any) => {
-                    store.dispatch(openMediaLibraryForm(file));
+                    file?._dispatch?.(openMediaLibraryForm(file));
                 }
             }
         ]
@@ -93,7 +95,7 @@ const actions: ActionOption[] = [
         label: 'Partager',
         icon: <ShareOutlinedIcon/>,
         onClick: (file: any) => {
-            store.dispatch(openShareDialog(file));
+            file?._dispatch?.(openShareDialog(file));
         }
     },
     {
@@ -105,7 +107,7 @@ const actions: ActionOption[] = [
         label: 'Détail',
         icon: <InfoOutlinedIcon/>,
         onClick: (file: any) => {
-            store.dispatch(openDetailDialog(file));
+            file?._dispatch?.(openDetailDialog(file));
         }
     },
 ];

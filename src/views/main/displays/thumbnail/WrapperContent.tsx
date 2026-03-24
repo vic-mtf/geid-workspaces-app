@@ -202,7 +202,7 @@ export default function WrapperContent({
                   key={index}
                   root={menuRootRef.current}
                   onClose={() => setContextMenu(null)}
-                  file={file}
+                  file={{ ...file, _dispatch: dispatch }}
                 />
               ) : (
                 <MenuItem
@@ -213,6 +213,7 @@ export default function WrapperContent({
                     if (typeof action.onClick === "function")
                       action.onClick({
                         ...file,
+                        _dispatch: dispatch,
                         enqueueSnackbar,
                         closeSnackbar,
                         refresh,
