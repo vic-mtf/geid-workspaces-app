@@ -1,4 +1,5 @@
-import { AppBar, Box as MuiBox, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box as MuiBox, IconButton, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import React from 'react';
 import SearchInput from '@/components/SearchInput';
 import DeconnectDialog from '@/views/header/DeconnectDialog';
@@ -6,15 +7,32 @@ import MainOption from '@/views/header/main-options/MainOption';
 import appConfig from '@/configs/app-config.json';
 
 export default function Header () {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     return (
         <React.Fragment>
             <AppBar
                 position="fixed"
                 sx={{
-                    zIndex: (theme: any) => theme.zIndex.drawer + 1,
+                    zIndex: (t: any) => t.zIndex.drawer + 1,
                     bgcolor: appConfig.colors.main,
                 }}>
                 <Toolbar variant="dense">
+                    {isMobile && (
+                        <IconButton
+                            color="inherit"
+                            edge="start"
+                            sx={{ mr: 1 }}
+                            onClick={() => {
+                                document.getElementById("root")?.dispatchEvent(
+                                    new CustomEvent("_toggle_nav_drawer")
+                                );
+                            }}
+                        >
+                            <MenuRoundedIcon />
+                        </IconButton>
+                    )}
                     <Typography flexGrow={1} fontSize={18} fontWeight="bold" variant="h6" noWrap component="div">
                         Espace personnel
                     </Typography>

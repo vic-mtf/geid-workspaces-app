@@ -59,7 +59,7 @@ export default function UploadFilesButton() {
         (handleSend = (__id?: any, _xhr?: XMLHttpRequest) => {
           const _id = typeof __id === "number" ? __id : uploadList.current.length;
           const xhr = _xhr || new XMLHttpRequest();
-          xhr.open("post", "https://geidbudget.com/api/stuff/workspace");
+          xhr.open("post", `${import.meta.env.VITE_SERVER_BASE_URL}/api/stuff/workspace`);
           xhr.setRequestHeader("Authorization", `Bearer ${token}`);
           const upload = xhr.upload;
           const { type, icon } = fileExtensionBase.find(({ exts }) =>

@@ -60,19 +60,22 @@ export default function Thumbnail({ data: _data }: ThumbnailProps) {
   return (
     <Box overflow="auto" p={1} height="85vh">
       {data?.length === 0 ? (
-        <Typography
-          align="center"
-          color="text.secondary"
-          height="100%"
+        <Box
           display="flex"
+          flexDirection="column"
           alignItems="center"
           justifyContent="center"
-          flexDirection="column"
-          variant="body1"
-          fontWeight="bold"
+          height="100%"
+          gap={1}
         >
-          <InboxOutlinedIcon fontSize="large" /> Aucun élément
-        </Typography>
+          <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
+          <Typography color="text.secondary" fontWeight="bold">
+            Cet espace est vide
+          </Typography>
+          <Typography variant="body2" color="text.disabled">
+            Utilisez le bouton Téléverser pour ajouter des fichiers
+          </Typography>
+        </Box>
       ) : (
         <Grid component="div" container>
           {data?.map((file, index) => {
@@ -81,6 +84,8 @@ export default function Thumbnail({ data: _data }: ThumbnailProps) {
                 <Grid
                   component="div"
                   item
+                  xs={6}
+                  sm={4}
                   md={12 / 5}
                   lg={12 / 6}
                   xl={12 / 8}
