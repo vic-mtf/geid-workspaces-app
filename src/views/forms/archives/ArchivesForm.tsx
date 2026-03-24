@@ -27,7 +27,7 @@ export default function ArchivesFrom() {
     (fields: any) => {
       if (!file?.doc?._id) {
         enqueueSnackbar(
-          "Ce fichier ne peut pas être archivé directement. Veuillez d'abord le téléverser dans votre espace de travail.",
+          "Ce fichier ne peut pas être archivé directement. Veuillez d'abord le téléverser dans votre espace personnel.",
           { variant: "error" }
         );
         setFile(null);
