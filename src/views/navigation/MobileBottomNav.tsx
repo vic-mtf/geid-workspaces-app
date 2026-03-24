@@ -15,9 +15,11 @@ export default function MobileBottomNav() {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
 
+  const mobileItems = listOptionMenu.filter(o => o.showInBottomNav !== false);
+
   if (!isMobile) return null;
 
-  const currentIndex = listOptionMenu.findIndex((opt) =>
+  const currentIndex = mobileItems.findIndex((opt) =>
     pathname.includes(opt.to)
   );
 
@@ -37,12 +39,12 @@ export default function MobileBottomNav() {
       <BottomNavigation
         value={currentIndex >= 0 ? currentIndex : 0}
         onChange={(_e, newValue) => {
-          const option = listOptionMenu[newValue];
+          const option = mobileItems[newValue];
           if (option) navigate(option.to + search);
         }}
         showLabels
       >
-        {listOptionMenu.map((option) => (
+        {mobileItems.map((option) => (
           <BottomNavigationAction
             key={option.to}
             label={option.label}

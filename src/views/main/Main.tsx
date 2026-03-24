@@ -8,11 +8,22 @@ import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
 import DetailFIle from "@/views/main/displays/thumbnail/DetailFIle";
 import RenameFile from "@/views/main/displays/thumbnail/RenameFile";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
+import ListView from "@/views/main/displays/list/ListView";
+import FilePreviewDialog from "@/views/main/displays/preview/FilePreviewDialog";
+import DropZone from "@/views/main/DropZone";
 import SubHeader from "@/views/main/sub-header/SubHeader";
 import FilesForm from "@/views/forms/files/FilesForm";
 import FolderBreadcrumb from "@/views/main/FolderBreadcrumb";
+import FavoriteHandler from "@/views/main/displays/thumbnail/FavoriteHandler";
+import MoveFileHandler from "@/views/dialogs/MoveFileHandler";
+import CopyFileHandler from "@/views/dialogs/CopyFileHandler";
+import ShareDialog from "@/views/dialogs/ShareDialog";
+import TagsDialog from "@/views/dialogs/TagsDialog";
 import useGetData from "@/utils/useGetData";
 import { RootState } from "@/types";
+import FavoritesView from "@/views/favorites/FavoritesView";
+import RecentView from "@/views/recent/RecentView";
+import TrashView from "@/views/trash/TrashView";
 
 const CATEGORY_LABELS: Record<string, string> = {
   documents: "Documents",
@@ -24,6 +35,13 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function Main() {
   const data = useSelector((store: RootState) => store.data);
   const { pathname, search } = useLocation();
+
+  const isSpecialView = useMemo(() => {
+    if (pathname.startsWith("/favorites")) return "favorites";
+    if (pathname.startsWith("/recent")) return "recent";
+    if (pathname.startsWith("/trash")) return "trash";
+    return null;
+  }, [pathname]);
 
   const key = useMemo(() => {
     if (pathname.match(/images/)) return "images";
@@ -99,16 +117,35 @@ export default function Main() {
         <Toolbar variant="dense" />
         <SubHeader />
         <Divider />
-        <FolderBreadcrumb categoryLabel={CATEGORY_LABELS[key] ?? key} />
-        <MuiBox height="calc(100% - 100px)" overflow="hidden">
-          {(!display || display === "thumbnail") && <Thumbnail data={_data} />}
-        </MuiBox>
+        {isSpecialView ? (
+          <MuiBox height="calc(100% - 100px)" overflow="hidden">
+            {isSpecialView === "favorites" && <FavoritesView />}
+            {isSpecialView === "recent" && <RecentView />}
+            {isSpecialView === "trash" && <TrashView />}
+          </MuiBox>
+        ) : (
+          <>
+            <FolderBreadcrumb categoryLabel={CATEGORY_LABELS[key] ?? key} />
+            <DropZone>
+              <MuiBox height="calc(100% - 100px)" overflow="hidden">
+                {(!display || display === "thumbnail") && <Thumbnail data={_data} />}
+                {display === "list" && <ListView data={_data} />}
+              </MuiBox>
+            </DropZone>
+          </>
+        )}
       </MuiBox>
       <RenameFile />
       <DetailFIle />
       <MediaLibraryForm />
       <ArchivesForm />
       <FilesForm />
+      <FilePreviewDialog />
+      <FavoriteHandler />
+      <MoveFileHandler />
+      <CopyFileHandler />
+      <ShareDialog />
+      <TagsDialog />
     </React.Fragment>
   );
 }

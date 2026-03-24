@@ -134,6 +134,8 @@ export interface NavOption {
   icon: React.ElementType;
   label: string;
   to: string;
+  divider?: boolean;
+  showInBottomNav?: boolean;
 }
 
 // Apps list type

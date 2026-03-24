@@ -19,7 +19,6 @@ const listDisplayMode = [
         key: '_list',
         icon: <SegmentRoundedIcon/>,
         search: 'list',
-        disabled: true,
     }
 ]
 
@@ -66,7 +65,6 @@ export default function DisplayButton () {
                         label,
                         key,
                         search:display,
-                        disabled,
                     }) => (
                         <MenuItem
                             key={key}
@@ -79,7 +77,6 @@ export default function DisplayButton () {
                                 )
                                 setOpenMenu(false);
                             }}
-                            disabled={disabled}
                         >
                             <ListItemIcon
                                children={

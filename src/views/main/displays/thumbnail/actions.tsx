@@ -5,6 +5,10 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
+import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import React from 'react';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
 import { ActionOption } from '@/types';
@@ -14,10 +18,10 @@ const actions: ActionOption[] = [
         label: 'Ouvrir',
         icon: <LaunchOutlinedIcon/>,
         onClick: (file: any) => {
-            const link = document.createElement('a');
-            link.href = file?.url;
-            link.target = '_blank';
-            link.click();
+            const name = '_open_file_preview';
+            const customEvent = new CustomEvent(name, { detail: { name, file } });
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
         }
     },
     {
@@ -37,11 +41,6 @@ const actions: ActionOption[] = [
             })
 
         }
-    },
-    {
-        label: 'Supprimer',
-        icon: <DeleteOutlinedIcon/>,
-        onClick: removeFile as any,
     },
     {
         label: 'Renommer',
@@ -85,9 +84,59 @@ const actions: ActionOption[] = [
         ]
     },
     {
+        label: 'Ajouter aux favoris',
+        icon: <StarBorderOutlinedIcon/>,
+        onClick: (file: any) => {
+            const name = '_toggle_favorite';
+            const customEvent = new CustomEvent(name, { detail: { name, file } });
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
+        }
+    },
+    {
+        label: 'Déplacer vers',
+        icon: <DriveFileMoveOutlinedIcon/>,
+        onClick: (file: any) => {
+            const name = '_open_move_dialog';
+            const customEvent = new CustomEvent(name, { detail: { name, file } });
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
+        }
+    },
+    {
+        label: 'Copier dans',
+        icon: <ContentCopyOutlinedIcon/>,
+        onClick: (file: any) => {
+            const name = '_open_copy_dialog';
+            const customEvent = new CustomEvent(name, { detail: { name, file } });
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
+        }
+    },
+    {
+        label: 'Tags',
+        icon: <LocalOfferOutlinedIcon/>,
+        onClick: (file: any) => {
+            const name = '_open_tags_dialog';
+            const customEvent = new CustomEvent(name, { detail: { name, file } });
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
+        }
+    },
+    {
         label: 'Partager',
-        disabled: true,
-        icon: <ShareOutlinedIcon/>
+        icon: <ShareOutlinedIcon/>,
+        onClick: (file: any) => {
+            const name = '_open_share_dialog';
+            const customEvent = new CustomEvent(name, { detail: { name, file } });
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
+        }
+    },
+    {
+        label: 'Supprimer',
+        icon: <DeleteOutlinedIcon/>,
+        onClick: removeFile as any,
     },
     {
         label: 'Detail',
