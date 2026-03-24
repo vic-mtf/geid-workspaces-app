@@ -49,9 +49,7 @@ const useGetData = ({ key, urlProps, onBeforeUpdate }: UseGetDataOptions) => {
             })
           );
         }
-      ).catch(() => {
-        // Erreur réseau ou serveur — les données restent inchangées
-      });
+      );
     },
     [getUrlData, dispatch, refetch, key, onBefore, urlProps]
   );

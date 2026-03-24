@@ -12,24 +12,23 @@ export default function FolderItem({ name }: FolderItemProps) {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      p={1.5}
+      p={1}
       sx={{ userSelect: "none" }}
     >
-      <FolderRoundedIcon sx={{ fontSize: 48, color: "primary.main", opacity: 0.85 }} />
+      <FolderRoundedIcon sx={{ fontSize: 52, color: "primary.main", opacity: 0.85 }} />
       <Typography
         variant="caption"
         align="center"
-        color="text.primary"
         sx={{
           mt: 0.5,
-          maxWidth: 110,
+          maxWidth: 90,
           overflow: "hidden",
           textOverflow: "ellipsis",
           display: "-webkit-box",
           WebkitLineClamp: 2,
           WebkitBoxOrient: "vertical",
           wordBreak: "break-word",
-          fontSize: 12,
+          fontSize: 11,
           lineHeight: 1.3,
         }}
       >

@@ -5,17 +5,19 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import React from 'react';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
 import { ActionOption } from '@/types';
 
 const actions: ActionOption[] = [
     {
-        label: 'Aperçu',
+        label: 'Ouvrir',
         icon: <LaunchOutlinedIcon/>,
         onClick: (file: any) => {
-            file?._action?.('preview', file);
+            const link = document.createElement('a');
+            link.href = file?.url;
+            link.target = '_blank';
+            link.click();
         }
     },
     {
@@ -33,36 +35,29 @@ const actions: ActionOption[] = [
                 link.click();
                 URL.revokeObjectURL(url);
             })
-            .catch(() => {
-                file?.enqueueSnackbar?.("Le téléchargement a échoué.", { variant: "error" });
-            });
+
         }
     },
     {
-        label: 'Ajouter aux favoris',
-        icon: <StarOutlinedIcon/>,
-        onClick: (file: any) => {
-            if (file?._id || file?.doc?._id) {
-                const id = file._id || file.doc._id;
-                fetch(`${import.meta.env.VITE_SERVER_BASE_URL}/api/stuff/workspace/favorite/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Authorization': `Bearer ${file?.user?.token}` },
-                })
-                .then((res) => {
-                    if (res.ok) file?.enqueueSnackbar?.("Favori mis à jour.", { variant: "success" });
-                    else file?.enqueueSnackbar?.("Impossible de modifier le favori.", { variant: "error" });
-                })
-                .catch(() => {
-                    file?.enqueueSnackbar?.("Impossible de modifier le favori.", { variant: "error" });
-                });
-            }
-        }
+        label: 'Supprimer',
+        icon: <DeleteOutlinedIcon/>,
+        onClick: removeFile as any,
     },
     {
         label: 'Renommer',
         icon: <EditOutlinedIcon/>,
         onClick: (file: any) => {
-            file?._action?.('rename', file);
+            const customEvent = new CustomEvent(
+                '_open_rename_file_name',
+                {
+                    detail : {
+                        name: '_open_rename_file_name',
+                        file,
+                    }
+                }
+            );
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
         }
     },
     {
@@ -72,36 +67,46 @@ const actions: ActionOption[] = [
             {
                 label: 'Le service d\'archivage',
                 onClick: (file: any) => {
-                    file?._action?.('archives', file);
+                    const name = '_open_archives_form';
+                    const customEvent = new CustomEvent(name, { detail : {name,file, } });
+                    document.getElementById('root')
+                    ?.dispatchEvent(customEvent);
                 }
             },
             {
                 label: 'La mediathèque',
                 onClick: (file: any) => {
-                    file?._action?.('medialibrary', file);
+                    const name = '_open_media_library_form';
+                    const customEvent = new CustomEvent(name, { detail : {name,file, } });
+                    document.getElementById('root')
+                    ?.dispatchEvent(customEvent);
                 }
             }
         ]
     },
     {
         label: 'Partager',
-        icon: <ShareOutlinedIcon/>,
-        onClick: (file: any) => {
-            file?._action?.('share', file);
-        }
+        disabled: true,
+        icon: <ShareOutlinedIcon/>
     },
     {
-        label: 'Supprimer',
-        icon: <DeleteOutlinedIcon/>,
-        onClick: removeFile as any,
-    },
-    {
-        label: 'Détail',
+        label: 'Detail',
         icon: <InfoOutlinedIcon/>,
         onClick: (file: any) => {
-            file?._action?.('detail', file);
+            const customEvent = new CustomEvent(
+                '_open_detail_file',
+                {
+                    detail : {
+                        name: '_open_detail_file',
+                        file,
+                    }
+                }
+            );
+            document.getElementById('root')
+            ?.dispatchEvent(customEvent);
         }
     },
+
 ];
 
 export default actions;

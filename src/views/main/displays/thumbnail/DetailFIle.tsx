@@ -1,17 +1,25 @@
 import { Button, CardMedia, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
 import optionLocalDate from '@/utils/optionLocalDate';
 import capStr from '@/utils/capStr';
-import { RootState } from '@/types';
-import { closeDetailDialog } from '@/redux/ui';
 
-export default function DetailFile () {
-    const dispatch = useDispatch();
-    const { open, file } = useSelector((store: RootState) => store.ui.detailDialog);
+export default function DetailFIle () {
+    const [file, setFile] = useState<any>(null);
+
+    useEffect(() => {
+        const handleRenameFile = (event: any) => {
+            setFile(event.detail.file)};
+        document.getElementById('root')
+        ?.addEventListener('_open_detail_file', handleRenameFile);
+        return () => {
+            document.getElementById('root')
+        ?.removeEventListener('_open_detail_file', handleRenameFile);
+        }
+    }, [setFile]);
 
     return (
         <Dialog
-            open={open}
+            open={!!file}
             BackdropProps={{
                 sx: {
                     bgcolor: (theme: any) => theme.palette.background.paper +
@@ -53,14 +61,14 @@ export default function DetailFile () {
             </Stack>
             <Typography align="center" fontWeight="bold" color="text.secondary" >
                 {capStr(
-                    new Date(file?.createdAt ?? '')
+                    new Date(file?.createdAt)
                     .toLocaleDateString(undefined, optionLocalDate)
                 )}
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => dispatch(closeDetailDialog())}>Fermer</Button>
+            <Button onClick={() => setFile(null)}>Fermer</Button>
           </DialogActions>
         </Dialog>
-    );
+    )
 }

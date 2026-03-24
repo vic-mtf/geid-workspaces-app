@@ -8,21 +8,12 @@ import {
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import React, { useRef, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import optionLocalDate from "@/utils/optionLocalDate";
 import useAxios from "@/utils/useAxios";
 import actions from "@/views/main/displays/thumbnail/actions";
 import SubMenu from "@/views/main/displays/thumbnail/SubMenu";
-import {
-  triggerReload,
-  openPreviewDialog,
-  openRenameDialog,
-  openDetailDialog,
-  openArchivesForm,
-  openMediaLibraryForm,
-  openShareDialog,
-} from "@/redux/ui";
 import { RootState } from "@/types";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -49,30 +40,7 @@ export default function WrapperContent({
   onFolderClick,
   ...otherProps
 }: WrapperContentProps) {
-  const dispatch = useDispatch();
-
-  // Calcule le chemin courant (catégorie + sous-dossier)
-  const getCurrentPath = () => {
-    const params = new URLSearchParams(search);
-    const folder = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folder ? `${cat}/${folder}` : cat;
-  };
-
-  const handleAction = (action: string, f: any) => {
-    const actionMap: Record<string, any> = {
-      preview: openPreviewDialog,
-      rename: openRenameDialog,
-      detail: openDetailDialog,
-      archives: openArchivesForm,
-      medialibrary: openMediaLibraryForm,
-      share: openShareDialog,
-    };
-    const creator = actionMap[action];
-    if (creator) dispatch(creator(f));
-  };
-
-  const file = { createdAt, name, type, url, isDirectory, ...otherProps, _currentPath: getCurrentPath(), _action: handleAction };
+  const file = { createdAt, name, type, url, isDirectory, ...otherProps };
   const date = new Date(createdAt || "");
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number } | null>(null);
   const menuRootRef = useRef<HTMLElement>(null);
@@ -101,6 +69,14 @@ export default function WrapperContent({
     }
   };
 
+  // Calcule le chemin courant pour les actions sur dossiers
+  const getCurrentPath = () => {
+    const params = new URLSearchParams(search);
+    const folder = params.get("folder") || "";
+    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
+    return folder ? `${cat}/${folder}` : cat;
+  };
+
   const handleDeleteFolder = async () => {
     setContextMenu(null);
     try {
@@ -117,7 +93,7 @@ export default function WrapperContent({
         return;
       }
       setIsRemoved(true);
-      dispatch(triggerReload());
+      document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
     } catch {
       enqueueSnackbar("Erreur lors de la suppression.", { variant: "error" });
     }
@@ -141,7 +117,7 @@ export default function WrapperContent({
           enqueueSnackbar("Impossible de renommer ce dossier.", { variant: "error" });
           return;
         }
-        dispatch(triggerReload());
+        document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
       })
       .catch(() => enqueueSnackbar("Erreur lors du renommage.", { variant: "error" }));
   };

@@ -51,7 +51,7 @@ export default function removeFile (file: any): void {
                 method: 'delete',
                 url: `/api/stuff/workspace/${JSON.stringify({
                     userId,
-                    path: file._currentPath || (file.type + 's'),
+                    path: file.type + 's',
                     filename: file?.name
                 })}`
             }).then(() => {

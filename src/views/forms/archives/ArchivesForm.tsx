@@ -1,21 +1,23 @@
-import React, { useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import useAxios from "@/utils/useAxios";
 import { useSnackbar } from "notistack";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import textStyle from "@/styles/text.module.css";
 import FormContent from "@/views/forms/archives/FormContent";
 import { Button, Dialog, Typography } from "@mui/material";
 import { RootState } from "@/types";
-import { closeArchivesForm } from "@/redux/ui";
 
-export default function ArchivesForm() {
-  const dispatch = useDispatch();
-  const { open, file } = useSelector((store: RootState) => store.ui.archivesForm);
+export default function ArchivesFrom() {
+  const [file, setFile] = useState<any>(null);
+  const token = useSelector((store: RootState) => store.user.token);
 
   const [, refresh, cancel] = useAxios(
     {
       url: "api/stuff/archives/",
       method: "post",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
     { manual: true }
   );
@@ -101,14 +103,24 @@ export default function ArchivesForm() {
           autoHideDuration: null,
         }
       );
-      dispatch(closeArchivesForm());
+      setFile(null);
     },
-    [cancel, refresh, closeSnackbar, enqueueSnackbar, file, dispatch]
+    [cancel, refresh, closeSnackbar, enqueueSnackbar, file]
   );
+
+  useEffect(() => {
+    const rootEl = document.getElementById("root");
+    const name = "_open_archives_form";
+    const handleOpenMediaForm = (event: any) => setFile(event.detail.file);
+    rootEl?.addEventListener(name, handleOpenMediaForm);
+    return () => {
+      rootEl?.removeEventListener(name, handleOpenMediaForm);
+    };
+  }, [file]);
 
   return (
     <Dialog
-      open={open}
+      open={!!file}
       PaperProps={{
         sx: { overflow: "hidden", maxWidth: 600 },
       }}
@@ -124,8 +136,8 @@ export default function ArchivesForm() {
       }}>
       <FormContent
         file={file}
-        key={file?.name}
-        onClose={() => dispatch(closeArchivesForm())}
+        key={file}
+        onClose={() => setFile(null)}
         onSubmit={handleSendFile}
       />
     </Dialog>
