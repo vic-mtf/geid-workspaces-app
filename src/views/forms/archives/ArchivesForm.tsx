@@ -25,9 +25,17 @@ export default function ArchivesFrom() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const handleSendFile = useCallback(
     (fields: any) => {
+      if (!file?.doc?._id) {
+        enqueueSnackbar(
+          "Ce fichier ne peut pas être archivé directement. Veuillez d'abord le téléverser dans votre espace de travail.",
+          { variant: "error" }
+        );
+        setFile(null);
+        return;
+      }
       const data = {
         ...fields,
-        doc: file?.doc?._id,
+        doc: file.doc._id,
         type: {
           type: fields.type,
           subType: fields.subType || undefined,
