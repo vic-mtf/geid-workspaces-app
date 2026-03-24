@@ -8,14 +8,6 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import React from 'react';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
-import {
-    openRenameDialog,
-    openDetailDialog,
-    openArchivesForm,
-    openMediaLibraryForm,
-    openPreviewDialog,
-    openShareDialog,
-} from '@/redux/ui';
 import { ActionOption } from '@/types';
 
 const actions: ActionOption[] = [
@@ -23,7 +15,7 @@ const actions: ActionOption[] = [
         label: 'Aperçu',
         icon: <LaunchOutlinedIcon/>,
         onClick: (file: any) => {
-            file?._dispatch?.(openPreviewDialog(file));
+            file?._action?.('preview', file);
         }
     },
     {
@@ -70,7 +62,7 @@ const actions: ActionOption[] = [
         label: 'Renommer',
         icon: <EditOutlinedIcon/>,
         onClick: (file: any) => {
-            file?._dispatch?.(openRenameDialog(file));
+            file?._action?.('rename', file);
         }
     },
     {
@@ -80,13 +72,13 @@ const actions: ActionOption[] = [
             {
                 label: 'Le service d\'archivage',
                 onClick: (file: any) => {
-                    file?._dispatch?.(openArchivesForm(file));
+                    file?._action?.('archives', file);
                 }
             },
             {
                 label: 'La mediathèque',
                 onClick: (file: any) => {
-                    file?._dispatch?.(openMediaLibraryForm(file));
+                    file?._action?.('medialibrary', file);
                 }
             }
         ]
@@ -95,7 +87,7 @@ const actions: ActionOption[] = [
         label: 'Partager',
         icon: <ShareOutlinedIcon/>,
         onClick: (file: any) => {
-            file?._dispatch?.(openShareDialog(file));
+            file?._action?.('share', file);
         }
     },
     {
@@ -107,7 +99,7 @@ const actions: ActionOption[] = [
         label: 'Détail',
         icon: <InfoOutlinedIcon/>,
         onClick: (file: any) => {
-            file?._dispatch?.(openDetailDialog(file));
+            file?._action?.('detail', file);
         }
     },
 ];

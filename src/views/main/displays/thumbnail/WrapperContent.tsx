@@ -14,7 +14,15 @@ import optionLocalDate from "@/utils/optionLocalDate";
 import useAxios from "@/utils/useAxios";
 import actions from "@/views/main/displays/thumbnail/actions";
 import SubMenu from "@/views/main/displays/thumbnail/SubMenu";
-import { triggerReload } from "@/redux/ui";
+import {
+  triggerReload,
+  openPreviewDialog,
+  openRenameDialog,
+  openDetailDialog,
+  openArchivesForm,
+  openMediaLibraryForm,
+  openShareDialog,
+} from "@/redux/ui";
 import { RootState } from "@/types";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -51,7 +59,20 @@ export default function WrapperContent({
     return folder ? `${cat}/${folder}` : cat;
   };
 
-  const file = { createdAt, name, type, url, isDirectory, ...otherProps, _currentPath: getCurrentPath() };
+  const handleAction = (action: string, f: any) => {
+    const actionMap: Record<string, any> = {
+      preview: openPreviewDialog,
+      rename: openRenameDialog,
+      detail: openDetailDialog,
+      archives: openArchivesForm,
+      medialibrary: openMediaLibraryForm,
+      share: openShareDialog,
+    };
+    const creator = actionMap[action];
+    if (creator) dispatch(creator(f));
+  };
+
+  const file = { createdAt, name, type, url, isDirectory, ...otherProps, _currentPath: getCurrentPath(), _action: handleAction };
   const date = new Date(createdAt || "");
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number } | null>(null);
   const menuRootRef = useRef<HTMLElement>(null);
@@ -202,7 +223,7 @@ export default function WrapperContent({
                   key={index}
                   root={menuRootRef.current}
                   onClose={() => setContextMenu(null)}
-                  file={{ ...file, _dispatch: dispatch }}
+                  file={file}
                 />
               ) : (
                 <MenuItem
@@ -213,7 +234,6 @@ export default function WrapperContent({
                     if (typeof action.onClick === "function")
                       action.onClick({
                         ...file,
-                        _dispatch: dispatch,
                         enqueueSnackbar,
                         closeSnackbar,
                         refresh,

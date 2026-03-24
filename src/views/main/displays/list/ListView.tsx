@@ -5,6 +5,14 @@ import {
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import {
+  openPreviewDialog,
+  openRenameDialog,
+  openDetailDialog,
+  openArchivesForm,
+  openMediaLibraryForm,
+  openShareDialog,
+} from "@/redux/ui";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
@@ -33,6 +41,19 @@ export default function ListView({ data }: ListViewProps) {
   const searchQuery = useSelector((store: RootState) => store.ui.searchQuery);
 
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; file: any } | null>(null);
+
+  const handleAction = (action: string, f: any) => {
+    const actionMap: Record<string, any> = {
+      preview: openPreviewDialog,
+      rename: openRenameDialog,
+      detail: openDetailDialog,
+      archives: openArchivesForm,
+      medialibrary: openMediaLibraryForm,
+      share: openShareDialog,
+    };
+    const creator = actionMap[action];
+    if (creator) dispatch(creator(f));
+  };
 
   const getCurrentPath = () => {
     const params = new URLSearchParams(search);
@@ -118,7 +139,7 @@ export default function ListView({ data }: ListViewProps) {
                       size="small"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setMenuAnchor({ el: e.currentTarget, file: { ...infos, ...file, _currentPath: getCurrentPath() } });
+                        setMenuAnchor({ el: e.currentTarget, file: { ...infos, ...file, _currentPath: getCurrentPath(), _action: handleAction } });
                       }}
                     >
                       <MoreVertRoundedIcon fontSize="small" />
@@ -147,7 +168,7 @@ export default function ListView({ data }: ListViewProps) {
                 icon={action.icon}
                 root={null}
                 onClose={() => setMenuAnchor(null)}
-                file={{ ...menuAnchor.file, _dispatch: dispatch }}
+                file={menuAnchor.file}
               />
             ) : (
               <MenuItem
@@ -157,7 +178,6 @@ export default function ListView({ data }: ListViewProps) {
                   setMenuAnchor(null);
                   action.onClick?.({
                     ...menuAnchor.file,
-                    _dispatch: dispatch,
                     enqueueSnackbar,
                     closeSnackbar,
                     refresh,
