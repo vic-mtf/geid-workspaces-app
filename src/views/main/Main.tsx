@@ -36,11 +36,13 @@ export default function Main() {
   const viewMode = useSelector((store: RootState) => store.workspace.viewMode);
   const previewDialog = useSelector((store: RootState) => store.ui.previewDialog);
   const shareDialog = useSelector((store: RootState) => store.ui.shareDialog);
+  const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
+  const reduxData = useSelector((store: RootState) => store.data);
   const { pathname, search } = useLocation();
 
-  // Données locales au lieu de Redux pour éviter les données stale
-  const [localData, setLocalData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Données du sous-dossier (null = on est à la racine, utiliser Redux)
+  const [subfolderData, setSubfolderData] = useState<any[] | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const getUrlData = useGetUrlData();
   const [, refetch] = useAxios(null as any, { manual: true });
@@ -62,40 +64,55 @@ export default function Main() {
     [search]
   );
 
-  const reloadTrigger = useSelector((store: RootState) => store.ui.reloadTrigger);
+  const isSubfolder = folder !== "";
 
-  // Charge les données directement via API — plus de dépendance au Redux data
-  const loadData = useCallback(() => {
-    const fullPath = folder ? `${key}/${folder}` : key;
+  // Charge le sous-dossier via API (seulement si on est dans un sous-dossier)
+  const loadSubfolder = useCallback(() => {
+    if (!isSubfolder) return;
+    const fullPath = `${key}/${folder}`;
     setLoading(true);
     refetch(getUrlData({ path: fullPath }))
       .then(({ data: responseData }: any) => {
-        setLocalData(Array.isArray(responseData) ? responseData : []);
+        setSubfolderData(Array.isArray(responseData) ? responseData : []);
       })
       .catch(() => {
-        setLocalData([]);
+        setSubfolderData([]);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [key, folder, refetch, getUrlData]);
+  }, [key, folder, isSubfolder, refetch, getUrlData]);
 
+  // Quand la catégorie ou le dossier change
   useEffect(() => {
-    setLocalData([]); // Vider immédiatement
-    loadData();
-  }, [key, folder, loadData]);
+    if (isSubfolder) {
+      setSubfolderData(null); // Vider pendant le chargement
+      loadSubfolder();
+    } else {
+      // Racine : on utilise les données Redux (chargées par Cover.tsx)
+      setSubfolderData(null);
+      setLoading(false);
+    }
+  }, [key, folder, isSubfolder, loadSubfolder]);
 
+  // Reload trigger (après création/suppression/renommage)
   useEffect(() => {
     if (reloadTrigger > 0) {
-      loadData();
+      if (isSubfolder) {
+        loadSubfolder();
+      }
+      // À la racine, les données Redux sont mises à jour par les hooks existants
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reloadTrigger]);
 
   const { sort, order } = queryString.parse(search);
 
+  // Source de données : Redux pour la racine, state local pour les sous-dossiers
+  const rawData = isSubfolder ? (subfolderData ?? []) : ((reduxData as any)[key] || []);
+
   const _data = useMemo(() => {
-    let __data = [...localData];
+    let __data = [...rawData];
     if (!sort || sort === "name")
       __data.sort((a: any, b: any) => {
         if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
@@ -112,7 +129,10 @@ export default function Main() {
       );
     if (order === "descending") __data = __data.reverse();
     return __data;
-  }, [localData, sort, order]);
+  }, [rawData, sort, order]);
+
+  // Loading seulement pour les sous-dossiers
+  const showLoading = isSubfolder && loading;
 
   return (
     <React.Fragment>
@@ -129,7 +149,7 @@ export default function Main() {
             minHeight={0}
             sx={{ pb: isMobile ? "56px" : 0 }}
           >
-            {loading ? (
+            {showLoading ? (
               <MuiBox display="flex" justifyContent="center" alignItems="center" flex={1}>
                 <CircularProgress size={28} />
               </MuiBox>
