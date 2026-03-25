@@ -2,6 +2,7 @@ import { Avatar, Badge, Box as MuiBox, Button, CardContent, Divider, IconButton,
 import Box from '@/components/Box';
 import AddAPhotoRoundedIcon from '@mui/icons-material/AddAPhotoRounded';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { RootState } from '@/types';
 
 interface ProfileMenuProps {
@@ -10,6 +11,7 @@ interface ProfileMenuProps {
 }
 
 export default function ProfileMenu ({anchorEl, onClose}: ProfileMenuProps) {
+    const { t } = useTranslation();
     const user = useSelector((store: RootState) => store.user);
     const fullname = `${user.lastname} ${user.middlename} ${user.firstname}`;
 
@@ -120,7 +122,7 @@ export default function ProfileMenu ({anchorEl, onClose}: ProfileMenuProps) {
                                 document.getElementById('root')
                                 ?.dispatchEvent(customEvent);
                             }}
-                        >Se déconnecter</Button>
+                        >{t('profile.disconnect')}</Button>
                     </MuiBox>
                 </Box>
                 <Box> </Box>
@@ -128,10 +130,10 @@ export default function ProfileMenu ({anchorEl, onClose}: ProfileMenuProps) {
             <Stack display="flex" direction="row" spacing={1}>
                     <Button
                         color="inherit"
-                    >Politique de confidentialité</Button>
+                    >{t('profile.privacyPolicy')}</Button>
                     <Button
                         color="inherit"
-                    >Conditions d'utilisation</Button>
+                    >{t('profile.termsOfUse')}</Button>
             </Stack>
           </CardContent>
         </Menu>

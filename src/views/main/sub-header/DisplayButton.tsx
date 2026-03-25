@@ -5,33 +5,36 @@ import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import SegmentRoundedIcon from '@mui/icons-material/SegmentRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import queryString from "query-string";
 
-const listDisplayMode = [
-    {
-        label: 'Vignette',
-        key: '_saquare',
-        icon: <GridViewOutlinedIcon/>,
-        search: 'thumbnail'
-    },
-    {
-        label: 'Liste',
-        key: '_list',
-        icon: <SegmentRoundedIcon/>,
-        search: 'list',
-    }
-]
-
 export default function DisplayButton () {
+    const { t } = useTranslation();
     const [openMenu, setOpenMenu] = useState(false);
     const { search } = useLocation();
     const navigateTo = useNavigate();
     const anchorEl = useRef<HTMLButtonElement>(null);
     const { display } = queryString.parse(search);
+
+    const listDisplayMode = useMemo(() => [
+        {
+            label: t('display.thumbnail'),
+            key: '_saquare',
+            icon: <GridViewOutlinedIcon/>,
+            search: 'thumbnail'
+        },
+        {
+            label: t('display.list'),
+            key: '_list',
+            icon: <SegmentRoundedIcon/>,
+            search: 'list',
+        }
+    ], [t]);
+
     const btnSelected = useMemo(() => listDisplayMode.find(
         option => option.search === (display || 'thumbnail')
         ),
-    [display]);
+    [display, listDisplayMode]);
 
     return (
         <React.Fragment>
@@ -41,7 +44,7 @@ export default function DisplayButton () {
                 ref={anchorEl}
                 color="inherit"
                 onClick={() => setOpenMenu(true)}
-            >Affichage</Button>
+            >{t('display.display')}</Button>
             <Menu
                 open={openMenu}
                 variant="selectedMenu"

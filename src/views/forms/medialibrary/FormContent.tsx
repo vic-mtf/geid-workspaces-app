@@ -1,6 +1,7 @@
 import React from "react";
 import InputsBook from "@/views/forms/medialibrary/InputsBook";
 import InputsMedia from "@/views/forms/medialibrary/InputsMedia";
+import { useTranslation } from "react-i18next";
 
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 
@@ -23,6 +24,7 @@ export default function FormContent ({
     bookFields,
     onClose
 }: FormContentProps) {
+    const { t } = useTranslation();
     return (
         <React.Fragment>
         <Dialog
@@ -42,7 +44,7 @@ export default function FormContent ({
                 fontWeight="bold"
                 fontSize={18}
             >
-                Soumettre cet article à la médiathèque
+                {t("medialibrary.submitTitle")}
             </Typography>
           </DialogTitle>
           <form onSubmit={handleSendFile(file)}>
@@ -54,8 +56,7 @@ export default function FormContent ({
             }
             <DialogContentText component="div">
                 <Typography my={1}>
-                  En raison de ce type de fichier,
-                  cet élément sera soumis à la section {typeInfos?.label}.
+                  {t("medialibrary.sectionNotice", { section: typeInfos?.label })}
                 </Typography>
             </DialogContentText>
           </DialogContent>
@@ -64,14 +65,14 @@ export default function FormContent ({
               onClick={onClose}
               color="primary"
             >
-              Annuler
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
               variant="outlined"
               color="primary"
             >
-              Envoyer l'article
+              {t("archives.sendArticle")}
             </Button>
           </DialogActions>
           </form>

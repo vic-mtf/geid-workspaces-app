@@ -1,6 +1,7 @@
 import React from "react";
 import textStyle from "@/styles/text.module.css";
 import { Button, Typography } from "@mui/material";
+import i18n from "@/i18n/i18n";
 
 export default function removeFile (file: any): void {
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -24,7 +25,7 @@ export default function removeFile (file: any): void {
                     className: textStyle.monoCrop,
                     sx: { px: 1 }
                 }, name),
-                'Suppression en cours...'
+                i18n.t('files.deletingFile')
             )
         ),
         {
@@ -40,7 +41,7 @@ export default function removeFile (file: any): void {
                             setIsRemoved(false);
                         }
                     }
-                }, 'Annuler')
+                }, i18n.t('common.cancel'))
             )
         }
     );
@@ -51,7 +52,7 @@ export default function removeFile (file: any): void {
                 method: 'delete',
                 url: `/api/stuff/workspace/${JSON.stringify({
                     userId,
-                    path: file.type + 's',
+                    path: file.currentPath || (file.type + 's'),
                     filename: file?.name
                 })}`
             }).then(() => {
@@ -66,7 +67,7 @@ export default function removeFile (file: any): void {
                             className: textStyle.monoCrop,
                             sx: { px: 1 }
                         }, name),
-                        'Le fichier a été supprimé'
+                        i18n.t('files.fileDeleted')
                     ),
                     { variant: 'success'}
                 )
@@ -83,7 +84,7 @@ export default function removeFile (file: any): void {
                             className: textStyle.monoCrop,
                             sx: { px: 1 }
                         }, name),
-                        'Impossible de supprimer le fichier'
+                        i18n.t('files.fileDeleteError')
                     ),
                     { variant: 'error'}
                 )

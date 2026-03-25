@@ -1,5 +1,6 @@
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import InputController from '@/components/InputController';
 import useAxios from '@/utils/useAxios';
 import getFileExtension, { getName } from '@/utils/getFileExtension';
@@ -9,6 +10,7 @@ import { Stack } from '@mui/system';
 import { RootState } from '@/types';
 
 export default function RenameFile () {
+    const { t } = useTranslation();
     const [file, setFile] = useState<any>(null);
     const { token, id: userId } = useSelector((store: RootState) => store.user);
     const { enqueueSnackbar, closeSnackbar } = useSnackbar()
@@ -26,7 +28,7 @@ export default function RenameFile () {
         enqueueSnackbar(
             <Stack direction="row">
              <CircularProgress color="inherit" size={20}/>
-             <Typography ml={1}>Attribution d'un nouveau nom</Typography>
+             <Typography ml={1}>{t('files.renaming')}</Typography>
             </Stack>,
             {
                 autoHideDuration: null,
@@ -36,20 +38,20 @@ export default function RenameFile () {
             data: {
               oldFilename: file?.name,
               filename: valueRef.current + '.' + getFileExtension(file.name),
-              path: file?.type + 's',
+              path: file?.currentPath || (file?.type + 's'),
               userId,
           },
         }).then(() => {
             closeSnackbar()
             enqueueSnackbar(
-                <Typography>Le fichier a été renommé </Typography>,
+                <Typography>{t('files.fileRenamed')}</Typography>,
                 { variant: 'success'}
             )
         }).catch(() => {
             closeSnackbar()
             enqueueSnackbar(
                 <Typography>
-                    Impossible de changer le nom du fichier
+                    {t('files.fileRenameError')}
                 </Typography>,
                  { variant: 'error'}
             )
@@ -90,7 +92,7 @@ export default function RenameFile () {
             <Typography
                 variant="h6"
                 fontSize={18}
-            >Renommer</Typography>
+            >{t('common.rename')}</Typography>
           </DialogTitle>
           <DialogContent
             sx={{
@@ -125,7 +127,7 @@ export default function RenameFile () {
             <Button
                 onClick={() => setFile(null)}
             >
-              Annuler
+              {t('common.cancel')}
             </Button>
             <Button
                 onClick={handleDeleteFile}
@@ -133,7 +135,7 @@ export default function RenameFile () {
                 size="small"
                 sx={{textTransform: 'none'}}
             >
-              Renommer
+              {t('common.rename')}
             </Button>
           </DialogActions>
         </Dialog>

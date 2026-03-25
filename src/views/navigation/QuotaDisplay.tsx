@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, LinearProgress, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import useAxios from '@/utils/useAxios';
 import normaliseOctetSize from '@/utils/normaliseOctetSize';
 import { RootState } from '@/types';
@@ -8,6 +9,7 @@ import { RootState } from '@/types';
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 export default function QuotaDisplay() {
+    const { t } = useTranslation();
     const { token } = useSelector((store: RootState) => store.user);
 
     const [{ data }, fetchQuota] = useAxios(
@@ -45,7 +47,7 @@ export default function QuotaDisplay() {
                 sx={{ height: 6, borderRadius: 3, mb: 0.5 }}
             />
             <Typography variant="caption" color="text.secondary">
-                {usedLabel} utilises sur {totalLabel}
+                {t('quota.usedOf', { used: usedLabel, total: totalLabel })}
             </Typography>
         </Box>
     );

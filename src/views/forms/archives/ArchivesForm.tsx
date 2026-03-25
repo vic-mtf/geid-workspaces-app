@@ -2,12 +2,14 @@ import React, { useEffect, useState, useCallback } from "react";
 import useAxios from "@/utils/useAxios";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import textStyle from "@/styles/text.module.css";
 import FormContent from "@/views/forms/archives/FormContent";
 import { Button, Dialog, Typography } from "@mui/material";
 import { RootState } from "@/types";
 
-export default function ArchivesFrom() {
+export default function ArchivesForm() {
+  const { t } = useTranslation();
   const [file, setFile] = useState<any>(null);
   const token = useSelector((store: RootState) => store.user.token);
 
@@ -27,7 +29,7 @@ export default function ArchivesFrom() {
     (fields: any) => {
       if (!file?.doc?._id) {
         enqueueSnackbar(
-          "Ce fichier ne peut pas être archivé directement. Veuillez d'abord le téléverser dans votre espace personnel.",
+          t("archives.cannotArchiveDirectly"),
           { variant: "error" }
         );
         setFile(null);
@@ -59,7 +61,7 @@ export default function ArchivesFrom() {
                   sx={{ px: 1 }}>
                   {name}
                 </Typography>
-                Le fichier a été envoyé au service d'archivage
+                {t("archives.sentSuccess")}
               </Typography>,
               { variant: "success" }
             );
@@ -77,7 +79,7 @@ export default function ArchivesFrom() {
                   sx={{ px: 1 }}>
                   {name}
                 </Typography>
-                Impossible de soumettre ce fichier !
+                {t("archives.sentError")}
               </Typography>,
               { variant: "error" }
             );
@@ -94,12 +96,12 @@ export default function ArchivesFrom() {
             sx={{ px: 1 }}>
             {name}
           </Typography>
-          Transfert du fichier au service d'archivage en cours...
+          {t("archives.sending")}
         </Typography>,
         {
           action: (id: any) => (
             <Button
-              children='Annuler'
+              children={t('common.cancel')}
               color='inherit'
               onClick={() => {
                 cancel();

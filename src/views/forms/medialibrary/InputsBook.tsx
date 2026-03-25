@@ -1,5 +1,6 @@
 import { Box, CardMedia, ListItemButton, Stack, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import InputController from "@/components/InputController";
 import BookTypology from "@/views/forms/medialibrary/BookTypology";
 import DocumentCoversPages from "@/views/forms/document-covers-pages/DocumentCoversPages";
@@ -21,8 +22,9 @@ export default function InputsBook ({
     cover,
     findError
 }: InputsBookProps) {
+    const { t } = useTranslation();
     const [openCover, setOpenCover] = useState(false);
-    const message = "Intitulé non valide ou trop court.";
+    const message = t("medialibrary.invalidTitle");
     const errorCover = findError('cover') && !cover?.current;
 
     return (
@@ -38,7 +40,7 @@ export default function InputsBook ({
                         invalidateErrorMessage={message}
                         externalError={findError('title')}
                     >
-                        <TextField label="Titre"/>
+                        <TextField label={t("medialibrary.title")}/>
                     </InputController>
 
                     <BookTypology
@@ -56,7 +58,7 @@ export default function InputsBook ({
                         invalidateErrorMessage={message}
                         externalError={findError('author')}
                     >
-                        <TextField label="Auteur"/>
+                        <TextField label={t("medialibrary.author")}/>
                     </InputController>
                 </Box>
 
@@ -89,7 +91,7 @@ export default function InputsBook ({
                             align="center"
                             color={errorCover ? 'error' : 'text.primary'}
                         >
-                            Choisir la couverture
+                            {t("medialibrary.chooseCover")}
                         </Typography>)}
                     </ListItemButton>
                 </Box>
@@ -99,14 +101,14 @@ export default function InputsBook ({
                 multiline
                 margin="dense"
                 rows={3}
-                label="Description"
+                label={t("archives.description")}
                 valueRef={description}
                 regExp={/.{10,}/}
                 trim={false}
                 invalidateErrorMessage={message}
                 externalError={findError('type')}
             >
-                <TextField label="Description"/>
+                <TextField label={t("archives.description")}/>
             </InputController>
             <DocumentCoversPages
                 open={openCover}

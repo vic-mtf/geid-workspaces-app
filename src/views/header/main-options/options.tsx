@@ -6,6 +6,7 @@ import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined
 import AppsRoundedIcon from '@mui/icons-material/AppsRounded';
 import ContactSupportOutlinedIcon from '@mui/icons-material/ContactSupportOutlined';
 import React from "react";
+import i18n from "@/i18n/i18n";
 
 interface OptionItem {
     label: string;
@@ -19,7 +20,7 @@ interface OptionItem {
 
 const options: OptionItem[] = [
     {
-        label: 'Aide',
+        label: i18n.t('header.help'),
         pin: true,
         icon: <ContactSupportOutlinedIcon fontSize="small"/>,
         element: null,
@@ -27,21 +28,21 @@ const options: OptionItem[] = [
         key: '_help',
     },
     {
-        label: 'Applications',
+        label: i18n.t('header.applications'),
         pin: true,
         icon: <AppsRoundedIcon fontSize="small"/>,
         element: <AppsMenuButton/>,
         key: '_apps',
     },
     {
-        label: 'Profil',
+        label: i18n.t('header.profile'),
         pin: true,
         icon: <AccountCircleOutlinedIcon fontSize="small"/>,
         element: <ProfileMenuButton/>,
         key: '_profile'
     },
     {
-        label: 'Téléchargements',
+        label: i18n.t('header.downloads'),
         pin: false,
         icon: <FileDownloadOutlinedIcon fontSize="small"/>,
         element: null,
@@ -54,7 +55,7 @@ const options: OptionItem[] = [
         }
     },
     {
-        label: 'Quitter l\'espace personnel',
+        label: i18n.t('header.exitApp'),
         pin: false,
         icon: <ExitToAppRoundedIcon fontSize="small"/>,
         element: null,

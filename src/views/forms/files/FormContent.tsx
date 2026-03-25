@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import InputsDoc from "@/views/forms/files/InputsDoc";
 import { Box as MuiBox, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import FileItem from "@/views/forms/files/FileItem";
 import getFileInfos from "@/utils/getFileInfos";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
@@ -22,6 +23,7 @@ export default function FormContent ({
     onClose,
     setFiles
 }: FormContentProps) {
+    const { t } = useTranslation();
     const items = useMemo(() => files ? [...files] : [], [files]);
     return (
         <React.Fragment>
@@ -44,7 +46,7 @@ export default function FormContent ({
                 variant="h6"
                 fontWeight="bold"
                 fontSize={18}
-            >Téléverser les fichiers
+            >{t('files.uploadFiles')}
             </Typography>
           </DialogTitle>
           <form onSubmit={handleSendFile(files)}>
@@ -77,13 +79,13 @@ export default function FormContent ({
             <Button
               onClick={onClose}
               color="primary"
-            >Annuler
+            >{t('common.cancel')}
             </Button>
             <Button
               type="submit"
               variant="outlined"
               color="primary"
-            >Téléverser</Button>
+            >{t('files.upload')}</Button>
           </DialogActions>
           </form>
         </Dialog>

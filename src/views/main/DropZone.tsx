@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Box, Typography, alpha, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 
 interface DropZoneProps {
@@ -7,6 +8,7 @@ interface DropZoneProps {
 }
 
 export default function DropZone({ children }: DropZoneProps) {
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
   const theme = useTheme();
   let dragCounter = 0;
@@ -85,7 +87,7 @@ export default function DropZone({ children }: DropZoneProps) {
             sx={{ fontSize: 56, color: "primary.main", opacity: 0.7 }}
           />
           <Typography variant="h6" color="primary.main" fontWeight={500}>
-            Déposez vos fichiers ici
+            {t("files.dropFilesHere")}
           </Typography>
         </Box>
       )}

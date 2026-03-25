@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Autocomplete, CircularProgress, FormControl, FormHelperText, MenuItem, Paper, TextField, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import useAxios from "@/utils/useAxios";
 
 interface BookTypologyProps {
@@ -9,6 +10,7 @@ interface BookTypologyProps {
 }
 
 export default function BookTypology ({valueRef, externalError}: BookTypologyProps) {
+    const { t } = useTranslation();
     const [{error, loading, data}, refresh] = useAxios(
         {url: '/api/stuff/bibliotheque/types'},
         {manual: true}
@@ -34,13 +36,13 @@ export default function BookTypology ({valueRef, externalError}: BookTypologyPro
                 onChange={handleChange}
                 value={value}
                 loading={loading}
-                loadingText={<Typography>Chargement...</Typography>}
+                loadingText={<Typography>{t("medialibrary.loadingText")}</Typography>}
                 noOptionsText={
                     error ?
                     (<Typography color="red">
-                        Impossible de récupérer des informations, Vérifier le réseau.
+                        {t("medialibrary.networkError")}
                     </Typography>):
-                    (<Typography color="red">Aucun élement</Typography>)
+                    (<Typography color="red">{t("medialibrary.noElement")}</Typography>)
                 }
                 renderOption={(params) => (
                     <MenuItem {...params} sx={{fontSize: 14}}>{params.key}</MenuItem>)
@@ -78,7 +80,7 @@ export default function BookTypology ({valueRef, externalError}: BookTypologyPro
                 )}
             />
             {emptyError && <FormHelperText sx={{color: (theme: any) => theme.palette.error.main }}>
-                S'il vous plaît sélectionner un élément.
+                {t("archives.selectElement")}
             </FormHelperText>}
         </FormControl>
     )

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogTitle,
@@ -8,12 +10,14 @@ import {
   IconButton,
   Typography,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import getFileExtension from "@/utils/getFileExtension";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
+import { RootState } from "@/types";
 
 const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "ico", "avif"];
 const VIDEO_EXTS = ["mp4", "webm", "mov"];
@@ -37,8 +41,12 @@ interface PreviewFile {
 }
 
 export default function FilePreviewDialog() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<PreviewFile | null>(null);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [loadingBlob, setLoadingBlob] = useState(false);
+  const { token } = useSelector((store: RootState) => store.user);
 
   useEffect(() => {
     const root = document.getElementById("root");
@@ -53,24 +61,64 @@ export default function FilePreviewDialog() {
     return () => root?.removeEventListener("_open_file_preview", handler);
   }, []);
 
+  // Fetch file content with auth and create blob URL
+  useEffect(() => {
+    if (!file?.url || !open) {
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+        setBlobUrl(null);
+      }
+      return;
+    }
+    setLoadingBlob(true);
+    fetch(file.url, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.blob())
+      .then((blob) => {
+        setBlobUrl(URL.createObjectURL(blob));
+      })
+      .catch(() => {
+        setBlobUrl(null);
+      })
+      .finally(() => setLoadingBlob(false));
+
+    return () => {
+      // Cleanup will happen on next effect run
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file?.url, open, token]);
+
   const handleClose = () => {
     setOpen(false);
     setFile(null);
+    if (blobUrl) {
+      URL.revokeObjectURL(blobUrl);
+      setBlobUrl(null);
+    }
   };
 
   const handleDownload = () => {
     if (!file?.url) return;
-    const a = document.createElement("a");
-    a.href = file.url;
-    a.download = file.name ?? "fichier";
-    a.target = "_blank";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    fetch(file.url, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name ?? t("preview.file");
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
   };
 
   const ext = getFileExtension(file?.name ?? "");
   const category = getCategory(ext);
+  const previewSrc = blobUrl || "";
 
   return (
     <Dialog
@@ -111,10 +159,16 @@ export default function FilePreviewDialog() {
           overflow: "auto",
         }}
       >
-        {category === "image" && (
+        {loadingBlob && (
+          <Box display="flex" justifyContent="center" alignItems="center" py={8}>
+            <CircularProgress />
+          </Box>
+        )}
+
+        {!loadingBlob && category === "image" && (
           <Box
             component="img"
-            src={file?.url}
+            src={previewSrc}
             alt={file?.name ?? ""}
             sx={{
               maxHeight: "80vh",
@@ -125,28 +179,28 @@ export default function FilePreviewDialog() {
           />
         )}
 
-        {category === "video" && (
+        {!loadingBlob && category === "video" && (
           <Box
             component="video"
             controls
-            src={file?.url}
+            src={previewSrc}
             sx={{ maxHeight: "80vh", maxWidth: "100%", borderRadius: 1 }}
           />
         )}
 
-        {category === "audio" && (
+        {!loadingBlob && category === "audio" && (
           <Box
             component="audio"
             controls
-            src={file?.url}
+            src={previewSrc}
             sx={{ width: "100%", maxWidth: 500 }}
           />
         )}
 
-        {category === "pdf" && (
+        {!loadingBlob && category === "pdf" && (
           <Box
             component="iframe"
-            src={file?.url}
+            src={previewSrc}
             title={file?.name ?? ""}
             sx={{
               width: "100%",
@@ -171,16 +225,16 @@ export default function FilePreviewDialog() {
             </Typography>
             {file?.size != null && (
               <Typography variant="body2" color="text.secondary">
-                Taille : {normaliseOctetSize(file.size)}
+                {t("preview.size", { size: normaliseOctetSize(file.size) })}
               </Typography>
             )}
             {file?.type && (
               <Typography variant="body2" color="text.secondary">
-                Type : {file.type}
+                {t("preview.type", { type: file.type })}
               </Typography>
             )}
             <Typography variant="body2" color="text.disabled">
-              L'apercu n'est pas disponible pour ce type de fichier
+              {t("preview.noPreview")}
             </Typography>
           </Box>
         )}
@@ -192,7 +246,7 @@ export default function FilePreviewDialog() {
           startIcon={<DownloadRoundedIcon />}
           onClick={handleDownload}
         >
-          Télécharger
+          {t("common.download")}
         </Button>
       </DialogActions>
     </Dialog>

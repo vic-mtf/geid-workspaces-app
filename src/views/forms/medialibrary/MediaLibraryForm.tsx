@@ -3,12 +3,14 @@ import format from "@/views/forms/format";
 import useAxios from "@/utils/useAxios";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import textStyle from '@/styles/text.module.css';
 import FormContent from "@/views/forms/medialibrary/FormContent";
 import { RootState } from "@/types";
 import { Button, Typography } from "@mui/material";
 
 export default function MediaLibraryForm () {
+    const { t } = useTranslation();
     const [file, setFile] = useState<any>(null);
     const typeInfos = useMemo(() => format[(file?.type as string)], [file?.type]);
     const userId = useSelector((store: RootState) => store.user.id);
@@ -71,7 +73,7 @@ export default function MediaLibraryForm () {
                   className={textStyle.monoCrop}
                   sx={{ px: 1 }}
                 >{name}</Typography>
-                Le fichier a été envoyé à la mediathèque avec succès
+                {t("medialibrary.sentSuccess")}
               </Typography>,
               { variant:'success'}
             )
@@ -87,7 +89,7 @@ export default function MediaLibraryForm () {
                   className={textStyle.monoCrop}
                   sx={{ px: 1 }}
                 >{name}</Typography>
-                Impossible de soumettre ce fichier à la Médiathèque
+                {t("medialibrary.sentError")}
               </Typography>,
               { variant: 'error'}
             )
@@ -103,12 +105,12 @@ export default function MediaLibraryForm () {
               className={textStyle.monoCrop}
               sx={{ px: 1 }}
             >{name}</Typography>
-            L'envoi du fichier à la médiathèque en cours...
+            {t("medialibrary.sending")}
           </Typography>,
           {
             action: (id: any) => (
               <Button
-                children="Annuler"
+                children={t("common.cancel")}
                 color="inherit"
                 onClick={() => {
                   cancel();

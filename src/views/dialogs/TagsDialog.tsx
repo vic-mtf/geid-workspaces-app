@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import {
     Dialog,
     DialogTitle,
@@ -18,6 +19,7 @@ import useAxios from '@/utils/useAxios';
 import { RootState } from '@/types';
 
 export default function TagsDialog() {
+    const { t } = useTranslation();
     const { token } = useSelector((store: RootState) => store.user);
     const { enqueueSnackbar } = useSnackbar();
 
@@ -87,14 +89,14 @@ export default function TagsDialog() {
             data: { tags },
         })
             .then(() => {
-                enqueueSnackbar('Tags mis a jour', { variant: 'success' });
+                enqueueSnackbar(t('tags.tagsUpdated'), { variant: 'success' });
                 document
                     .getElementById('root')
                     ?.dispatchEvent(new CustomEvent('_reload_current_dir'));
                 setFile(null);
             })
             .catch(() => {
-                enqueueSnackbar('Impossible de modifier les tags', {
+                enqueueSnackbar(t('tags.tagsUpdateError'), {
                     variant: 'error',
                 });
             });
@@ -118,12 +120,12 @@ export default function TagsDialog() {
                 },
             }}
         >
-            <DialogTitle>Tags</DialogTitle>
+            <DialogTitle>{t('tags.title')}</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2, mt: 1 }}>
                     {tags.length === 0 ? (
                         <Typography variant="body2" color="text.secondary">
-                            Aucun tag pour le moment
+                            {t('tags.noTags')}
                         </Typography>
                     ) : (
                         tags.map((tag) => (
@@ -160,7 +162,7 @@ export default function TagsDialog() {
                             <TextField
                                 {...params}
                                 size="small"
-                                placeholder="Nouveau tag"
+                                placeholder={t('tags.newTag')}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                         e.preventDefault();
@@ -177,19 +179,19 @@ export default function TagsDialog() {
                         onClick={handleAddTag}
                         sx={{ textTransform: 'none' }}
                     >
-                        Ajouter
+                        {t('common.add')}
                     </Button>
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Annuler</Button>
+                <Button onClick={handleClose}>{t('common.cancel')}</Button>
                 <Button
                     variant="outlined"
                     size="small"
                     onClick={handleSave}
                     sx={{ textTransform: 'none' }}
                 >
-                    Enregistrer
+                    {t('common.save')}
                 </Button>
             </DialogActions>
         </Dialog>

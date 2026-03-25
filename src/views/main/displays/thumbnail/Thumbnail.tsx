@@ -1,6 +1,7 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Skeleton, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import getFileExtension from "@/utils/getFileExtension";
 import File from "@/views/main/displays/file/File";
@@ -11,9 +12,11 @@ import { FileItem } from "@/types";
 
 interface ThumbnailProps {
   data?: FileItem[];
+  loading?: boolean;
 }
 
-export default function Thumbnail({ data: _data }: ThumbnailProps) {
+export default function Thumbnail({ data: _data, loading }: ThumbnailProps) {
+  const { t } = useTranslation();
   const [findName, setFindName] = useState("");
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
@@ -59,21 +62,31 @@ export default function Thumbnail({ data: _data }: ThumbnailProps) {
 
   return (
     <Box overflow="auto" p={1} height="85vh">
-      {data?.length === 0 ? (
+      {loading ? (
+        <Grid container spacing={1} p={1}>
+          {[0, 1, 2, 3].map((i) => (
+            <Grid component="div" item xs={6} sm={4} md={12 / 5} lg={12 / 6} xl={12 / 8} key={i}>
+              <Skeleton variant="rounded" height={70} sx={{ borderRadius: 2 }} />
+            </Grid>
+          ))}
+        </Grid>
+      ) : data?.length === 0 ? (
         <Box
           display="flex"
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
+          flex={1}
           height="100%"
+          py={6}
           gap={1}
         >
           <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
           <Typography color="text.secondary" fontWeight="bold">
-            Cet espace est vide
+            {t("files.emptySpace")}
           </Typography>
           <Typography variant="body2" color="text.disabled">
-            Utilisez le bouton Téléverser pour ajouter des fichiers
+            {t("files.emptySpaceHint")}
           </Typography>
         </Box>
       ) : (

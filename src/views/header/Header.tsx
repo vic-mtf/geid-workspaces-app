@@ -1,12 +1,15 @@
-import { AppBar, Box as MuiBox, IconButton, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { AppBar, Box as MuiBox, CardMedia, Divider, IconButton, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import SearchInput from '@/components/SearchInput';
 import DeconnectDialog from '@/views/header/DeconnectDialog';
 import MainOption from '@/views/header/main-options/MainOption';
 import appConfig from '@/configs/app-config.json';
+import geidLogo from '@/assets/geid_logo_white.png';
 
 export default function Header () {
+    const { t } = useTranslation();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -33,9 +36,22 @@ export default function Header () {
                             <MenuRoundedIcon />
                         </IconButton>
                     )}
-                    <Typography flexGrow={1} fontSize={18} fontWeight="bold" variant="h6" noWrap component="div">
-                        Espace personnel
-                    </Typography>
+                    <MuiBox display="flex" alignItems="center" gap={{ xs: 0.75, sm: 1 }} flexGrow={1}>
+                        <CardMedia
+                            component="img"
+                            src={geidLogo}
+                            draggable={false}
+                            sx={{ height: { xs: 24, sm: 28 }, width: "auto" }}
+                        />
+                        <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(255,255,255,0.5)", borderRightWidth: 2, my: 0.5 }} />
+                        <Typography
+                            noWrap
+                            component="div"
+                            sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, fontWeight: 700 }}
+                        >
+                            {t('header.personalSpace')}
+                        </Typography>
+                    </MuiBox>
                     <SearchInput
                         onChange={(event: any) => {
                             const customEvent = new CustomEvent('_search_data', {

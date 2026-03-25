@@ -4,6 +4,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { FormControl, MenuItem, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { RootState } from "@/types";
 
 interface TypologyProps {
@@ -13,6 +14,7 @@ interface TypologyProps {
 }
 
 export default function Typology({ control, errors }: TypologyProps) {
+  const { t } = useTranslation();
   const docTypes = useSelector((store: RootState) => store?.user?.docTypes) || [];
   const types = useMemo(() => docTypes.map(({ name }) => name), [docTypes]);
 
@@ -21,7 +23,7 @@ export default function Typology({ control, errors }: TypologyProps) {
       <Controller
         name='type'
         control={control}
-        rules={{ required: "Choisir un type" }}
+        rules={{ required: t("archives.chooseType") }}
         render={({ field: { onChange, onBlur, value: type = null } }) => {
           const subTypes =
             docTypes?.find(({ name }) => name === type)?.subtypes || [];
@@ -35,7 +37,7 @@ export default function Typology({ control, errors }: TypologyProps) {
                   onChange={(_, type) => onChange(type)}
                   onBlur={onBlur}
                   noOptionsText={
-                    <Typography color='red'>Aucun type trouvé</Typography>
+                    <Typography color='red'>{t("archives.noTypeFound")}</Typography>
                   }
                   renderOption={(params) => (
                     <MenuItem
@@ -54,7 +56,7 @@ export default function Typology({ control, errors }: TypologyProps) {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label='Type'
+                      label={t("archives.type")}
                       margin='dense'
                       InputProps={{
                         ...params.InputProps,
@@ -89,7 +91,7 @@ export default function Typology({ control, errors }: TypologyProps) {
                         fullWidth={true}
                         noOptionsText={
                           <Typography color='red'>
-                            Aucun sous type trouvé
+                            {t("archives.noSubTypeFound")}
                           </Typography>
                         }
                         renderOption={(params) => (
@@ -106,7 +108,7 @@ export default function Typology({ control, errors }: TypologyProps) {
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label='Sous type'
+                            label={t("archives.subType")}
                             margin='dense'
                             InputProps={{
                               ...params.InputProps,

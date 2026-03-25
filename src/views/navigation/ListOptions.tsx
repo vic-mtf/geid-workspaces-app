@@ -9,7 +9,7 @@ export default function ListOptions () {
     const theme = useTheme();
 
     return (
-        <List dense sx={{ px: 1, py: 0.5 }}>
+        <List sx={{ px: 1, py: 0.5 }}>
             {listOptionMenu.map((option) => {
                 const isActive = pathname.startsWith(option.to);
                 return (

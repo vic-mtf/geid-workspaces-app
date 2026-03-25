@@ -1,5 +1,6 @@
 import { ListItemIcon, ListItemText, Menu, MenuItem, Tooltip } from "@mui/material";
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import IconButton from "@/components/IconButton";
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 
@@ -15,12 +16,13 @@ interface MoreOptionsButtonProps {
 }
 
 export default function MoreOptionsButton ({options}: MoreOptionsButtonProps) {
+    const { t } = useTranslation();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null | false>(false);
     const anchorRef = useRef<HTMLButtonElement>(null);
 
     return (
         <React.Fragment>
-            <Tooltip title="Plus" arrow>
+            <Tooltip title={t("common.more")} arrow>
                 <IconButton
                     sx={{mx: 1}}
                     ref={anchorRef}

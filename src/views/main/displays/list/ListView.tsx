@@ -1,11 +1,13 @@
 import {
   Box,
+  Skeleton,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
@@ -22,6 +24,7 @@ import { FileItem } from "@/types";
 
 interface ListViewProps {
   data?: FileItem[];
+  loading?: boolean;
 }
 
 function getFileIcon(name: string) {
@@ -34,7 +37,8 @@ function getFileIcon(name: string) {
   return <InsertDriveFileOutlinedIcon fontSize="small" sx={{ opacity: 0.7 }} />;
 }
 
-export default function ListView({ data: _data }: ListViewProps) {
+export default function ListView({ data: _data, loading }: ListViewProps) {
+  const { t } = useTranslation();
   const [findName, setFindName] = useState("");
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
@@ -80,6 +84,16 @@ export default function ListView({ data: _data }: ListViewProps) {
     navigate(`${pathname}?folder=${encodeURIComponent(newFolder)}`);
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ height: "85vh", overflow: "auto", px: 2, pt: 1 }}>
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} variant="rounded" height={60} sx={{ borderRadius: 2, mb: 1 }} />
+        ))}
+      </Box>
+    );
+  }
+
   if (!data || data.length === 0) {
     return (
       <Box
@@ -92,10 +106,10 @@ export default function ListView({ data: _data }: ListViewProps) {
       >
         <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
         <Typography color="text.secondary" fontWeight="bold">
-          Cet espace est vide
+          {t("files.emptySpace")}
         </Typography>
         <Typography variant="body2" color="text.disabled">
-          Utilisez le bouton Téléverser pour ajouter des fichiers
+          {t("files.emptySpaceHint")}
         </Typography>
       </Box>
     );
@@ -120,18 +134,18 @@ export default function ListView({ data: _data }: ListViewProps) {
       >
         <Box flex={1} minWidth={0}>
           <Typography variant="caption" fontWeight={700} color="text.secondary">
-            Nom
+            {t("list.name")}
           </Typography>
         </Box>
         <Box width={180} flexShrink={0} display={{ xs: "none", sm: "block" }}>
           <Typography variant="caption" fontWeight={700} color="text.secondary">
-            Date de modification
+            {t("list.modifiedDate")}
           </Typography>
         </Box>
         {!isSmall && (
           <Box width={100} flexShrink={0}>
             <Typography variant="caption" fontWeight={700} color="text.secondary">
-              Taille
+              {t("list.size")}
             </Typography>
           </Box>
         )}

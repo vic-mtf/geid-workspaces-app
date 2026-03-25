@@ -2,7 +2,7 @@ import { Drawer, Toolbar, Box as MuiBox, useTheme, useMediaQuery } from "@mui/ma
 import { useState, useEffect } from "react";
 import ListOptions from "@/views/navigation/ListOptions";
 
-export const drawerWidth = 250;
+export const drawerWidth = 280;
 
 export default function Navigation() {
   const theme = useTheme();
@@ -23,12 +23,16 @@ export default function Navigation() {
       onClose={() => setOpen(false)}
       ModalProps={{ keepMounted: true }}
       sx={{
-        width: isMobile ? 0 : drawerWidth,
+        width: { xs: 0, md: drawerWidth },
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
-          width: isMobile ? "80vw" : drawerWidth,
+        transition: "none",
+        "& .MuiDrawer-paper": {
+          width: isMobile ? "100vw" : drawerWidth,
           boxSizing: "border-box",
-          background: "none",
+          bgcolor: "background.paper",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >

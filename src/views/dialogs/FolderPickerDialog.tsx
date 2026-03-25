@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
     Dialog,
     DialogTitle,
@@ -31,6 +32,7 @@ export default function FolderPickerDialog({
     onClose,
     onConfirm,
 }: FolderPickerDialogProps) {
+    const { t } = useTranslation();
     const { token, id: userId } = useSelector(
         (store: RootState) => store.user
     );
@@ -106,7 +108,7 @@ export default function FolderPickerDialog({
                 },
             }}
         >
-            <DialogTitle>Choisir un dossier de destination</DialogTitle>
+            <DialogTitle>{t('move.chooseFolder')}</DialogTitle>
             <DialogContent>
                 <Breadcrumbs sx={{ mb: 2 }}>
                     {pathSegments.map((segment, index) => {
@@ -148,7 +150,7 @@ export default function FolderPickerDialog({
                         color="text.secondary"
                         sx={{ py: 3, textAlign: 'center' }}
                     >
-                        Aucun sous-dossier dans ce repertoire
+                        {t('move.noSubFolder')}
                     </Typography>
                 ) : (
                     <List dense>
@@ -175,14 +177,14 @@ export default function FolderPickerDialog({
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Annuler</Button>
+                <Button onClick={onClose}>{t('common.cancel')}</Button>
                 <Button
                     onClick={handleConfirm}
                     variant="outlined"
                     size="small"
                     sx={{ textTransform: 'none' }}
                 >
-                    Confirmer
+                    {t('common.confirm')}
                 </Button>
             </DialogActions>
         </Dialog>

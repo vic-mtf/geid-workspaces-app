@@ -1,6 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, Dialog, DialogActions, DialogContent, Grid, Stack } from "@mui/material";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import useAxios from "@/utils/useAxios";
 import TextFieldController from '@/components/TextFieldController';
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -16,6 +17,7 @@ interface CoverPageFormProps {
 }
 
 export default function CoverPageForm ({file, refresh, setFile}: CoverPageFormProps) {
+    const { t } = useTranslation();
     const token = useSelector((store: RootState) => store.user.token);
     const fileNameRef = useRef<any>();
     const typeRef = useRef<any>();
@@ -81,7 +83,7 @@ export default function CoverPageForm ({file, refresh, setFile}: CoverPageFormPr
                         <Stack spacing={1}>
                             <TextFieldController
                                 margin="dense"
-                                label="Nom du couverture"
+                                label={t("coverPages.coverName")}
                                 fullWidth
                                 size="small"
                                 defaultValue={fileName}
@@ -112,12 +114,12 @@ export default function CoverPageForm ({file, refresh, setFile}: CoverPageFormPr
                 <DialogActions>
                     <Button
                         size="small"
-                        children="Annuler"
+                        children={t("common.cancel")}
                         onClick={handleCancelCancel}
                     />
                     <LoadingButton
                         size="small"
-                        children="Ajouter"
+                        children={t("common.add")}
                         variant="outlined"
                         sx={{
                             textTransform: 'none',

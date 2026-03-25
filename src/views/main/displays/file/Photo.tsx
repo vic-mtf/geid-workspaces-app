@@ -1,5 +1,7 @@
+import React, { useEffect, useState } from "react";
 import { Box, Skeleton, Typography } from "@mui/material";
-import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/types";
 
 interface PhotoProps {
     url?: string;
@@ -7,8 +9,34 @@ interface PhotoProps {
     [key: string]: any;
 }
 
-export default function Photo (props: PhotoProps) {
+function Photo(props: PhotoProps) {
     const [loading, setLoading] = useState(true);
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
+    const token = useSelector((store: RootState) => store.user.token);
+
+    useEffect(() => {
+        if (!props.url) return;
+        let revoked = false;
+        fetch(props.url, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((res) => res.blob())
+            .then((blob) => {
+                if (!revoked) setBlobUrl(URL.createObjectURL(blob));
+            })
+            .catch(() => {
+                if (!revoked) setBlobUrl(null);
+            });
+        return () => {
+            revoked = true;
+        };
+    }, [props.url, token]);
+
+    useEffect(() => {
+        return () => {
+            if (blobUrl) URL.revokeObjectURL(blobUrl);
+        };
+    }, [blobUrl]);
 
     return (
         <Box
@@ -19,48 +47,52 @@ export default function Photo (props: PhotoProps) {
             position="relative"
             gap={1}
         >
-            <Box
-                p={.2}
-                display={loading ? 'none' : 'flex'}
-                sx={{
-                    boxShadow: 5,
-                    justifyContent:"center",
-                    alignItems: 'center',
-                    borderRadius: 2,
-                    bgcolor: (theme: any) => theme.palette.background.paper
-                }}
-            >
+            {blobUrl && (
                 <Box
-                    component="img"
-                    src={props.url}
-                    srcSet={props.url}
-                    onLoad={() => setLoading(false)}
+                    p={0.2}
+                    display={loading ? "none" : "flex"}
                     sx={{
-                        width: "100%",
-                        maxHeight: 150,
+                        boxShadow: 5,
+                        justifyContent: "center",
+                        alignItems: "center",
                         borderRadius: 2,
-                        border: (theme: any) => `2px solid ${theme.palette.divider}`
+                        bgcolor: (theme: any) => theme.palette.background.paper,
                     }}
+                >
+                    <Box
+                        component="img"
+                        src={blobUrl}
+                        onLoad={() => setLoading(false)}
+                        sx={{
+                            width: "100%",
+                            maxHeight: 150,
+                            borderRadius: 2,
+                            border: (theme: any) =>
+                                `2px solid ${theme.palette.divider}`,
+                        }}
+                    />
+                </Box>
+            )}
+            {loading && (
+                <Skeleton
+                    variant="rectangular"
+                    sx={{ width: "100%", height: 120 }}
                 />
-
-            </Box>
-            {loading &&
-            <Skeleton
-                variant="rectangular"
-                sx={{width: '100%', height: 120,}}
-            />}
+            )}
             <Typography
                 align="center"
                 width={150}
                 sx={{
                     WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical',
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
+                    WebkitBoxOrient: "vertical",
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
                 }}
             >
-                {props.name?.replace(/_/ig, ' ')}
+                {props.name?.replace(/_/gi, " ")}
             </Typography>
         </Box>
-    )
+    );
 }
+
+export default React.memo(Photo);

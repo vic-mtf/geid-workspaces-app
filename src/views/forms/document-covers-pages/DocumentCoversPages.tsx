@@ -1,5 +1,6 @@
 import React from 'react';
 import { CircularProgress, Dialog, DialogContent, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import useAxios from '@/utils/useAxios';
 import { useSelector } from 'react-redux';
 import Content from '@/views/forms/document-covers-pages/Content';
@@ -13,6 +14,7 @@ interface DocumentCoversPagesProps {
 }
 
 export default function DocumentCoversPages ({open, onClose, onCover}: DocumentCoversPagesProps) {
+    const { t } = useTranslation();
     const { token } = useSelector((store: RootState) => store.user);
     const [{ data, loading}, refresh ] = useAxios({
             url: '/api/stuff/cover',
@@ -55,7 +57,7 @@ export default function DocumentCoversPages ({open, onClose, onCover}: DocumentC
                             size={20}
                             color="inherit"
                         /> :
-                    'Aucune couverture disponible'
+                    t("coverPages.noCoverAvailable")
                 }
 
                 </Typography>}

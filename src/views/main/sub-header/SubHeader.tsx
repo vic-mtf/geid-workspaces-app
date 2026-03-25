@@ -8,9 +8,11 @@ import UploadFilesButton from "@/views/main/sub-header/UploadFilesButton";
 import TeleverseButton from "@/views/main/sub-header/TeleverseButton";
 import DisplayButton from "@/views/main/sub-header/DisplayButton";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CreateFolderDialog from "@/views/main/CreateFolderDialog";
 
 export default function SubHeader() {
+  const { t } = useTranslation();
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
@@ -31,7 +33,7 @@ export default function SubHeader() {
             startIcon={<AddRoundedIcon />}
             onClick={() => setMenuOpen(true)}
           >
-            Nouveau
+            {t("common.new")}
           </Button>
           <Menu
             open={menuOpen}
@@ -48,7 +50,7 @@ export default function SubHeader() {
               <ListItemIcon>
                 <FolderOutlinedIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="Nouveau dossier" />
+              <ListItemText primary={t("files.newFolderMenu")} />
             </MenuItem>
           </Menu>
           <TeleverseButton />

@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import useAxios from '@/utils/useAxios';
 import { RootState } from '@/types';
 
 export default function FavoriteHandler() {
+    const { t } = useTranslation();
     const { token } = useSelector((store: RootState) => store.user);
     const { enqueueSnackbar } = useSnackbar();
 
@@ -26,11 +28,11 @@ export default function FavoriteHandler() {
 
             execute({ url: `/api/stuff/workspace/favorite/${id}` })
                 .then(() => {
-                    enqueueSnackbar('Favori mis à jour', { variant: 'success' });
+                    enqueueSnackbar(t('favorites.updated'), { variant: 'success' });
                     root?.dispatchEvent(new CustomEvent('_reload_current_dir'));
                 })
                 .catch(() => {
-                    enqueueSnackbar('Impossible de modifier le favori', {
+                    enqueueSnackbar(t('favorites.updateError'), {
                         variant: 'error',
                     });
                 });

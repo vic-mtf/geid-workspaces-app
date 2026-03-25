@@ -1,0 +1,241 @@
+{
+  "common": {
+    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter pour continuer.",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "close": "Fermer",
+    "rename": "Renommer",
+    "open": "Ouvrir",
+    "download": "Telecharger",
+    "share": "Partager",
+    "copy": "Copier dans",
+    "move": "Deplacer vers",
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "add": "Ajouter",
+    "send": "Envoyer",
+    "create": "Creer",
+    "retry": "reessayer",
+    "show": "Afficher",
+    "more": "Plus",
+    "new": "Nouveau"
+  },
+  "nav": {
+    "documents": "Documents",
+    "images": "Images",
+    "videos": "Videos",
+    "others": "Autres",
+    "favorites": "Favoris",
+    "recent": "Recents",
+    "trash": "Corbeille"
+  },
+  "header": {
+    "personalSpace": "Espace personnel",
+    "help": "Aide",
+    "applications": "Applications",
+    "profile": "Profil",
+    "downloads": "Telechargements",
+    "exitApp": "Quitter l'espace personnel"
+  },
+  "files": {
+    "emptySpace": "Cet espace est vide",
+    "emptySpaceHint": "Utilisez le bouton Televerser pour ajouter des fichiers",
+    "upload": "Televerser",
+    "uploadFiles": "Televerser les fichiers",
+    "uploadFileItem": "Fichier(s)",
+    "uploadFolder": "Dossier",
+    "newFolder": "Nouveau dossier",
+    "newFolderMenu": "Nouveau dossier",
+    "folderName": "Nom du dossier",
+    "folderNameEmpty": "Le nom ne peut pas etre vide.",
+    "folderNameInvalid": "Nom invalide (caracteres interdits).",
+    "folderNameExists": "Un dossier avec ce nom existe deja.",
+    "folderCreateError": "Erreur lors de la creation du dossier.",
+    "connectionError": "Erreur de connexion.",
+    "renameTo": "Renommer",
+    "renameFolder": "Renommer le dossier",
+    "renaming": "Attribution d'un nouveau nom",
+    "fileRenamed": "Le fichier a ete renomme",
+    "fileRenameError": "Impossible de changer le nom du fichier",
+    "deleteConfirm": "Supprimer",
+    "deletingFile": "Suppression en cours...",
+    "fileDeleted": "Le fichier a ete supprime",
+    "fileDeleteError": "Impossible de supprimer le fichier",
+    "folderDeleteError": "Impossible de supprimer ce dossier.",
+    "deleteError": "Erreur lors de la suppression.",
+    "folderRenameError": "Impossible de renommer ce dossier.",
+    "renameError": "Erreur lors du renommage.",
+    "openFileError": "Impossible d'ouvrir le fichier.",
+    "folderLabel": "Dossier : {{name}}",
+    "fileTitleTooltip": "Nom: {{name}}\nType: {{type}}\nDate: {{date}}",
+    "dropFilesHere": "Deposez vos fichiers ici",
+    "loadingElements": "Chargement de {{count}} element",
+    "loadingElements_other": "Chargement de {{count}} elements"
+  },
+  "preview": {
+    "size": "Taille : {{size}}",
+    "type": "Type : {{type}}",
+    "noPreview": "L'apercu n'est pas disponible pour ce type de fichier",
+    "file": "fichier"
+  },
+  "share": {
+    "shareTitle": "Partager",
+    "shareLink": "Lien de partage",
+    "generateLink": "Generer un lien",
+    "linkGenerated": "Lien de partage genere",
+    "linkGenerateError": "Impossible de generer le lien",
+    "linkCopied": "Lien copie dans le presse-papier",
+    "shareWithUser": "Partager avec un utilisateur",
+    "userIdPlaceholder": "Identifiant utilisateur",
+    "permissionRead": "Lecture",
+    "permissionWrite": "Modification",
+    "fileShared": "Fichier partage",
+    "fileShareError": "Impossible de partager le fichier",
+    "currentShares": "Partages en cours",
+    "shareRevoked": "Partage revoque",
+    "shareRevokeError": "Impossible de revoquer le partage"
+  },
+  "tags": {
+    "title": "Tags",
+    "noTags": "Aucun tag pour le moment",
+    "newTag": "Nouveau tag",
+    "tagsUpdated": "Tags mis a jour",
+    "tagsUpdateError": "Impossible de modifier les tags"
+  },
+  "archives": {
+    "sendToArchives": "Le service d'archivage",
+    "sendToMediaLibrary": "La mediatheque",
+    "submitTitle": "Soumettre cet article au service d'archivage",
+    "docTitle": "Titre du document",
+    "docTitleRequired": "Veuillez donner un titre a votre document",
+    "docTitleMinLength": "Le titre doit contenir au moins 2 caracteres",
+    "refNumber": "N\u00b0 de reference",
+    "refNumberPlaceholder": "Reference interne du document",
+    "refNumberHelper": "Facultatif \u2014 numero ou code de reference interne",
+    "description": "Description",
+    "descriptionPlaceholder": "Decrivez brievement le contenu du document...",
+    "descriptionRequired": "Veuillez ajouter une description du document",
+    "descriptionMinLength": "La description doit contenir au moins 5 caracteres",
+    "keywords": "Mots-cles (facultatif)",
+    "keywordsPlaceholder": "Ex : budget 2024, rapport, finance...",
+    "keywordsHelper": "Separez les mots-cles par des espaces pour faciliter la recherche",
+    "sendArticle": "Envoyer l'article",
+    "sentSuccess": "Le fichier a ete envoye au service d'archivage",
+    "sentError": "Impossible de soumettre ce fichier !",
+    "sending": "Transfert du fichier au service d'archivage en cours...",
+    "cannotArchiveDirectly": "Ce fichier ne peut pas etre archive directement. Veuillez d'abord le televerser dans votre espace personnel.",
+    "type": "Type",
+    "subType": "Sous type",
+    "chooseType": "Choisir un type",
+    "noTypeFound": "Aucun type trouve",
+    "noSubTypeFound": "Aucun sous type trouve",
+    "selectElement": "S'il vous plait selectionner un element."
+  },
+  "medialibrary": {
+    "submitTitle": "Soumettre cet article a la mediatheque",
+    "sectionNotice": "En raison de ce type de fichier, cet element sera soumis a la section {{section}}.",
+    "sentSuccess": "Le fichier a ete envoye a la mediatheque avec succes",
+    "sentError": "Impossible de soumettre ce fichier a la Mediatheque",
+    "sending": "L'envoi du fichier a la mediatheque en cours...",
+    "title": "Titre",
+    "author": "Auteur",
+    "chooseCover": "Choisir la couverture",
+    "invalidTitle": "Intitule non valide ou trop court.",
+    "noElement": "Aucun element",
+    "loadingText": "Chargement...",
+    "networkError": "Impossible de recuperer des informations, Verifier le reseau."
+  },
+  "filesForm": {
+    "uploadTitle": "Televerser les fichiers",
+    "designation": "Designation",
+    "keyword": "Mot cle",
+    "description": "Description",
+    "invalidTitle": "Intitule non valide ou trop court."
+  },
+  "coverPages": {
+    "title": "Couvertures des documents",
+    "addCover": "Ajouter une image de couverture depuis votre appareil ...",
+    "coverName": "Nom du couverture",
+    "noCoverAvailable": "Aucune couverture disponible"
+  },
+  "detail": {
+    "title": "Detail"
+  },
+  "sort": {
+    "sort": "Trier",
+    "name": "Nom",
+    "date": "Date",
+    "ascending": "Croissante",
+    "descending": "Decroissante"
+  },
+  "display": {
+    "display": "Affichage",
+    "thumbnail": "Vignette",
+    "list": "Liste"
+  },
+  "list": {
+    "name": "Nom",
+    "modifiedDate": "Date de modification",
+    "size": "Taille"
+  },
+  "downloads": {
+    "title": "Telechargements",
+    "noDownloads": "Aucun element telecharge",
+    "uploadComplete": "Telechargement du fichier termine",
+    "uploadDone": "Telechargement termine",
+    "uploadFailed": "Echec de telechargement",
+    "preparingUpload": "Preparation de chargement...",
+    "ofTotal": "{{loaded}} sur {{total}}"
+  },
+  "profile": {
+    "disconnect": "Se deconnecter",
+    "disconnectTitle": "Souhaitez-vous deconnecter le compte ?",
+    "disconnectBody": "Lorsque vous vous deconnectez, vos donnees seront conservees sur cet appareil afin qu'il se souvienne de vous lors de la prochaine tentative de connexion jusqu'a la fin de votre session. vous pouvez le supprimer en cochant la boite avant de vous deconnecter.",
+    "deleteAllData": "Supprimer toutes vos donnees",
+    "disconnectButton": "Deconnexion",
+    "privacyPolicy": "Politique de confidentialite",
+    "termsOfUse": "Conditions d'utilisation"
+  },
+  "favorites": {
+    "updated": "Favori mis a jour",
+    "updateError": "Impossible de modifier le favori",
+    "addToFavorites": "Ajouter aux favoris",
+    "noFavorites": "Aucun favori pour le moment",
+    "noFavoritesHint": "Ajoutez des fichiers en favoris depuis le menu contextuel"
+  },
+  "recent": {
+    "noRecent": "Aucun fichier consulte recemment",
+    "noRecentHint": "Les fichiers que vous ouvrez apparaitront ici"
+  },
+  "trash": {
+    "emptyTrash": "Vider la corbeille",
+    "trashEmpty": "La corbeille est vide",
+    "trashEmptyHint": "Les fichiers supprimes apparaitront ici",
+    "restore": "Restaurer",
+    "deletePermanently": "Supprimer definitivement"
+  },
+  "move": {
+    "fileMoved": "Fichier deplace",
+    "fileMoveError": "Impossible de deplacer le fichier",
+    "chooseFolder": "Choisir un dossier de destination",
+    "noSubFolder": "Aucun sous-dossier dans ce repertoire"
+  },
+  "copyFile": {
+    "fileCopied": "Fichier copie",
+    "fileCopyError": "Impossible de copier le fichier"
+  },
+  "cover": {
+    "personalSpace": "Espace personnel",
+    "copyright": "Direction Archives et Nouvelles Technologie de l'Information et de la Communication \u00a92022"
+  },
+  "quota": {
+    "usedOf": "{{used}} utilises sur {{total}}"
+  },
+  "actions": {
+    "sendTo": "Envoyer vers"
+  }
+}

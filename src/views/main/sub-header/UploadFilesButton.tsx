@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import getFileExtension, { getName } from "@/utils/getFileExtension";
 import fileExtensionBase from "@/utils/fileExtensionBase";
-import pluralize from "pluralize";
 import DownloadsMenuDrawer from "@/views/main/sub-header/Downloads-menu-drawer/DownloadsMenuDrawer";
 import useGetData from "@/utils/useGetData";
 import { RootState } from "@/types";
 
 export default function UploadFilesButton() {
+  const { t } = useTranslation();
   const uploadList = useRef<any[]>([]);
   const [loadNumber, setLoadNumber] = useState(0);
   const [open, setOpen] = useState(false);
@@ -177,7 +178,7 @@ export default function UploadFilesButton() {
           color="inherit"
           onClick={() => setOpen((o) => !o)}
         >
-          Chargement de {pluralize("élement", loadNumber, true)}
+          {t("files.loadingElements", { count: loadNumber })}
         </Button>
       )}
       <DownloadsMenuDrawer

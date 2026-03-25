@@ -1,5 +1,6 @@
 import { Box, Stack, TextField } from "@mui/material";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import InputController from "@/components/InputController";
 
 interface InputsDocProps {
@@ -16,8 +17,8 @@ export default function InputsDoc ({
     description,
     findError
 }: InputsDocProps) {
-
-    const message = "Intitulé non valide ou trop court.";
+    const { t } = useTranslation();
+    const message = t("filesForm.invalidTitle");
 
     return (
         <React.Fragment>
@@ -35,7 +36,7 @@ export default function InputsDoc ({
                         invalidateErrorMessage={message}
                         externalError={findError('title')}
                     >
-                        <TextField label="Désignation"/>
+                        <TextField label={t("filesForm.designation")}/>
                     </InputController>
                 </Box>
             </Stack>
@@ -49,21 +50,21 @@ export default function InputsDoc ({
                 invalidateErrorMessage={message}
                 externalError={findError('tags')}
             >
-                <TextField label="Mot clé"/>
+                <TextField label={t("filesForm.keyword")}/>
             </InputController>
             <InputController
                 fullWidth
                 multiline
                 margin="dense"
                 rows={3}
-                label="Description"
+                label={t("filesForm.description")}
                 valueRef={description}
                 regExp={/.{10,}/}
                 trim={false}
                 invalidateErrorMessage={message}
                 externalError={findError('description')}
             >
-                <TextField label="Description"/>
+                <TextField label={t("filesForm.description")}/>
             </InputController>
         </React.Fragment>
     )

@@ -9,6 +9,7 @@ import normaliseOctetSize from '@/utils/normaliseOctetSize';
 import { useDispatch } from 'react-redux';
 import { addData } from '@/redux/data';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import textStyle from '@/styles/text.module.css';
 
 interface DownloadItemProps {
@@ -34,6 +35,7 @@ export default function DownloadItem (props: DownloadItemProps) {
     const [upload, setUpload] = useState({total, loaded});
     const name = file?.name?.replace(/_/ig, ' ');
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const { t } = useTranslation();
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -54,13 +56,13 @@ export default function DownloadItem (props: DownloadItemProps) {
                             className={textStyle.monoCrop}
                             sx={{ px: 1 }}
                             >{name}</Typography>
-                            Téléchargement du fichier términé
+                            {t('downloads.uploadComplete')}
                         </Typography>,
                         {
                             variant: 'success',
                             action: () => (
                                 <Button
-                                    children="Afficher"
+                                    children={t('common.show')}
                                     color="inherit"
                                     onClick={() => {
                                         const customEvent = new CustomEvent(
@@ -129,14 +131,14 @@ export default function DownloadItem (props: DownloadItemProps) {
                                                 normaliseOctetSize(upload.total ?? 0) :
                                                 `${normaliseOctetSize((upload as any).upload)} sur ${normaliseOctetSize(upload.total ?? 0)}`
                                            }
-                                        </>) : 'Préparation de chargement...'
+                                        </>) : t('downloads.preparingUpload')
 
                                     }
                                 </Typography>
                             </Stack>
                             {(end || aborted) &&
                             <IconButton
-                                title="Fermer"
+                                title={t("common.close")}
                                 sx={{position: 'absolute', top: '-5px', right: '-10px'}}
                                 onClick={() => {
                                     remove?.();
@@ -164,7 +166,7 @@ export default function DownloadItem (props: DownloadItemProps) {
                                         }}
                                     />
                                     <Button
-                                        children="annuler"
+                                        children={t('common.cancel')}
                                         onClick={cancel}
                                     />
                                 </React.Fragment>):
@@ -176,8 +178,8 @@ export default function DownloadItem (props: DownloadItemProps) {
                                     <ListItemText
                                         primary={
                                             <React.Fragment>
-                                                {end && 'Téléchargement términé'}
-                                                {aborted && 'Echec  de téléchargement'}
+                                                {end && t('downloads.uploadDone')}
+                                                {aborted && t('downloads.uploadFailed')}
                                             </React.Fragment>
                                         }
                                         primaryTypographyProps={{
@@ -185,7 +187,7 @@ export default function DownloadItem (props: DownloadItemProps) {
                                             color: ({palette}: any) => aborted ? palette.error.main : palette.success.main
                                         }}
                                     />
-                                    {aborted && <Button color="error" children="réessayer" onClick={resend}/>}
+                                    {aborted && <Button color="error" children={t('common.retry')} onClick={resend}/>}
                                 </React.Fragment>)}
                             </ListItem>
                         </MuiBox>

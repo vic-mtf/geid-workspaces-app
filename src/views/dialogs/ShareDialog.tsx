@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import {
     Dialog,
     DialogTitle,
@@ -27,6 +28,7 @@ import useAxios from '@/utils/useAxios';
 import { RootState } from '@/types';
 
 export default function ShareDialog() {
+    const { t } = useTranslation();
     const { token } = useSelector((store: RootState) => store.user);
     const { enqueueSnackbar } = useSnackbar();
 
@@ -76,14 +78,14 @@ export default function ShareDialog() {
             data: { fileId },
         })
             .then((res: any) => {
-                const link = res.data?.link || res.data?.url || '';
+                const link = res.data?.shareLink || '';
                 setShareLink(link);
-                enqueueSnackbar('Lien de partage genere', {
+                enqueueSnackbar(t('share.linkGenerated'), {
                     variant: 'success',
                 });
             })
             .catch(() => {
-                enqueueSnackbar('Impossible de generer le lien', {
+                enqueueSnackbar(t('share.linkGenerateError'), {
                     variant: 'error',
                 });
             });
@@ -91,7 +93,7 @@ export default function ShareDialog() {
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(shareLink).then(() => {
-            enqueueSnackbar('Lien copie dans le presse-papier', {
+            enqueueSnackbar(t('share.linkCopied'), {
                 variant: 'info',
             });
         });
@@ -104,7 +106,7 @@ export default function ShareDialog() {
             data: { fileId, targetUserId: targetUserId.trim(), permission },
         })
             .then(() => {
-                enqueueSnackbar('Fichier partage', { variant: 'success' });
+                enqueueSnackbar(t('share.fileShared'), { variant: 'success' });
                 setShares((prev) => [
                     ...prev,
                     { userId: targetUserId.trim(), permission },
@@ -112,7 +114,7 @@ export default function ShareDialog() {
                 setTargetUserId('');
             })
             .catch(() => {
-                enqueueSnackbar('Impossible de partager le fichier', {
+                enqueueSnackbar(t('share.fileShareError'), {
                     variant: 'error',
                 });
             });
@@ -120,16 +122,17 @@ export default function ShareDialog() {
 
     const handleRevoke = (userId: string) => {
         revokeShare({
-            url: `/api/stuff/workspace/share/${fileId}/${userId}`,
+            url: `/api/stuff/workspace/share/${fileId}`,
+            data: { targetUserId: userId },
         })
             .then(() => {
-                enqueueSnackbar('Partage revoque', { variant: 'success' });
+                enqueueSnackbar(t('share.shareRevoked'), { variant: 'success' });
                 setShares((prev) =>
                     prev.filter((s) => s.userId !== userId)
                 );
             })
             .catch(() => {
-                enqueueSnackbar('Impossible de revoquer le partage', {
+                enqueueSnackbar(t('share.shareRevokeError'), {
                     variant: 'error',
                 });
             });
@@ -154,7 +157,7 @@ export default function ShareDialog() {
             }}
         >
             <DialogTitle>
-                Partager{' '}
+                {t('share.shareTitle')}{' '}
                 <Typography
                     component="span"
                     fontWeight="bold"
@@ -163,9 +166,8 @@ export default function ShareDialog() {
                 </Typography>
             </DialogTitle>
             <DialogContent>
-                {/* Section 1: Lien de partage */}
                 <Typography variant="subtitle2" sx={{ mt: 1, mb: 1 }}>
-                    Lien de partage
+                    {t('share.shareLink')}
                 </Typography>
                 {shareLink ? (
                     <TextField
@@ -194,15 +196,14 @@ export default function ShareDialog() {
                         onClick={handleGenerateLink}
                         sx={{ mb: 2, textTransform: 'none' }}
                     >
-                        Generer un lien
+                        {t('share.generateLink')}
                     </Button>
                 )}
 
                 <Divider sx={{ my: 2 }} />
 
-                {/* Section 2: Partager avec un utilisateur */}
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                    Partager avec un utilisateur
+                    {t('share.shareWithUser')}
                 </Typography>
                 <Stack
                     direction={{ xs: 'column', sm: 'row' }}
@@ -212,7 +213,7 @@ export default function ShareDialog() {
                 >
                     <TextField
                         size="small"
-                        placeholder="Identifiant utilisateur"
+                        placeholder={t('share.userIdPlaceholder')}
                         value={targetUserId}
                         onChange={(e) => setTargetUserId(e.target.value)}
                         sx={{ flex: 1 }}
@@ -223,8 +224,8 @@ export default function ShareDialog() {
                         onChange={(e) => setPermission(e.target.value)}
                         sx={{ minWidth: 130 }}
                     >
-                        <MenuItem value="read">Lecture</MenuItem>
-                        <MenuItem value="write">Modification</MenuItem>
+                        <MenuItem value="read">{t('share.permissionRead')}</MenuItem>
+                        <MenuItem value="write">{t('share.permissionWrite')}</MenuItem>
                     </Select>
                     <Button
                         variant="outlined"
@@ -232,15 +233,14 @@ export default function ShareDialog() {
                         onClick={handleShare}
                         sx={{ textTransform: 'none' }}
                     >
-                        Partager
+                        {t('common.share')}
                     </Button>
                 </Stack>
 
-                {/* Current shares */}
                 {shares.length > 0 && (
                     <Box>
                         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            Partages en cours
+                            {t('share.currentShares')}
                         </Typography>
                         <List dense>
                             {shares.map((share, index) => (
@@ -249,8 +249,8 @@ export default function ShareDialog() {
                                         primary={share.userId}
                                         secondary={
                                             share.permission === 'read'
-                                                ? 'Lecture'
-                                                : 'Modification'
+                                                ? t('share.permissionRead')
+                                                : t('share.permissionWrite')
                                         }
                                     />
                                     <ListItemSecondaryAction>
@@ -270,7 +270,7 @@ export default function ShareDialog() {
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Fermer</Button>
+                <Button onClick={handleClose}>{t('common.close')}</Button>
             </DialogActions>
         </Dialog>
     );

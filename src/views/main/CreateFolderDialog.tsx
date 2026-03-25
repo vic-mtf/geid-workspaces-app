@@ -11,6 +11,7 @@ import {
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { RootState } from "@/types";
 
 interface CreateFolderDialogProps {
@@ -20,6 +21,7 @@ interface CreateFolderDialogProps {
 }
 
 export default function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,8 +42,8 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
 
   const handleCreate = async () => {
     const trimmed = name.trim();
-    if (!trimmed) { setError("Le nom ne peut pas être vide."); return; }
-    if (/[/\\:*?"<>|]/.test(trimmed)) { setError("Nom invalide (caractères interdits)."); return; }
+    if (!trimmed) { setError(t("files.folderNameEmpty")); return; }
+    if (/[/\\:*?"<>|]/.test(trimmed)) { setError(t("files.folderNameInvalid")); return; }
 
     setLoading(true);
     setError("");
@@ -54,12 +56,12 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
         },
         body: JSON.stringify({ path: currentPath, folderName: trimmed }),
       });
-      if (res.status === 409) { setError("Un dossier avec ce nom existe déjà."); return; }
-      if (!res.ok) { setError("Erreur lors de la création du dossier."); return; }
+      if (res.status === 409) { setError(t("files.folderNameExists")); return; }
+      if (!res.ok) { setError(t("files.folderCreateError")); return; }
       onCreated();
       onClose();
     } catch {
-      setError("Erreur de connexion.");
+      setError(t("files.connectionError"));
     } finally {
       setLoading(false);
     }
@@ -69,13 +71,13 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <FolderOutlinedIcon color="primary" />
-        Nouveau dossier
+        {t("files.newFolder")}
       </DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           fullWidth
-          label="Nom du dossier"
+          label={t("files.folderName")}
           value={name}
           onChange={(e) => { setName(e.target.value); setError(""); }}
           onKeyDown={(e) => e.key === "Enter" && handleCreate()}
@@ -87,7 +89,7 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="inherit" disabled={loading}>
-          Annuler
+          {t("common.cancel")}
         </Button>
         <Button
           onClick={handleCreate}
@@ -95,7 +97,7 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
           disabled={loading || !name.trim()}
           startIcon={loading ? <CircularProgress size={14} color="inherit" /> : undefined}
         >
-          Créer
+          {t("common.create")}
         </Button>
       </DialogActions>
     </Dialog>

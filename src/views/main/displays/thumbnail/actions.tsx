@@ -10,12 +10,14 @@ import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import React from 'react';
+import store from '@/redux/store';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
 import { ActionOption } from '@/types';
+import i18n from '@/i18n/i18n';
 
 const actions: ActionOption[] = [
     {
-        label: 'Ouvrir',
+        label: i18n.t('common.open'),
         icon: <LaunchOutlinedIcon/>,
         onClick: (file: any) => {
             const name = '_open_file_preview';
@@ -25,10 +27,13 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Télécharger',
+        label: i18n.t('common.download'),
         icon: <FileDownloadOutlinedIcon/>,
         onClick: (file: any) => {
-            fetch(file?.url)
+            const token = store.getState().user.token;
+            fetch(file?.url, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
             .then(response => response.blob())
             .then(blob => {
                 const url = URL.createObjectURL(blob);
@@ -43,7 +48,7 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Renommer',
+        label: i18n.t('common.rename'),
         icon: <EditOutlinedIcon/>,
         onClick: (file: any) => {
             const customEvent = new CustomEvent(
@@ -60,11 +65,11 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Envoyer vers',
+        label: i18n.t('actions.sendTo'),
         icon: <SendOutlinedIcon/>,
         options: [
             {
-                label: 'Le service d\'archivage',
+                label: i18n.t('archives.sendToArchives'),
                 onClick: (file: any) => {
                     const name = '_open_archives_form';
                     const customEvent = new CustomEvent(name, { detail : {name,file, } });
@@ -73,7 +78,7 @@ const actions: ActionOption[] = [
                 }
             },
             {
-                label: 'La mediathèque',
+                label: i18n.t('archives.sendToMediaLibrary'),
                 onClick: (file: any) => {
                     const name = '_open_media_library_form';
                     const customEvent = new CustomEvent(name, { detail : {name,file, } });
@@ -84,7 +89,7 @@ const actions: ActionOption[] = [
         ]
     },
     {
-        label: 'Ajouter aux favoris',
+        label: i18n.t('favorites.addToFavorites'),
         icon: <StarBorderOutlinedIcon/>,
         onClick: (file: any) => {
             const name = '_toggle_favorite';
@@ -94,7 +99,7 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Déplacer vers',
+        label: i18n.t('common.move'),
         icon: <DriveFileMoveOutlinedIcon/>,
         onClick: (file: any) => {
             const name = '_open_move_dialog';
@@ -104,7 +109,7 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Copier dans',
+        label: i18n.t('common.copy'),
         icon: <ContentCopyOutlinedIcon/>,
         onClick: (file: any) => {
             const name = '_open_copy_dialog';
@@ -114,7 +119,7 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Tags',
+        label: i18n.t('tags.title'),
         icon: <LocalOfferOutlinedIcon/>,
         onClick: (file: any) => {
             const name = '_open_tags_dialog';
@@ -124,7 +129,7 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Partager',
+        label: i18n.t('common.share'),
         icon: <ShareOutlinedIcon/>,
         onClick: (file: any) => {
             const name = '_open_share_dialog';
@@ -134,12 +139,12 @@ const actions: ActionOption[] = [
         }
     },
     {
-        label: 'Supprimer',
+        label: i18n.t('common.delete'),
         icon: <DeleteOutlinedIcon/>,
         onClick: removeFile as any,
     },
     {
-        label: 'Detail',
+        label: i18n.t('detail.title'),
         icon: <InfoOutlinedIcon/>,
         onClick: (file: any) => {
             const customEvent = new CustomEvent(

@@ -1,9 +1,11 @@
 import { Button, CardMedia, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import optionLocalDate from '@/utils/optionLocalDate';
 import capStr from '@/utils/capStr';
 
-export default function DetailFIle () {
+export default function DetailFile () {
+    const { t } = useTranslation();
     const [file, setFile] = useState<any>(null);
 
     useEffect(() => {
@@ -33,7 +35,7 @@ export default function DetailFIle () {
             <Typography
                 variant="h6"
                 fontSize={18}
-            >Detail</Typography>
+            >{t('detail.title')}</Typography>
           </DialogTitle>
           <DialogContent
             sx={{
@@ -67,7 +69,7 @@ export default function DetailFIle () {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setFile(null)}>Fermer</Button>
+            <Button onClick={() => setFile(null)}>{t('common.close')}</Button>
           </DialogActions>
         </Dialog>
     )

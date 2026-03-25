@@ -1,11 +1,13 @@
 import { Box as MuiBox, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { removeUser } from '@/redux/app';
 import { removeData } from '@/redux/data';
 import { deconnected } from '@/redux/user';
 
 export default function DeconnectDialog () {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch();
     const [checked, setChecked] = useState(false);
@@ -57,7 +59,7 @@ export default function DeconnectDialog () {
             }}
         >
         <DialogTitle id="alert-dialog-deconnexion">
-            Souhaitez-vous déconnecter le compte ?
+            {t('profile.disconnectTitle')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText
@@ -65,10 +67,7 @@ export default function DeconnectDialog () {
             component="div"
           >
             <Typography>
-                Lorsque vous vous déconnectez, vos données seront conservées sur
-                cet appareil afin qu'il se souvienne de vous lors de la prochaine
-                tentative de connexion jusqu'à la fin de votre session.
-                vous pouvez le supprimer en cochant la boîte avant de vous déconnecter.
+                {t('profile.disconnectBody')}
             </Typography>
             <MuiBox mt={1}>
             <FormControl sx={{display: 'inline-block'}}>
@@ -80,7 +79,7 @@ export default function DeconnectDialog () {
                             variant="body2"
                             component="div"
                             color="text.primary"
-                        >Supprimer toutes vos données</Typography>
+                        >{t('profile.deleteAllData')}</Typography>
                     }
                     labelPlacement="end"
                 />
@@ -89,11 +88,11 @@ export default function DeconnectDialog () {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
+          <Button onClick={() => setOpen(false)}>{t('common.cancel')}</Button>
           <Button
             variant='outlined'
             onClick={handleDeconnecte} autoFocus>
-            Déconnexion
+            {t('profile.disconnectButton')}
           </Button>
         </DialogActions>
         </Dialog>

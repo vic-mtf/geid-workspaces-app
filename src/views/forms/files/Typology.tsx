@@ -3,6 +3,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { FormControl, FormHelperText, MenuItem, Paper, Popper, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { RootState } from "@/types";
 
 interface TypologyProps {
@@ -13,6 +14,7 @@ interface TypologyProps {
 }
 
 export default function Typology ({type, subType, externalTypeError, externalSubTypeError}: TypologyProps) {
+    const { t } = useTranslation();
     const docTypes = useSelector((store: RootState) => store?.user?.docTypes) || [];
     const [values, setValues] = useState<any>({
         type: type?.current,
@@ -76,7 +78,7 @@ export default function Typology ({type, subType, externalTypeError, externalSub
                     onChange={handleType}
                     value={values.type}
                     noOptionsText={
-                        (<Typography color="red">Aucun élement</Typography>)
+                        (<Typography color="red">{t("medialibrary.noElement")}</Typography>)
                     }
                     renderOption={(params) => (
                         <MenuItem {...params} sx={{fontSize: 14}}>{params.key}</MenuItem>)
@@ -109,7 +111,7 @@ export default function Typology ({type, subType, externalTypeError, externalSub
                     )}
                 />
                 {funcEmptyError && <FormHelperText sx={{color: (theme: any) => theme.palette.error.main }}>
-                    S'il vous plaît sélectionner un élément.
+                    {t("archives.selectElement")}
                 </FormHelperText>}
             </FormControl>
             <FormControl fullWidth>
@@ -120,7 +122,7 @@ export default function Typology ({type, subType, externalTypeError, externalSub
                     disabled={values.subTypes.length  < 2 || !values.type}
                     value={values.subType}
                     title={values.subType?.label}
-                    noOptionsText="Aucun élement"
+                    noOptionsText={t("medialibrary.noElement")}
                     onChange={(_event, subType) => setValues({...values, subType})}
                     options={values.subTypes}
                     renderOption={(params, index) => (
@@ -178,7 +180,7 @@ export default function Typology ({type, subType, externalTypeError, externalSub
                     )}
                 />
                 {roleEmptyError && <FormHelperText sx={{color: (theme: any) => theme.palette.error.main }}>
-                    S'il vous plaît sélectionner un élément.
+                    {t("archives.selectElement")}
                 </FormHelperText>}
             </FormControl>
         </Stack>

@@ -1,4 +1,5 @@
 import { Box as MuiBox, Drawer, Stack, Toolbar, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import IconButton from '@/components/IconButton';
 import DownloadItem from '@/views/main/sub-header/Downloads-menu-drawer/DownloadItem';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -11,6 +12,7 @@ interface DownloadsMenuDrawerProps {
 }
 
 export default function DownloadsMenuDrawer ({open, onClose, loadingList}: DownloadsMenuDrawerProps) {
+    const { t } = useTranslation();
     return (
         <Drawer
           variant="persistent"
@@ -36,7 +38,7 @@ export default function DownloadsMenuDrawer ({open, onClose, loadingList}: Downl
         <Toolbar variant="dense" />
         <Toolbar  disableGutters>
             <MuiBox>
-                <IconButton title="fermer" onClick={onClose} value="">
+                <IconButton title={t("common.close")} onClick={onClose} value="">
                     <CloseRoundedIcon fontSize="small"/>
                 </IconButton>
             </MuiBox>
@@ -46,7 +48,7 @@ export default function DownloadsMenuDrawer ({open, onClose, loadingList}: Downl
                 fontWeight="bold"
                 ml={1}
             >
-                Téléchargements
+                {t("downloads.title")}
             </Typography>
         </Toolbar>
             <Stack
@@ -70,7 +72,7 @@ export default function DownloadsMenuDrawer ({open, onClose, loadingList}: Downl
                     flex={1}
                     justifyContent="center"
                     alignItems="center"
-                >Aucun élement téléchargé</Typography>}
+                >{t("downloads.noDownloads")}</Typography>}
             </Stack>
         </Drawer>
     )

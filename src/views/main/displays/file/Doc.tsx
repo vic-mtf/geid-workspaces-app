@@ -1,3 +1,4 @@
+import React from "react";
 import { Box, Typography } from "@mui/material";
 import style from '@/styles/paper.module.css';
 
@@ -7,7 +8,7 @@ interface DocProps {
     [key: string]: any;
 }
 
-export default function Doc (props: DocProps)  {
+function Doc (props: DocProps)  {
     return (
         <Box
             display="flex"
@@ -49,3 +50,5 @@ export default function Doc (props: DocProps)  {
         </Box>
     )
 }
+
+export default React.memo(Doc);

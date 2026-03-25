@@ -5,11 +5,19 @@ import {
   Menu,
   MenuItem,
   Fade,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import React, { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import optionLocalDate from "@/utils/optionLocalDate";
 import useAxios from "@/utils/useAxios";
 import actions from "@/views/main/displays/thumbnail/actions";
@@ -40,11 +48,14 @@ export default function WrapperContent({
   onFolderClick,
   ...otherProps
 }: WrapperContentProps) {
+  const { t } = useTranslation();
   const file = { createdAt, name, type, url, isDirectory, ...otherProps };
   const date = new Date(createdAt || "");
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number } | null>(null);
   const menuRootRef = useRef<HTMLElement>(null);
   const [isRemoved, setIsRemoved] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [renameFolderValue, setRenameFolderValue] = useState("");
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const user = useSelector((store: RootState) => store.user);
   const { pathname, search } = useLocation();
@@ -63,9 +74,25 @@ export default function WrapperContent({
     );
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (isDirectory && onFolderClick && name) {
       onFolderClick(name);
+      return;
+    }
+    // Authenticated file open in new tab
+    if (!isDirectory && url) {
+      e.preventDefault();
+      fetch(url, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      })
+        .then((res) => res.blob())
+        .then((blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          window.open(blobUrl, "_blank");
+        })
+        .catch(() => {
+          enqueueSnackbar(t("files.openFileError"), { variant: "error" });
+        });
     }
   };
 
@@ -89,20 +116,26 @@ export default function WrapperContent({
         }
       );
       if (!res.ok) {
-        enqueueSnackbar("Impossible de supprimer ce dossier.", { variant: "error" });
+        enqueueSnackbar(t("files.folderDeleteError"), { variant: "error" });
         return;
       }
       setIsRemoved(true);
       document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
     } catch {
-      enqueueSnackbar("Erreur lors de la suppression.", { variant: "error" });
+      enqueueSnackbar(t("files.deleteError"), { variant: "error" });
     }
   };
 
-  const handleRenameFolder = () => {
+  const handleOpenRenameFolder = () => {
     setContextMenu(null);
-    const newName = window.prompt("Nouveau nom du dossier :", name || "");
-    if (!newName || newName.trim() === name?.trim()) return;
+    setRenameFolderValue(name || "");
+    setRenameDialogOpen(true);
+  };
+
+  const handleConfirmRenameFolder = () => {
+    const newName = renameFolderValue.trim();
+    setRenameDialogOpen(false);
+    if (!newName || newName === name?.trim()) return;
     const path = getCurrentPath();
     fetch("/api/stuff/workspace/folder", {
       method: "PUT",
@@ -110,21 +143,21 @@ export default function WrapperContent({
         "Content-Type": "application/json",
         Authorization: `Bearer ${user?.token}`,
       },
-      body: JSON.stringify({ path, oldName: name, newName: newName.trim() }),
+      body: JSON.stringify({ path, oldName: name, newName }),
     })
       .then((res) => {
         if (!res.ok) {
-          enqueueSnackbar("Impossible de renommer ce dossier.", { variant: "error" });
+          enqueueSnackbar(t("files.folderRenameError"), { variant: "error" });
           return;
         }
         document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
       })
-      .catch(() => enqueueSnackbar("Erreur lors du renommage.", { variant: "error" }));
+      .catch(() => enqueueSnackbar(t("files.renameError"), { variant: "error" }));
   };
 
   const folderActions = [
     {
-      label: "Ouvrir",
+      label: t("common.open"),
       icon: <FolderOpenOutlinedIcon />,
       onClick: () => {
         setContextMenu(null);
@@ -132,12 +165,12 @@ export default function WrapperContent({
       },
     },
     {
-      label: "Renommer",
+      label: t("common.rename"),
       icon: <EditOutlinedIcon />,
-      onClick: handleRenameFolder,
+      onClick: handleOpenRenameFolder,
     },
     {
-      label: "Supprimer",
+      label: t("common.delete"),
       icon: <DeleteOutlinedIcon />,
       onClick: handleDeleteFolder,
     },
@@ -150,14 +183,15 @@ export default function WrapperContent({
           sx={{ display: "flex", flex: 1, borderRadius: 2 }}
           title={
             isDirectory
-              ? `Dossier : ${name || ""}`
-              : `Nom: ${(name || "").replace(/_/gi, " ")}\nType: ${type}\nDate: ${date.toLocaleDateString(undefined, optionLocalDate)}`
+              ? t("files.folderLabel", { name: name || "" })
+              : t("files.fileTitleTooltip", {
+                  name: (name || "").replace(/_/gi, " "),
+                  type: type,
+                  date: date.toLocaleDateString(undefined, optionLocalDate),
+                })
           }
           onContextMenu={handleContextMenu}
           onClick={handleClick}
-          {...(!isDirectory
-            ? { component: "a", target: "_blank", href: url || "#" }
-            : {})}
           selected={!!contextMenu}
         >
           {children}
@@ -168,7 +202,7 @@ export default function WrapperContent({
         onClose={() => setContextMenu(null)}
         anchorReference="anchorPosition"
         variant="menu"
-        MenuListProps={{ dense: true }}
+        MenuListProps={{ dense: true, sx: { px: 0.5 } }}
         PaperProps={{
           sx: {
             bgcolor: (theme: any) =>
@@ -185,7 +219,7 @@ export default function WrapperContent({
       >
         {isDirectory
           ? folderActions.map((action, index) => (
-              <MenuItem key={index} onClick={action.onClick}>
+              <MenuItem key={index} onClick={action.onClick} sx={{ borderRadius: 2 }}>
                 <ListItemIcon>{action.icon}</ListItemIcon>
                 <ListItemText primary={action.label} />
               </MenuItem>
@@ -205,11 +239,13 @@ export default function WrapperContent({
                 <MenuItem
                   key={index}
                   disabled={action.disabled}
+                  sx={{ borderRadius: 2 }}
                   onClick={() => {
                     setContextMenu(null);
                     if (typeof action.onClick === "function")
                       action.onClick({
                         ...file,
+                        currentPath: getCurrentPath(),
                         enqueueSnackbar,
                         closeSnackbar,
                         refresh,
@@ -225,6 +261,42 @@ export default function WrapperContent({
               )
             )}
       </Menu>
+      <Dialog
+        open={renameDialogOpen}
+        onClose={() => setRenameDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>
+          <Typography variant="h6" fontWeight="bold" fontSize={18}>
+            {t("files.renameFolder")}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            margin="dense"
+            value={renameFolderValue}
+            onChange={(e) => setRenameFolderValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleConfirmRenameFolder();
+            }}
+            inputProps={{ style: { fontSize: 15 } }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRenameDialogOpen(false)}>{t("common.cancel")}</Button>
+          <Button
+            variant="outlined"
+            size="small"
+            sx={{ textTransform: "none" }}
+            onClick={handleConfirmRenameFolder}
+          >
+            {t("common.rename")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }

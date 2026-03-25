@@ -2,10 +2,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import useAxios from '@/utils/useAxios';
 import Thumbnail from '@/views/main/displays/thumbnail/Thumbnail';
 
 export default function RecentView() {
+    const { t } = useTranslation();
     const token = useSelector((store: any) => store.user.token);
     const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -14,14 +16,16 @@ export default function RecentView() {
     const load = useCallback(() => {
         setLoading(true);
         refetch().then(({ data: res }) => {
-            const mapped = (res || []).map((f: any) => ({
-                name: f.name,
-                url: f.contentUrl ? `/api/stuff/workspace/file/${encodeURIComponent(f.contentUrl.replace('workspace/', ''))}` : null,
-                createdAt: f.updatedAt || f.createdAt,
-                size: f.size || 0,
-                isDirectory: f.isDirectory || false,
-                doc: f,
-            }));
+            const mapped = (res || [])
+                .filter((f: any) => f.name && !f.name.startsWith('.') && f.name !== 'thumbs.db' && f.name !== 'Thumbs.db')
+                .map((f: any) => ({
+                    name: f.name,
+                    url: f.contentUrl ? `/api/stuff/workspace/file/${encodeURIComponent(f.contentUrl.replace('workspace/', ''))}` : null,
+                    createdAt: f.updatedAt || f.createdAt,
+                    size: f.size || 0,
+                    isDirectory: f.isDirectory || false,
+                    doc: f,
+                }));
             setData(mapped);
         }).catch(() => setData([])).finally(() => setLoading(false));
     }, [refetch]);
@@ -37,7 +41,7 @@ export default function RecentView() {
 
     if (loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" flex={1}>
+            <Box display="flex" justifyContent="center" alignItems="center" flex={1} height="100%" py={6}>
                 <CircularProgress size={24} />
             </Box>
         );
@@ -45,10 +49,10 @@ export default function RecentView() {
 
     if (data.length === 0) {
         return (
-            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" flex={1} gap={1}>
+            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" flex={1} height="100%" py={6} gap={1}>
                 <AccessTimeOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
-                <Typography color="text.secondary" fontWeight="bold">Aucun fichier consulté récemment</Typography>
-                <Typography variant="body2" color="text.disabled">Les fichiers que vous ouvrez apparaîtront ici</Typography>
+                <Typography color="text.secondary" fontWeight="bold">{t('recent.noRecent')}</Typography>
+                <Typography variant="body2" color="text.disabled">{t('recent.noRecentHint')}</Typography>
             </Box>
         );
     }

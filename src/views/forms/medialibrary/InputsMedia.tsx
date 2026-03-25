@@ -1,5 +1,6 @@
 import { TextField } from "@mui/material";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import InputController from "@/components/InputController";
 
 interface InputsMediaProps {
@@ -9,7 +10,8 @@ interface InputsMediaProps {
 }
 
 export default function InputsMedia ({title, description, findError}: InputsMediaProps) {
-    const message = 'Intitulé non valide ou trop court.';
+    const { t } = useTranslation();
+    const message = t('medialibrary.invalidTitle');
     return (
         <React.Fragment>
             <InputController
@@ -21,7 +23,7 @@ export default function InputsMedia ({title, description, findError}: InputsMedi
                 trim={false}
                 invalidateErrorMessage={message}
             >
-                <TextField label="Titre"/>
+                <TextField label={t("medialibrary.title")}/>
             </InputController>
             <InputController
                 multiline
@@ -34,7 +36,7 @@ export default function InputsMedia ({title, description, findError}: InputsMedi
                 regExp={/.{10,}/}
                 trim={false}
             >
-                <TextField label="Description"/>
+                <TextField label={t("archives.description")}/>
             </InputController>
         </React.Fragment>
     )

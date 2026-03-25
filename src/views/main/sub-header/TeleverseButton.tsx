@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import PublishRoundedIcon from "@mui/icons-material/PublishRounded";
@@ -7,6 +8,7 @@ import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import getFile from "@/utils/getFile";
 
 export default function TeleverseButton() {
+  const { t } = useTranslation();
   const [openMenu, setOpenMenu] = useState(false);
   const anchorEl = useRef<HTMLButtonElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -29,7 +31,7 @@ export default function TeleverseButton() {
         ref={anchorEl}
         onClick={() => setOpenMenu(true)}
       >
-        Téléverser
+        {t("files.upload")}
       </Button>
       <Menu
         open={openMenu}
@@ -56,7 +58,7 @@ export default function TeleverseButton() {
           <ListItemIcon>
             <InsertDriveFileOutlinedIcon />
           </ListItemIcon>
-          <ListItemText primary="Fichier(s)" />
+          <ListItemText primary={t("files.uploadFileItem")} />
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -67,7 +69,7 @@ export default function TeleverseButton() {
           <ListItemIcon>
             <FolderOutlinedIcon />
           </ListItemIcon>
-          <ListItemText primary="Dossier" />
+          <ListItemText primary={t("files.uploadFolder")} />
         </MenuItem>
       </Menu>
 

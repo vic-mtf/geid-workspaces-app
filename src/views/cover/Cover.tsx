@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useEffect } from 'react';
 import Box from "@/components/Box";
 import _workspace_logo from '@/assets/5a3636b951df37.87798883151350239.webp';
 import { Box as MuiBox, CardMedia, CircularProgress, Divider, Stack, Typography } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 import 'animate.css/source/attention_seekers/swing.css';
 import _logo_geid from '@/assets/geid_logo_blue_without_title.webp';
 import SwingAnimation from "@/components/SwingAnimation";
@@ -18,6 +19,7 @@ interface CoverProps {
 }
 
 export default function Cover ({ setOpened }: CoverProps) {
+    const { t } = useTranslation();
     const connected = useSelector((store: RootState) => store.user.connected);
     const dispatch = useDispatch();
     const [loadingDocs, getDocs] = useGetData({
@@ -121,7 +123,7 @@ export default function Cover ({ setOpened }: CoverProps) {
                 <Stack
                     spacing={1}
                     direction="row"
-                    width={500}
+                    width={{ xs: "90%", sm: 400, md: 500 }}
                     my={1}
                     divider={
                         <Divider
@@ -129,7 +131,8 @@ export default function Cover ({ setOpened }: CoverProps) {
                             orientation="vertical"
                             sx={{
                                 bgcolor: 'text.primary',
-                                borderWidth: 1,
+                                borderRightWidth: 2,
+                                display: { xs: "none", sm: "block" },
                             }}
                         />
                     }
@@ -145,7 +148,7 @@ export default function Cover ({ setOpened }: CoverProps) {
                         noWrap
                         variant="h4"
                         color="text.primary"
-                    >Espace personnel</Typography>
+                    >{t('cover.personalSpace')}</Typography>
                 </Stack>
                 {loading &&
                 <CircularProgress
@@ -159,7 +162,7 @@ export default function Cover ({ setOpened }: CoverProps) {
             </MuiBox>
            </Stack>
            <Typography variant="caption" paragraph color="text.primary">
-                Direction Archives et Nouvelles Technologie de l'Information et de la Communication ©2022
+                {t('cover.copyright')}
             </Typography>
         </Box>
     )

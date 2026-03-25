@@ -1,6 +1,7 @@
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { AppBar, Button, Toolbar, Tooltip, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import getFile from "@/utils/getFile";
 import IconButton from "@/components/IconButton";
 import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
@@ -13,6 +14,7 @@ interface HeaderProps {
 }
 
 export default function Header ({refresh, onClose}: HeaderProps) {
+    const { t } = useTranslation();
     const [file, setFile] = useState<File | null | undefined>();
     return (
         <React.Fragment>
@@ -25,7 +27,7 @@ export default function Header ({refresh, onClose}: HeaderProps) {
                 <Toolbar
                     variant="dense"
                 >
-                    <Tooltip arrow title="Fermer" enterDelay={700}>
+                    <Tooltip arrow title={t("common.close")} enterDelay={700}>
                         <IconButton
                             size="small"
                             value=""
@@ -40,13 +42,13 @@ export default function Header ({refresh, onClose}: HeaderProps) {
                         flexGrow={1}
                         variant="h6"
                     >
-                        Couvertures des documents
+                        {t("coverPages.title")}
                     </Typography>
                     <Button
                         startIcon={<ClassOutlinedIcon/>}
                         endIcon={<AddOutlinedIcon/>}
                         color="inherit"
-                        children="Ajouter une image de couverture depuis votre appareil ..."
+                        children={t("coverPages.addCover")}
                         size="small"
                         onClick={async () => {
                             const [_file] = await getFile({accept: 'image/*'});
