@@ -142,7 +142,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
 
   if (loading) {
     return (
-      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
         <Box ref={containerRef} sx={{ position: "absolute", inset: 0, overflow: "auto", p: 1 }}>
           <Box sx={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 0.5 }}>
             {Array.from({ length: 12 }).map((_, i) => (
@@ -156,7 +156,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
 
   if (data.length === 0) {
     return (
-      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
         <Box ref={containerRef} sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
           <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
           <Typography color="text.secondary" fontWeight="bold">{t("files.emptySpace")}</Typography>
@@ -168,7 +168,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
 
   return (
     <>
-      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
         <Box ref={containerRef} sx={{ position: "absolute", inset: 0, overflow: "auto", p: 1 }}>
           <Box sx={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 0.5 }}>
             {data.map((file, index) => {

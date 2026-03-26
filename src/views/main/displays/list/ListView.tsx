@@ -279,7 +279,7 @@ export default function ListView({
 
   if (loading) {
     return (
-      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
         <Box sx={{ position: "absolute", inset: 0, overflow: "auto", px: 2, pt: 1 }}>
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} variant="rounded" height={rowHeight} sx={{ borderRadius: 1, mb: 0.5 }} />
@@ -291,7 +291,7 @@ export default function ListView({
 
   if (!data || data.length === 0) {
     return (
-      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
         <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
           <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
           <Typography color="text.secondary" fontWeight="bold">{t("files.emptySpace")}</Typography>
@@ -303,7 +303,7 @@ export default function ListView({
 
   return (
     <>
-      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
         <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", px: 0.5 }}>
           {/* Header */}
           <Box
