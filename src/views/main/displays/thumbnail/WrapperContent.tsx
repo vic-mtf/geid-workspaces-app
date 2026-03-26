@@ -84,22 +84,26 @@ export default function WrapperContent({
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // Annuler le single clic (qui ouvrirait le détail)
+    if (clickTimerRef.current) { clearTimeout(clickTimerRef.current); clickTimerRef.current = null; }
     onDoubleClickName?.();
   }, [onDoubleClickName]);
 
-  const handleClick = (e: React.MouseEvent) => {
+  // Timer pour distinguer single clic (→ detail) vs double clic (→ rename)
+  const clickTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
     if (isDirectory && onFolderClick && name) {
       onFolderClick(name);
       return;
     }
-    if (!isDirectory && url) {
-      e.preventDefault();
-      fetch(url, { headers: { Authorization: `Bearer ${user?.token}` } })
-        .then((res) => res.blob())
-        .then((blob) => window.open(URL.createObjectURL(blob), "_blank"))
-        .catch(() => enqueueSnackbar(t("files.openFileError"), { variant: "error" }));
-    }
-  };
+    // Single clic sur fichier → ouvrir le détail (après délai pour laisser le double-clic annuler)
+    if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    clickTimerRef.current = setTimeout(() => {
+      clickTimerRef.current = null;
+      document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_detail_file", { detail: { file } }));
+    }, 250);
+  }, [isDirectory, onFolderClick, name, file]);
 
   const handleDeleteFolder = async () => {
     setContextMenu(null);
@@ -135,7 +139,16 @@ export default function WrapperContent({
     <React.Fragment>
       <Fade in={!isRemoved}>
         <ListItemButton
-          sx={{ display: "flex", flex: 1, borderRadius: 2, position: "relative" }}
+          disableRipple
+          selected={false}
+          sx={{
+            display: "flex", flex: 1, borderRadius: 1, position: "relative",
+            justifyContent: "center", alignItems: "center",
+            p: 0,
+            "&.Mui-focusVisible": { bgcolor: "transparent" },
+            "&.Mui-selected": { bgcolor: "transparent" },
+            "&:focus": { bgcolor: "transparent" },
+          }}
           title={
             isDirectory
               ? t("files.folderLabel", { name: name || "" })
@@ -148,7 +161,6 @@ export default function WrapperContent({
           onContextMenu={handleContextMenu}
           onClick={handleClick}
           onDoubleClick={handleDoubleClick}
-          selected={!!contextMenu}
         >
           {children}
         </ListItemButton>

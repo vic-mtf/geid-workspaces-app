@@ -21,7 +21,10 @@ const app = createSlice({
     users: [],
     user: null,
     stayConnected: false,
-  } as AppSliceState,
+    display: "thumbnail" as string,
+    sort: "name" as string,
+    order: "ascending" as string,
+  } as AppSliceState & { display: string; sort: string; order: string },
   reducers: {
     switchTheme(state, action: PayloadAction<"light" | "dark" | "auto" | undefined>) {
       state.mode = action.payload || (mode as "light" | "dark" | "auto");
@@ -37,10 +40,19 @@ const app = createSlice({
       if (typeof index === "number") delete state.users[index];
       else state.user = null;
     },
+    setDisplay(state, action: PayloadAction<string>) {
+      (state as any).display = action.payload;
+    },
+    setSort(state, action: PayloadAction<string>) {
+      (state as any).sort = action.payload;
+    },
+    setOrder(state, action: PayloadAction<string>) {
+      (state as any).order = action.payload;
+    },
   },
 });
 
-export const { switchTheme, changeLang, removeUser, setUser } = app.actions;
+export const { switchTheme, changeLang, removeUser, setUser, setDisplay, setSort, setOrder } = app.actions;
 
 export default persistReducer(
   { storage, key: "__ROOT_GEID_GLOBAL_CONFIG_APP" },

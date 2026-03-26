@@ -210,7 +210,9 @@ export default function Main() {
     return () => root?.removeEventListener("_reload_current_dir", handler);
   }, [key, folder, getByKey, cachePath, dispatch]);
 
-  const { sort, order, display } = queryString.parse(search);
+  const display = useSelector((store: RootState) => (store.app as any).display ?? "thumbnail");
+  const sort = useSelector((store: RootState) => (store.app as any).sort ?? "name");
+  const order = useSelector((store: RootState) => (store.app as any).order ?? "ascending");
   const SYSTEM_FILES = new Set(["thumbs.db", "Thumbs.db", ".gitkeep", ".DS_Store"]);
 
   const _data = useMemo(() => {

@@ -28,9 +28,6 @@ export default function MainOption () {
                     </React.Fragment>
                 ))
             }
-            <MoreOptionsButton
-                options={options.filter(option => !option.pin)}
-            />
         </React.Fragment>
     )
 }

@@ -1,113 +1,52 @@
 import React, { useMemo, useRef, useState } from "react";
-import SortRoundedIcon from '@mui/icons-material/SortRounded';
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import SortRoundedIcon from "@mui/icons-material/SortRounded";
+import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { Button, Divider, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import queryString from "query-string";
+import { setSort, setOrder } from "@/redux/app";
+import { RootState } from "@/types";
 
-export default function SortButton () {
-    const { t } = useTranslation();
-    const [openMenu, setOpenMenu] = useState(false);
-    const { search } = useLocation();
-    const navigateTo = useNavigate();
-    const anchorEl = useRef<HTMLButtonElement>(null);
-    const { order, sort, } = queryString.parse(search);
+export default function SortButton() {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const [openMenu, setOpenMenu] = useState(false);
+  const anchorEl = useRef<HTMLButtonElement>(null);
+  const sort = useSelector((store: RootState) => (store.app as any).sort ?? "name");
+  const order = useSelector((store: RootState) => (store.app as any).order ?? "ascending");
 
-    const listSortType = useMemo(() => [
-        { label: t('sort.name'), key: '_name', search: 'name' },
-        { label: t('sort.date'), key: '_date', search: 'date' },
-    ], [t]);
+  const sortTypes = useMemo(() => [
+    { label: t("sort.name"), value: "name" },
+    { label: t("sort.date"), value: "date" },
+  ], [t]);
 
-    const listSortDirection = useMemo(() => [
-        { label: t('sort.ascending'), key: '_ascending', search: 'ascending' },
-        { label: t('sort.descending'), key: '_descending', search: 'descending' },
-    ], [t]);
+  const sortDirs = useMemo(() => [
+    { label: t("sort.ascending"), value: "ascending" },
+    { label: t("sort.descending"), value: "descending" },
+  ], [t]);
 
-    const btnSelectedtype = useMemo(() => listSortType.find(
-        option => option.search === (sort || 'name')
-        ),
-    [sort, listSortType]);
-    const btnSelectedDirection = useMemo(() => listSortDirection.find(
-        option => option.search === (order || 'ascending')
-        ),
-    [order, listSortDirection]);
-
-    return (
-        <React.Fragment>
-            <Button
-                endIcon={<ExpandMoreRoundedIcon/>}
-                startIcon={<SortRoundedIcon/>}
-                variant="outlined"
-                color="inherit"
-                ref={anchorEl}
-                onClick={() => setOpenMenu(true)}
-            >{t('sort.sort')}</Button>
-            <Menu
-                open={openMenu}
-                MenuListProps={{ dense: true }}
-                anchorEl={anchorEl.current}
-                onClose={() => setOpenMenu(false)}
-            >
-                {
-                    listSortType.map(({key, label, search: sort}) => (
-                        <MenuItem
-                            key={key}
-                            onClick={() => {
-                                navigateTo( '?' +
-                                    queryString.stringify({
-                                        ...queryString.parse(search),
-                                        sort,
-                                    })
-                                )
-                                setOpenMenu(false);
-                            }}
-                        >
-                            <ListItemIcon
-                               children={
-                                key === btnSelectedtype?.key && <CheckRoundedIcon/>
-                                }
-                            />
-                            <ListItemText
-                                primary={label}
-                                primaryTypographyProps={{
-                                    variant: 'body2'
-                                }}
-                            />
-                        </MenuItem>
-                    ))
-                }
-                <Divider component="li"/>
-                {
-                    listSortDirection.map(({key, search: order, label}) => (
-                        <MenuItem
-                            key={key}
-                            onClick={() => {
-                                navigateTo( '?' +
-                                    queryString.stringify({
-                                        ...queryString.parse(search),
-                                        order,
-                                    })
-                                )
-                                setOpenMenu(false);
-                            }}
-                        >
-                            <ListItemIcon
-                               children={
-                                key === btnSelectedDirection?.key && <CheckRoundedIcon/>
-                                }
-                            />
-                            <ListItemText
-                                primary={label}
-                                primaryTypographyProps={{
-                                    variant: 'body2'
-                                }}
-                            />
-                        </MenuItem>
-                    ))
-                }
-            </Menu>
-        </React.Fragment>
-    );
+  return (
+    <React.Fragment>
+      <Button endIcon={<ExpandMoreRoundedIcon />} startIcon={<SortRoundedIcon />}
+        variant="outlined" color="inherit" ref={anchorEl} onClick={() => setOpenMenu(true)}>
+        {t("sort.sort")}
+      </Button>
+      <Menu open={openMenu} MenuListProps={{ dense: true }} anchorEl={anchorEl.current} onClose={() => setOpenMenu(false)}>
+        {sortTypes.map(({ label, value }) => (
+          <MenuItem key={value} onClick={() => { dispatch(setSort(value)); setOpenMenu(false); }}>
+            <ListItemIcon>{value === sort ? <CheckRoundedIcon /> : null}</ListItemIcon>
+            <ListItemText primary={label} primaryTypographyProps={{ variant: "body2" }} />
+          </MenuItem>
+        ))}
+        <Divider component="li" />
+        {sortDirs.map(({ label, value }) => (
+          <MenuItem key={value} onClick={() => { dispatch(setOrder(value)); setOpenMenu(false); }}>
+            <ListItemIcon>{value === order ? <CheckRoundedIcon /> : null}</ListItemIcon>
+            <ListItemText primary={label} primaryTypographyProps={{ variant: "body2" }} />
+          </MenuItem>
+        ))}
+      </Menu>
+    </React.Fragment>
+  );
 }

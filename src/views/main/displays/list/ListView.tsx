@@ -213,7 +213,6 @@ export default function ListView({
               height: rowHeight,
               borderBottom: 1,
               borderColor: "divider",
-              "&:hover": { bgcolor: "action.hover" },
             }}
           >
             {/* Checkbox */}
@@ -280,7 +279,7 @@ export default function ListView({
   if (loading) {
     return (
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box sx={{ position: "absolute", inset: 0, overflow: "auto", px: 2, pt: 1 }}>
+        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", px: 2, pt: 1 }}>
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} variant="rounded" height={rowHeight} sx={{ borderRadius: 1, mb: 0.5 }} />
           ))}

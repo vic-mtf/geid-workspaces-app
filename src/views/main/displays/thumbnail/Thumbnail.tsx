@@ -24,7 +24,6 @@ import FolderItem from "@/views/main/displays/thumbnail/FolderItem";
 import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
 import MoveConfirmDialog from "@/components/MoveConfirmDialog";
 import useDragDropMove from "@/hooks/useDragDropMove";
-import useContainerSize from "@/hooks/useContainerSize";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import { FileItem, RootState } from "@/types";
 
@@ -45,8 +44,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   const { pathname, search } = useLocation();
   const user = useSelector((store: RootState) => store.user);
 
-  const [containerRef, containerSize] = useContainerSize();
-  const cols = useMemo(() => Math.max(2, Math.floor(containerSize.width / 140)), [containerSize.width]);
+  const gridCols = "repeat(auto-fill, minmax(160px, 1fr))";
 
   // Inline rename
   const [renamingFile, setRenamingFile] = useState<string | null>(null);
@@ -143,8 +141,8 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   if (loading) {
     return (
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box ref={containerRef} sx={{ position: "absolute", inset: 0, overflow: "auto", p: 1 }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 0.5 }}>
+        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: gridCols, gap: 0.5 }}>
             {Array.from({ length: 12 }).map((_, i) => (
               <Skeleton key={i} variant="rounded" height={150} sx={{ borderRadius: 2 }} />
             ))}
@@ -157,7 +155,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   if (data.length === 0) {
     return (
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box ref={containerRef} sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
+        <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
           <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
           <Typography color="text.secondary" fontWeight="bold">{t("files.emptySpace")}</Typography>
           <Typography variant="body2" color="text.disabled">{t("files.emptySpaceHint")}</Typography>
@@ -169,8 +167,8 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   return (
     <>
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box ref={containerRef} sx={{ position: "absolute", inset: 0, overflow: "auto", p: 1 }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 0.5 }}>
+        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: gridCols, gap: 0.5 }}>
             {data.map((file, index) => {
               const isSelected = selectedFiles.has(file.name ?? "");
 
