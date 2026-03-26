@@ -13,31 +13,39 @@ export default function DropZone({ children }: DropZoneProps) {
   const theme = useTheme();
   let dragCounter = 0;
 
+  const isExternalDrag = useCallback((e: React.DragEvent) => {
+    // External files have "Files" in dataTransfer.types
+    // Internal drags have "fileName" set via setData
+    return e.dataTransfer.types.includes("Files") && !e.dataTransfer.types.includes("fileName");
+  }, []);
+
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isExternalDrag(e)) return;
     dragCounter++;
-    if (e.dataTransfer.types.includes("Files")) {
-      setDragging(true);
-    }
-  }, []);
+    setDragging(true);
+  }, [isExternalDrag]);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isExternalDrag(e)) return;
     dragCounter--;
     if (dragCounter <= 0) {
       dragCounter = 0;
       setDragging(false);
     }
-  }, []);
+  }, [isExternalDrag]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (!isExternalDrag(e)) return;
     e.preventDefault();
     e.stopPropagation();
-  }, []);
+  }, [isExternalDrag]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
+    if (!isExternalDrag(e)) return;
     e.preventDefault();
     e.stopPropagation();
     dragCounter = 0;
@@ -51,7 +59,7 @@ export default function DropZone({ children }: DropZoneProps) {
         detail: { files, name: "_open_files_form" },
       })
     );
-  }, []);
+  }, [isExternalDrag]);
 
   return (
     <Box
@@ -60,7 +68,7 @@ export default function DropZone({ children }: DropZoneProps) {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      sx={{ flex: 1, minHeight: 0 }}
+      sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden" }}
     >
       {children}
       {dragging && (

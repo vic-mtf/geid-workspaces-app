@@ -3,6 +3,7 @@ import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/materia
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import SegmentRoundedIcon from '@mui/icons-material/SegmentRounded';
+import ViewStreamRoundedIcon from '@mui/icons-material/ViewStreamRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -28,6 +29,12 @@ export default function DisplayButton () {
             key: '_list',
             icon: <SegmentRoundedIcon/>,
             search: 'list',
+        },
+        {
+            label: t('display.compact'),
+            key: '_compact',
+            icon: <ViewStreamRoundedIcon/>,
+            search: 'compact',
         }
     ], [t]);
 

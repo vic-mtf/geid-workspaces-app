@@ -163,7 +163,19 @@
     "noCoverAvailable": "Aucune couverture disponible"
   },
   "detail": {
-    "title": "Detail"
+    "title": "Details",
+    "name": "Nom",
+    "type": "Type",
+    "extension": "Extension",
+    "size": "Taille",
+    "created": "Cree le",
+    "modified": "Modifie le",
+    "path": "Emplacement",
+    "noSelection": "Selectionnez un fichier pour voir ses details",
+    "preview": "Apercu",
+    "actions": "Actions",
+    "tags": "Etiquettes",
+    "noTags": "Aucune etiquette"
   },
   "sort": {
     "sort": "Trier",
@@ -175,7 +187,8 @@
   "display": {
     "display": "Affichage",
     "thumbnail": "Vignette",
-    "list": "Liste"
+    "list": "Liste",
+    "compact": "Compact"
   },
   "list": {
     "name": "Nom",
@@ -237,5 +250,29 @@
   },
   "actions": {
     "sendTo": "Envoyer vers"
+  },
+  "selection": {
+    "count": "{{count}} element selectionne",
+    "count_other": "{{count}} elements selectionnes",
+    "deselectAll": "Tout deselectionner",
+    "selectAll": "Tout selectionner",
+    "deleteSelected": "Supprimer ({{count}})",
+    "moveSelected": "Deplacer ({{count}})"
+  },
+  "deleteConfirm": {
+    "title": "Confirmer la suppression",
+    "messageSingle": "Voulez-vous vraiment supprimer ce fichier ?",
+    "messageMultiple": "Voulez-vous vraiment supprimer ces {{count}} elements ?",
+    "andMore": "+ {{count}} autre element",
+    "andMore_other": "+ {{count}} autres elements"
+  },
+  "dragDrop": {
+    "moveConfirmTitle": "Deplacer le fichier",
+    "moveConfirmMessage": "Deplacer « {{fileName}} » vers le dossier « {{folderName}} » ?",
+    "moveSuccess": "Fichier deplace dans le dossier",
+    "moveError": "Impossible de deplacer le fichier"
+  },
+  "rename": {
+    "inlineError": "Impossible de renommer le fichier"
   }
 }

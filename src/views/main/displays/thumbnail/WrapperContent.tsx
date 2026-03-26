@@ -14,12 +14,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import optionLocalDate from "@/utils/optionLocalDate";
 import useAxios from "@/utils/useAxios";
+import getFileExtension from "@/utils/getFileExtension";
 import actions from "@/views/main/displays/thumbnail/actions";
 import SubMenu from "@/views/main/displays/thumbnail/SubMenu";
 import { RootState } from "@/types";
@@ -60,6 +61,11 @@ export default function WrapperContent({
   const user = useSelector((store: RootState) => store.user);
   const { pathname, search } = useLocation();
 
+  // --- Inline rename state ---
+  const [inlineRenaming, setInlineRenaming] = useState(false);
+  const [inlineNewName, setInlineNewName] = useState("");
+  const inlineInputRef = useRef<HTMLInputElement>(null);
+
   const [{ loading }, refresh] = useAxios(
     { headers: { Authorization: `Bearer ${user?.token}` } },
     { manual: true }
@@ -74,7 +80,102 @@ export default function WrapperContent({
     );
   };
 
+  // --- Inline rename: double-click handler ---
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const currentName = name || "";
+    setInlineNewName(currentName);
+    setInlineRenaming(true);
+  }, [name]);
+
+  // Auto-focus and select file name without extension
+  useEffect(() => {
+    if (inlineRenaming && inlineInputRef.current) {
+      inlineInputRef.current.focus();
+      const currentName = name || "";
+      const dotIndex = currentName.lastIndexOf(".");
+      if (dotIndex > 0 && !isDirectory) {
+        inlineInputRef.current.setSelectionRange(0, dotIndex);
+      } else {
+        inlineInputRef.current.select();
+      }
+    }
+  }, [inlineRenaming, name, isDirectory]);
+
+  const getCurrentPath = () => {
+    const params = new URLSearchParams(search);
+    const folder = params.get("folder") || "";
+    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
+    return folder ? `${cat}/${folder}` : cat;
+  };
+
+  const handleInlineRenameConfirm = useCallback(() => {
+    const newName = inlineNewName.trim();
+    setInlineRenaming(false);
+    if (!newName || newName === (name || "").trim()) return;
+
+    if (isDirectory) {
+      const path = getCurrentPath();
+      fetch("/api/stuff/workspace/folder", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({ path, oldName: name, newName }),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            enqueueSnackbar(t("files.folderRenameError"), { variant: "error" });
+            return;
+          }
+          document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
+        })
+        .catch(() => enqueueSnackbar(t("rename.inlineError"), { variant: "error" }));
+    } else {
+      // Rename file directly via API
+      const ext = getFileExtension(name || "");
+      const finalName = ext ? `${newName}.${ext}` : newName;
+      fetch("/api/stuff/workspace", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({
+          oldFilename: name,
+          filename: finalName,
+          path: getCurrentPath(),
+          userId: (user as any)?.id,
+        }),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            enqueueSnackbar(t("files.fileRenameError"), { variant: "error" });
+            return;
+          }
+          enqueueSnackbar(t("files.fileRenamed"), { variant: "success" });
+          document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
+        })
+        .catch(() => enqueueSnackbar(t("files.fileRenameError"), { variant: "error" }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inlineNewName, name, isDirectory, user?.token, enqueueSnackbar, t]);
+
+  const handleInlineRenameKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleInlineRenameConfirm();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setInlineRenaming(false);
+    }
+  }, [handleInlineRenameConfirm]);
+
   const handleClick = (e: React.MouseEvent) => {
+    if (inlineRenaming) return;
+
     if (isDirectory && onFolderClick && name) {
       onFolderClick(name);
       return;
@@ -94,14 +195,6 @@ export default function WrapperContent({
           enqueueSnackbar(t("files.openFileError"), { variant: "error" });
         });
     }
-  };
-
-  // Calcule le chemin courant pour les actions sur dossiers
-  const getCurrentPath = () => {
-    const params = new URLSearchParams(search);
-    const folder = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folder ? `${cat}/${folder}` : cat;
   };
 
   const handleDeleteFolder = async () => {
@@ -176,11 +269,51 @@ export default function WrapperContent({
     },
   ];
 
+  // Render inline rename or children
+  const renderChildren = () => {
+    if (!inlineRenaming) return children;
+
+    // Clone children and overlay with an inline text field at the bottom
+    return (
+      <>
+        {children}
+        <TextField
+          inputRef={inlineInputRef}
+          value={inlineNewName}
+          onChange={(e) => setInlineNewName(e.target.value)}
+          onKeyDown={handleInlineRenameKeyDown}
+          onBlur={handleInlineRenameConfirm}
+          onClick={(e) => e.stopPropagation()}
+          variant="standard"
+          size="small"
+          InputProps={{ disableUnderline: true }}
+          inputProps={{
+            style: {
+              fontSize: 11,
+              textAlign: "center",
+              padding: "2px 4px",
+            },
+          }}
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 5,
+            bgcolor: "background.paper",
+            borderRadius: 1,
+            mx: 0.5,
+          }}
+        />
+      </>
+    );
+  };
+
   return (
     <React.Fragment>
       <Fade in={!isRemoved}>
         <ListItemButton
-          sx={{ display: "flex", flex: 1, borderRadius: 2 }}
+          sx={{ display: "flex", flex: 1, borderRadius: 2, position: "relative" }}
           title={
             isDirectory
               ? t("files.folderLabel", { name: name || "" })
@@ -192,9 +325,10 @@ export default function WrapperContent({
           }
           onContextMenu={handleContextMenu}
           onClick={handleClick}
+          onDoubleClick={handleDoubleClick}
           selected={!!contextMenu}
         >
-          {children}
+          {renderChildren()}
         </ListItemButton>
       </Fade>
       <Menu

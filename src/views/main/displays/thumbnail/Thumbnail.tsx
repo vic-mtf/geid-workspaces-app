@@ -1,40 +1,55 @@
 /**
- * Thumbnail — Vue vignette avec virtualisation (react-virtuoso).
+ * Thumbnail — Vue vignette des fichiers workspace.
  *
- * Grille responsive virtualisée — seules les lignes visibles sont rendues.
+ * Grille responsive avec items centres et proportionnels.
+ * Supporte la multi-selection, le drag & drop vers les dossiers.
  */
 
-import { Box, Skeleton, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Box,
+  Checkbox,
+  Grid,
+  Skeleton,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { VirtuosoGrid } from "react-virtuoso";
+import { useSelector } from "react-redux";
+import { useSnackbar } from "notistack";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import getFileExtension from "@/utils/getFileExtension";
 import File from "@/views/main/displays/file/File";
 import FolderItem from "@/views/main/displays/thumbnail/FolderItem";
 import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
-import { FileItem } from "@/types";
+import { FileItem, RootState } from "@/types";
 
 interface ThumbnailProps {
   data?: FileItem[];
   loading?: boolean;
+  selectedFiles?: Set<string>;
+  onToggleSelect?: (name: string) => void;
 }
 
-export default function Thumbnail({ data: _data, loading }: ThumbnailProps) {
+const EMPTY_SET = new Set<string>();
+
+export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_SET, onToggleSelect }: ThumbnailProps) {
   const { t } = useTranslation();
+  const { enqueueSnackbar } = useSnackbar();
   const [findName, setFindName] = useState("");
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
-  const theme = useTheme();
+  const user = useSelector((store: RootState) => store.user);
 
-  // Colonnes responsive
-  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
-  const isSm = useMediaQuery(theme.breakpoints.between("sm", "md"));
-  const isMd = useMediaQuery(theme.breakpoints.between("md", "lg"));
-  const isLg = useMediaQuery(theme.breakpoints.between("lg", "xl"));
-  const cols = isXs ? 3 : isSm ? 4 : isMd ? 5 : isLg ? 6 : 8;
+  // Drag & drop move confirmation
+  const [moveConfirm, setMoveConfirm] = useState<{ fileName: string; folderName: string } | null>(null);
+  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
 
   const data = useMemo(
     () =>
@@ -66,19 +81,77 @@ export default function Thumbnail({ data: _data, loading }: ThumbnailProps) {
     navigate(`${pathname}?folder=${encodeURIComponent(newFolder)}`);
   }, [search, pathname, navigate]);
 
+  // --- Drag & Drop ---
+  const handleDragStart = useCallback((e: React.DragEvent, fileName: string) => {
+    e.dataTransfer.setData("fileName", fileName);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, folderName: string) => {
+    e.preventDefault();
+    setDragOverFolder(folderName);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverFolder(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, folderName: string) => {
+    e.preventDefault();
+    setDragOverFolder(null);
+    const fileName = e.dataTransfer.getData("fileName");
+    // Ignorer si le fichier est droppé sur lui-même ou si pas de nom
+    if (fileName && fileName !== folderName) {
+      setMoveConfirm({ fileName, folderName });
+    }
+  }, []);
+
+  const getCurrentPath = useCallback(() => {
+    const params = new URLSearchParams(search);
+    const folderParam = params.get("folder") || "";
+    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
+    return folderParam ? `${cat}/${folderParam}` : cat;
+  }, [search, pathname]);
+
+  const handleConfirmMove = useCallback(async () => {
+    if (!moveConfirm) return;
+    const { fileName, folderName } = moveConfirm;
+    const path = getCurrentPath();
+    setMoveConfirm(null);
+    try {
+      const res = await fetch("/api/stuff/workspace/move", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({ source: `${path}/${fileName}`, destination: `${path}/${folderName}/${fileName}` }),
+      });
+      if (!res.ok) throw new Error();
+      enqueueSnackbar(t("dragDrop.moveSuccess"), { variant: "success" });
+      document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
+    } catch {
+      enqueueSnackbar(t("dragDrop.moveError"), { variant: "error" });
+    }
+  }, [moveConfirm, getCurrentPath, user?.token, enqueueSnackbar, t]);
+
   if (loading) {
     return (
-      <Box p={1} display="flex" flexWrap="wrap" gap={1}>
+      <Grid container spacing={1} p={1}>
         {Array.from({ length: 12 }).map((_, i) => (
-          <Skeleton key={i} variant="rounded" width={`calc(${100 / cols}% - 8px)`} height={140} sx={{ borderRadius: 2 }} />
+          <Grid item xs={4} sm={3} md={2.4} lg={2} xl={1.5} key={i}>
+            <Skeleton variant="rounded" height={150} sx={{ borderRadius: 2 }} />
+          </Grid>
         ))}
-      </Box>
+      </Grid>
     );
   }
 
   if (data.length === 0) {
     return (
-      <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" flex={1} height="100%" py={6} gap={1}>
+      <Box
+        display="flex" flexDirection="column" alignItems="center" justifyContent="center"
+        height="100%" gap={1}
+      >
         <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
         <Typography color="text.secondary" fontWeight="bold">{t("files.emptySpace")}</Typography>
         <Typography variant="body2" color="text.disabled">{t("files.emptySpaceHint")}</Typography>
@@ -87,53 +160,106 @@ export default function Thumbnail({ data: _data, loading }: ThumbnailProps) {
   }
 
   return (
-    <VirtuosoGrid
-      totalCount={data.length}
-      overscan={200}
-      listClassName="virtuoso-grid-list"
-      itemClassName="virtuoso-grid-item"
-      style={{ height: "calc(100vh - 140px)" }}
-      components={{
-        List: ListContainer as any,
-        Item: ({ children, ...props }: any) => (
-          <Box {...props} sx={{ width: `${100 / cols}%`, p: 0.5, boxSizing: "border-box" }}>
-            {children}
-          </Box>
-        ),
-      }}
-      itemContent={(index) => {
-        const file = data[index];
-        if (!file) return null;
+    <>
+      <Box overflow="auto" p={1} height="100%">
+        <Grid container>
+          {data.map((file, index) => {
+            const isSelected = selectedFiles.has(file.name ?? "");
 
-        if (file.isDirectory) {
-          return (
-            <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick}>
-              <Box display="flex" flex={1} justifyContent="center" alignItems="center">
-                <FolderItem name={file.name} />
-              </Box>
-            </WrapperContent>
-          );
-        }
+            if (file.isDirectory) {
+              return (
+                <Grid item xs={4} sm={3} md={2.4} lg={2} xl={1.5} key={`dir_${index}_${file.name}`}
+                  sx={{ display: "flex", justifyContent: "center" }}>
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: "100%",
+                      "&:hover .select-checkbox": { opacity: 1 },
+                      border: dragOverFolder === file.name ? 2 : 0,
+                      borderColor: "primary.main",
+                      borderRadius: 2,
+                      transition: "border-color 0.15s",
+                    }}
+                    onDragOver={(e) => handleDragOver(e, file.name ?? "")}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, file.name ?? "")}
+                  >
+                    <Checkbox
+                      className="select-checkbox"
+                      size="small"
+                      checked={isSelected}
+                      onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
+                      sx={{
+                        position: "absolute", top: 2, left: 2, zIndex: 2,
+                        opacity: isSelected ? 1 : 0,
+                        transition: "opacity 0.15s",
+                      }}
+                    />
+                    <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick}>
+                      <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} />
+                    </WrapperContent>
+                  </Box>
+                </Grid>
+              );
+            }
 
-        const infos = fileExtensionBase.find(({ exts }) =>
-          exts.includes(getFileExtension(file.name ?? "") ?? "")
-        );
+            const infos = fileExtensionBase.find(({ exts }) =>
+              exts.includes(getFileExtension(file.name ?? "") ?? "")
+            );
 
-        return (
-          <WrapperContent {...infos} {...file}>
-            <Box display="flex" flex={1} justifyContent="center" alignItems="center">
-              <File {...infos} name={file.name} date={file.createdAt} url={file.url} />
-            </Box>
-          </WrapperContent>
-        );
-      }}
-    />
+            return (
+              <Grid item xs={4} sm={3} md={2.4} lg={2} xl={1.5} key={`${index}_${file.name}`}
+                sx={{ display: "flex", justifyContent: "center" }}>
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    "&:hover .select-checkbox": { opacity: 1 },
+                  }}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, file.name ?? "")}
+                >
+                  <Checkbox
+                    className="select-checkbox"
+                    size="small"
+                    checked={isSelected}
+                    onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
+                    sx={{
+                      position: "absolute", top: 2, left: 2, zIndex: 2,
+                      opacity: isSelected ? 1 : 0,
+                      transition: "opacity 0.15s",
+                    }}
+                  />
+                  <WrapperContent {...infos} {...file}>
+                    <File {...infos} name={file.name} date={file.createdAt} url={file.url} />
+                  </WrapperContent>
+                </Box>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Box>
+
+      {/* Drag & drop move confirmation dialog */}
+      <Dialog open={!!moveConfirm} onClose={() => setMoveConfirm(null)} fullWidth maxWidth="xs">
+        <DialogTitle>
+          <Typography variant="h6" fontWeight="bold" fontSize={18}>
+            {t("dragDrop.moveConfirmTitle")}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            {t("dragDrop.moveConfirmMessage", {
+              fileName: (moveConfirm?.fileName ?? "").replace(/_/g, " "),
+              folderName: (moveConfirm?.folderName ?? "").replace(/_/g, " "),
+            })}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMoveConfirm(null)}>{t("common.cancel")}</Button>
+          <Button variant="contained" onClick={handleConfirmMove}>{t("common.confirm")}</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
-
-// Container pour la grille virtualisée
-import React from "react";
-const ListContainer = React.forwardRef<HTMLDivElement>((props, ref) => (
-  <Box ref={ref} {...props} sx={{ display: "flex", flexWrap: "wrap", p: 0.5 }} />
-));
-ListContainer.displayName = "ListContainer";

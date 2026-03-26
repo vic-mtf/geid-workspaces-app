@@ -15,7 +15,8 @@ const data = createSlice({
   initialState: {
     loaded: false,
     folderCache: {} as Record<string, FolderCacheEntry>,
-  } as DataSliceState & { folderCache: Record<string, FolderCacheEntry> },
+    panelWidths: {} as Record<string, number>,
+  } as DataSliceState & { folderCache: Record<string, FolderCacheEntry>; panelWidths: Record<string, number> },
   reducers: {
     updateData(state, action: PayloadAction<{ data: Partial<DataSliceState> }>) {
       const { data } = action.payload;
@@ -61,6 +62,10 @@ const data = createSlice({
         timestamp: Date.now(),
       };
     },
+    // Largeur persistée d'un panneau ajustable
+    setPanelWidth(state, action: PayloadAction<{ key: string; width: number }>) {
+      (state as any).panelWidths[action.payload.key] = action.payload.width;
+    },
     // Invalide le cache d'un chemin ou préfixe
     invalidateFolderCache(state, action: PayloadAction<string | undefined>) {
       const prefix = action.payload;
@@ -74,7 +79,7 @@ const data = createSlice({
   },
 });
 
-export const { addData, removeData, updateData, setFolderCache, invalidateFolderCache } = data.actions;
+export const { addData, removeData, updateData, setFolderCache, invalidateFolderCache, setPanelWidth } = data.actions;
 export default persistReducer(
   { storage, key: "__ROOT_GEID_DATA_APP" },
   data.reducer

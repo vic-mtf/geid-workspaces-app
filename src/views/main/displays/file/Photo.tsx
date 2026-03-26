@@ -45,11 +45,12 @@ function Photo(props: PhotoProps) {
   const ext = props.name?.split(".").pop()?.toUpperCase() ?? "";
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column" gap={1}>
+    <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
       <Box
         sx={{
-          width: 140,
+          width: 100,
           height: 120,
+          mb: 0.5,
           borderRadius: 2,
           overflow: "hidden",
           position: "relative",
@@ -103,14 +104,17 @@ function Photo(props: PhotoProps) {
       </Box>
 
       <Typography
+        variant="caption"
         align="center"
-        width={150}
         sx={{
+          maxWidth: 120,
           display: "-webkit-box",
           WebkitLineClamp: 2,
           WebkitBoxOrient: "vertical",
           textOverflow: "ellipsis",
           overflow: "hidden",
+          fontSize: 11,
+          lineHeight: 1.3,
         }}
       >
         {props.name?.replace(/_/gi, " ")}

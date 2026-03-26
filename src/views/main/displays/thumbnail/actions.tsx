@@ -52,10 +52,10 @@ const actions: ActionOption[] = [
         icon: <EditOutlinedIcon/>,
         onClick: (file: any) => {
             const customEvent = new CustomEvent(
-                '_open_rename_file_name',
+                '_open_detail_file',
                 {
                     detail : {
-                        name: '_open_rename_file_name',
+                        name: '_open_detail_file',
                         file,
                     }
                 }
