@@ -25,6 +25,7 @@
     "book-cover-3d": "^1.1.2",
     "crypto-js": "^4.2.0",
     "extract-colors": "^2.0.6",
+    "file-icon-vectors": "^1.0.0",
     "framer-motion": "^11.0.3",
     "i18next": "^25.10.9",
     "lodash": "^4.17.21",

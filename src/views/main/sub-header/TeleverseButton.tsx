@@ -27,6 +27,7 @@ export default function TeleverseButton() {
       <Button
         startIcon={<PublishRoundedIcon />}
         endIcon={<ExpandMoreRoundedIcon />}
+        variant="outlined"
         color="inherit"
         ref={anchorEl}
         onClick={() => setOpenMenu(true)}
@@ -35,16 +36,7 @@ export default function TeleverseButton() {
       </Button>
       <Menu
         open={openMenu}
-        variant="selectedMenu"
         MenuListProps={{ dense: true }}
-        PaperProps={{
-          sx: {
-            bgcolor: (theme: any) =>
-              theme.palette.background.paper + theme.customOptions.opacity,
-            border: (theme: any) => `1px solid ${theme.palette.divider}`,
-            backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
-          },
-        }}
         anchorEl={anchorEl.current}
         onClose={() => setOpenMenu(false)}
       >

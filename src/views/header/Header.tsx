@@ -43,7 +43,7 @@ export default function Header () {
                             draggable={false}
                             sx={{ height: { xs: 24, sm: 28 }, width: "auto" }}
                         />
-                        <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(255,255,255,0.5)", borderRightWidth: 2, my: 0.5 }} />
+                        <Divider orientation="vertical" flexItem sx={{ borderColor: "#fff", borderRightWidth: 2, my: 0.5 }} />
                         <Typography
                             noWrap
                             component="div"

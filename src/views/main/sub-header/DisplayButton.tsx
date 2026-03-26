@@ -42,23 +42,13 @@ export default function DisplayButton () {
                 endIcon={<ExpandMoreRoundedIcon/>}
                 startIcon={btnSelected?.icon}
                 ref={anchorEl}
+                variant="outlined"
                 color="inherit"
                 onClick={() => setOpenMenu(true)}
             >{t('display.display')}</Button>
             <Menu
                 open={openMenu}
-                variant="selectedMenu"
-                MenuListProps={{
-                    dense: true,
-                }}
-                PaperProps={{
-                    sx: {
-                        bgcolor: (theme: any) => theme.palette.background.paper +
-                        theme.customOptions.opacity,
-                        border: (theme: any) => `1px solid ${theme.palette.divider}`,
-                        backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
-                    }
-                }}
+                MenuListProps={{ dense: true }}
                 anchorEl={anchorEl.current}
                 onClose={() => setOpenMenu(false)}
             >

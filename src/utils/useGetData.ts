@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import useAxios from "@/utils/useAxios";
 import { useDispatch, useSelector } from "react-redux";
-import { updateData } from "@/redux/data";
+import { updateData, setFolderCache } from "@/redux/data";
 import { RootState } from "@/types";
 
 const { stringify } = JSON;
@@ -43,11 +43,10 @@ const useGetData = ({ key, urlProps, onBeforeUpdate }: UseGetDataOptions) => {
       const fullPath = subFolder ? `${key}/${subFolder}` : key;
       return refetch(getUrlData({ path: fullPath, ...(urlProps || data?.urlProps) })).then(
         ({ data: responseData }: any) => {
-          dispatch(
-            updateData({
-              data: onBefore({ [key]: responseData }),
-            })
-          );
+          const processed = onBefore({ [key]: responseData });
+          dispatch(updateData({ data: processed }));
+          // Mettre à jour le cache pour ce chemin
+          dispatch(setFolderCache({ path: fullPath, data: processed[key] }));
         }
       );
     },

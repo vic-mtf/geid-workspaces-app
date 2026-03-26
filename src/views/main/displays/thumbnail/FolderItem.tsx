@@ -15,7 +15,7 @@ export default function FolderItem({ name }: FolderItemProps) {
       p={1}
       sx={{ userSelect: "none" }}
     >
-      <FolderRoundedIcon sx={{ fontSize: 52, color: "primary.main", opacity: 0.85 }} />
+      <FolderRoundedIcon sx={{ fontSize: 52, color: "warning.main", opacity: 0.85 }} />
       <Typography
         variant="caption"
         align="center"

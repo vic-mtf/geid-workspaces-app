@@ -4,7 +4,7 @@ import React, { useMemo, useEffect, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { updateData } from "@/redux/data";
+import { updateData, setFolderCache, invalidateFolderCache, type FolderCacheEntry } from "@/redux/data";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
 import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
 import DetailFile from "@/views/main/displays/thumbnail/DetailFile";
@@ -78,22 +78,46 @@ export default function Main() {
   );
 
   const [loading, setLoading] = useState(false);
+  const STALE_TIME = 30_000; // 30 secondes — au-delà, on revalide en arrière-plan
 
-  // Vide les données stale puis recharge quand on change de catégorie ou sous-dossier
+  // Cache par chemin (catégorie + sous-dossier)
+  const cachePath = folder ? `${key}/${folder}` : key;
+  const folderCache = useSelector((store: RootState) =>
+    ((store.data as any).folderCache as Record<string, FolderCacheEntry>)?.[cachePath]
+  );
+
   useEffect(() => {
+    // Si en cache et frais → afficher directement, pas de loading
+    if (folderCache?.data) {
+      dispatch(updateData({ data: { [key]: folderCache.data } }));
+
+      // Revalider en arrière-plan si stale
+      if (Date.now() - folderCache.timestamp > STALE_TIME) {
+        getByKey(key, folder).then(() => {
+          // Le getByKey dispatch updateData, on met aussi à jour le cache
+          // Sera fait dans le _reload handler
+        });
+      }
+      return;
+    }
+
+    // Pas de cache → fetch avec loading
     setLoading(true);
-    dispatch(updateData({ data: { [key]: [] } }));
     getByKey(key, folder).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, folder]);
 
-  // Écoute l'événement _reload_current_dir (après création/suppression/renommage d'un dossier)
+  // Écoute l'événement _reload_current_dir (après création/suppression/renommage)
+  // Invalide le cache du dossier courant et refetch
   useEffect(() => {
     const root = document.getElementById("root");
-    const handler = () => getByKey(key, folder);
+    const handler = () => {
+      dispatch(invalidateFolderCache(cachePath));
+      getByKey(key, folder);
+    };
     root?.addEventListener("_reload_current_dir", handler);
     return () => root?.removeEventListener("_reload_current_dir", handler);
-  }, [key, folder, getByKey]);
+  }, [key, folder, getByKey, cachePath, dispatch]);
 
   const { sort, order, display } = queryString.parse(search);
 
