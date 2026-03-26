@@ -36,7 +36,9 @@ export default function App() {
   }, [dispatch, enqueueSnackbar, t]);
 
   return (
-    <BoxGradient>
+    <BoxGradient
+      sx={connected && loaded && opened ? { alignItems: "stretch", justifyContent: "stretch" } : undefined}
+    >
       {connected && loaded && opened ? (
         <RouterProvider router={router} />
       ) : (
