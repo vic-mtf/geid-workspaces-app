@@ -68,7 +68,7 @@ export default function DropZone({ children }: DropZoneProps) {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden" }}
+      sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}
     >
       {children}
       {dragging && (

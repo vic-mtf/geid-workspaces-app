@@ -5,9 +5,10 @@ interface FolderItemProps {
   name?: string;
   date?: string;
   count?: number;
+  renderName?: React.ReactNode;
 }
 
-export default function FolderItem({ name, date, count }: FolderItemProps) {
+export default function FolderItem({ name, date, count, renderName }: FolderItemProps) {
   const formattedDate = date
     ? new Date(date).toLocaleDateString("fr-FR")
     : undefined;
@@ -54,24 +55,26 @@ export default function FolderItem({ name, date, count }: FolderItemProps) {
           </Box>
         )}
       </Box>
-      <Typography
-        variant="caption"
-        align="center"
-        sx={{
-          maxWidth: 120,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          wordBreak: "break-word",
-          fontSize: 11,
-          lineHeight: 1.3,
-          fontWeight: 600,
-        }}
-      >
-        {(name || "").replace(/_/g, " ")}
-      </Typography>
+      {renderName ?? (
+        <Typography
+          variant="caption"
+          align="center"
+          sx={{
+            maxWidth: 120,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            wordBreak: "break-word",
+            fontSize: 11,
+            lineHeight: 1.3,
+            fontWeight: 600,
+          }}
+        >
+          {(name || "").replace(/_/g, " ")}
+        </Typography>
+      )}
       {formattedDate && (
         <Typography
           variant="caption"

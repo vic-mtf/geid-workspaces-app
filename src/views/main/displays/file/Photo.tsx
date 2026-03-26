@@ -14,6 +14,7 @@ interface PhotoProps {
   url?: string;
   name?: string;
   icon?: string;
+  renderName?: React.ReactNode;
   [key: string]: any;
 }
 
@@ -103,22 +104,24 @@ function Photo(props: PhotoProps) {
         )}
       </Box>
 
-      <Typography
-        variant="caption"
-        align="center"
-        sx={{
-          maxWidth: 120,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          textOverflow: "ellipsis",
-          overflow: "hidden",
-          fontSize: 11,
-          lineHeight: 1.3,
-        }}
-      >
-        {props.name?.replace(/_/gi, " ")}
-      </Typography>
+      {props.renderName ?? (
+        <Typography
+          variant="caption"
+          align="center"
+          sx={{
+            maxWidth: 120,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+            fontSize: 11,
+            lineHeight: 1.3,
+          }}
+        >
+          {props.name?.replace(/_/gi, " ")}
+        </Typography>
+      )}
     </Box>
   );
 }

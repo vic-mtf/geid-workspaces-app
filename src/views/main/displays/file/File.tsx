@@ -19,6 +19,7 @@ interface FileProps {
   type?: string;
   name?: string;
   icon?: string;
+  renderName?: React.ReactNode;
   [key: string]: any;
 }
 
@@ -66,20 +67,22 @@ function File(props: FileProps) {
           </Box>
         )}
       </Box>
-      <Typography
-        width={120}
-        align="center"
-        sx={{
-          display: "-webkit-box",
-          maxWidth: 200,
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical",
-          textOverflow: "ellipsis",
-          overflow: "hidden",
-        }}
-      >
-        {props.name?.replace(/_/gi, " ")}
-      </Typography>
+      {props.renderName ?? (
+        <Typography
+          width={120}
+          align="center"
+          sx={{
+            display: "-webkit-box",
+            maxWidth: 200,
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {props.name?.replace(/_/gi, " ")}
+        </Typography>
+      )}
     </Box>
   );
 }

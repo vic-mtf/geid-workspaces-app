@@ -19,20 +19,15 @@ export default function ProfileMenuButton () {
         <React.Fragment>
             <ThemeProvider theme={createTheme({palette: {mode: 'dark'}})}>
                     <Tooltip title="Profil" arrow>
-                        <Chip
-                            label={matches ? shotName :fullName}
+                        <Avatar
                             ref={anchorRef}
-                            onClick={() => {
-                                setAnchorEl(anchorEl ? null : anchorRef.current);
-                            }}
-                            sx={{ml: 1, borderRadius: 1}}
-                            avatar={
-                                <Avatar
-                                    alt={fullName}
-                                    src={user.image}
-                                />
-                            }
-                        />
+                            alt={fullName}
+                            src={user.image}
+                            onClick={() => setAnchorEl(anchorEl ? null : anchorRef.current)}
+                            sx={{ width: 32, height: 32, ml: 1, cursor: "pointer", fontSize: 14 }}
+                        >
+                            {shotName}
+                        </Avatar>
                     </Tooltip>
                 </ThemeProvider>
             <ProfileMenu

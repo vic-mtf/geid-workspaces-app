@@ -1,3 +1,10 @@
+/**
+ * WrapperContent — Wrapper interactif pour chaque fichier/dossier.
+ *
+ * Gere : clic, clic droit (context menu), double-clic (rename via parent).
+ * Le renommage inline est deleguee au parent via onDoubleClickName.
+ */
+
 import {
   ListItemButton,
   ListItemIcon,
@@ -5,22 +12,14 @@ import {
   Menu,
   MenuItem,
   Fade,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import optionLocalDate from "@/utils/optionLocalDate";
 import useAxios from "@/utils/useAxios";
-import getFileExtension from "@/utils/getFileExtension";
 import actions from "@/views/main/displays/thumbnail/actions";
 import SubMenu from "@/views/main/displays/thumbnail/SubMenu";
 import { RootState } from "@/types";
@@ -36,6 +35,7 @@ interface WrapperContentProps {
   url?: string;
   isDirectory?: boolean;
   onFolderClick?: (name: string) => void;
+  onDoubleClickName?: () => void;
   [key: string]: any;
 }
 
@@ -47,6 +47,7 @@ export default function WrapperContent({
   url,
   isDirectory,
   onFolderClick,
+  onDoubleClickName,
   ...otherProps
 }: WrapperContentProps) {
   const { t } = useTranslation();
@@ -55,21 +56,21 @@ export default function WrapperContent({
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number } | null>(null);
   const menuRootRef = useRef<HTMLElement>(null);
   const [isRemoved, setIsRemoved] = useState(false);
-  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
-  const [renameFolderValue, setRenameFolderValue] = useState("");
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const user = useSelector((store: RootState) => store.user);
   const { pathname, search } = useLocation();
-
-  // --- Inline rename state ---
-  const [inlineRenaming, setInlineRenaming] = useState(false);
-  const [inlineNewName, setInlineNewName] = useState("");
-  const inlineInputRef = useRef<HTMLInputElement>(null);
 
   const [{ loading }, refresh] = useAxios(
     { headers: { Authorization: `Bearer ${user?.token}` } },
     { manual: true }
   );
+
+  const getCurrentPath = useCallback(() => {
+    const params = new URLSearchParams(search);
+    const folder = params.get("folder") || "";
+    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
+    return folder ? `${cat}/${folder}` : cat;
+  }, [search, pathname]);
 
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -80,120 +81,23 @@ export default function WrapperContent({
     );
   };
 
-  // --- Inline rename: double-click handler ---
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const currentName = name || "";
-    setInlineNewName(currentName);
-    setInlineRenaming(true);
-  }, [name]);
-
-  // Auto-focus and select file name without extension
-  useEffect(() => {
-    if (inlineRenaming && inlineInputRef.current) {
-      inlineInputRef.current.focus();
-      const currentName = name || "";
-      const dotIndex = currentName.lastIndexOf(".");
-      if (dotIndex > 0 && !isDirectory) {
-        inlineInputRef.current.setSelectionRange(0, dotIndex);
-      } else {
-        inlineInputRef.current.select();
-      }
-    }
-  }, [inlineRenaming, name, isDirectory]);
-
-  const getCurrentPath = () => {
-    const params = new URLSearchParams(search);
-    const folder = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folder ? `${cat}/${folder}` : cat;
-  };
-
-  const handleInlineRenameConfirm = useCallback(() => {
-    const newName = inlineNewName.trim();
-    setInlineRenaming(false);
-    if (!newName || newName === (name || "").trim()) return;
-
-    if (isDirectory) {
-      const path = getCurrentPath();
-      fetch("/api/stuff/workspace/folder", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify({ path, oldName: name, newName }),
-      })
-        .then((res) => {
-          if (!res.ok) {
-            enqueueSnackbar(t("files.folderRenameError"), { variant: "error" });
-            return;
-          }
-          document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
-        })
-        .catch(() => enqueueSnackbar(t("rename.inlineError"), { variant: "error" }));
-    } else {
-      // Rename file directly via API
-      const ext = getFileExtension(name || "");
-      const finalName = ext ? `${newName}.${ext}` : newName;
-      fetch("/api/stuff/workspace", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify({
-          oldFilename: name,
-          filename: finalName,
-          path: getCurrentPath(),
-          userId: (user as any)?.id,
-        }),
-      })
-        .then((res) => {
-          if (!res.ok) {
-            enqueueSnackbar(t("files.fileRenameError"), { variant: "error" });
-            return;
-          }
-          enqueueSnackbar(t("files.fileRenamed"), { variant: "success" });
-          document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
-        })
-        .catch(() => enqueueSnackbar(t("files.fileRenameError"), { variant: "error" }));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inlineNewName, name, isDirectory, user?.token, enqueueSnackbar, t]);
-
-  const handleInlineRenameKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleInlineRenameConfirm();
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      setInlineRenaming(false);
-    }
-  }, [handleInlineRenameConfirm]);
+    onDoubleClickName?.();
+  }, [onDoubleClickName]);
 
   const handleClick = (e: React.MouseEvent) => {
-    if (inlineRenaming) return;
-
     if (isDirectory && onFolderClick && name) {
       onFolderClick(name);
       return;
     }
-    // Authenticated file open in new tab
     if (!isDirectory && url) {
       e.preventDefault();
-      fetch(url, {
-        headers: { Authorization: `Bearer ${user?.token}` },
-      })
+      fetch(url, { headers: { Authorization: `Bearer ${user?.token}` } })
         .then((res) => res.blob())
-        .then((blob) => {
-          const blobUrl = URL.createObjectURL(blob);
-          window.open(blobUrl, "_blank");
-        })
-        .catch(() => {
-          enqueueSnackbar(t("files.openFileError"), { variant: "error" });
-        });
+        .then((blob) => window.open(URL.createObjectURL(blob), "_blank"))
+        .catch(() => enqueueSnackbar(t("files.openFileError"), { variant: "error" }));
     }
   };
 
@@ -203,10 +107,7 @@ export default function WrapperContent({
       const path = getCurrentPath();
       const res = await fetch(
         `/api/stuff/workspace/folder/${encodeURIComponent(JSON.stringify({ path, folderName: name }))}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
+        { method: "DELETE", headers: { Authorization: `Bearer ${user?.token}` } }
       );
       if (!res.ok) {
         enqueueSnackbar(t("files.folderDeleteError"), { variant: "error" });
@@ -219,95 +120,16 @@ export default function WrapperContent({
     }
   };
 
-  const handleOpenRenameFolder = () => {
+  const handleRenameFromMenu = () => {
     setContextMenu(null);
-    setRenameFolderValue(name || "");
-    setRenameDialogOpen(true);
-  };
-
-  const handleConfirmRenameFolder = () => {
-    const newName = renameFolderValue.trim();
-    setRenameDialogOpen(false);
-    if (!newName || newName === name?.trim()) return;
-    const path = getCurrentPath();
-    fetch("/api/stuff/workspace/folder", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user?.token}`,
-      },
-      body: JSON.stringify({ path, oldName: name, newName }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          enqueueSnackbar(t("files.folderRenameError"), { variant: "error" });
-          return;
-        }
-        document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
-      })
-      .catch(() => enqueueSnackbar(t("files.renameError"), { variant: "error" }));
+    onDoubleClickName?.();
   };
 
   const folderActions = [
-    {
-      label: t("common.open"),
-      icon: <FolderOpenOutlinedIcon />,
-      onClick: () => {
-        setContextMenu(null);
-        if (onFolderClick && name) onFolderClick(name);
-      },
-    },
-    {
-      label: t("common.rename"),
-      icon: <EditOutlinedIcon />,
-      onClick: handleOpenRenameFolder,
-    },
-    {
-      label: t("common.delete"),
-      icon: <DeleteOutlinedIcon />,
-      onClick: handleDeleteFolder,
-    },
+    { label: t("common.open"), icon: <FolderOpenOutlinedIcon />, onClick: () => { setContextMenu(null); if (onFolderClick && name) onFolderClick(name); } },
+    { label: t("common.rename"), icon: <EditOutlinedIcon />, onClick: handleRenameFromMenu },
+    { label: t("common.delete"), icon: <DeleteOutlinedIcon />, onClick: handleDeleteFolder },
   ];
-
-  // Render inline rename or children
-  const renderChildren = () => {
-    if (!inlineRenaming) return children;
-
-    // Clone children and overlay with an inline text field at the bottom
-    return (
-      <>
-        {children}
-        <TextField
-          inputRef={inlineInputRef}
-          value={inlineNewName}
-          onChange={(e) => setInlineNewName(e.target.value)}
-          onKeyDown={handleInlineRenameKeyDown}
-          onBlur={handleInlineRenameConfirm}
-          onClick={(e) => e.stopPropagation()}
-          variant="standard"
-          size="small"
-          InputProps={{ disableUnderline: true }}
-          inputProps={{
-            style: {
-              fontSize: 11,
-              textAlign: "center",
-              padding: "2px 4px",
-            },
-          }}
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 5,
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            mx: 0.5,
-          }}
-        />
-      </>
-    );
-  };
 
   return (
     <React.Fragment>
@@ -328,7 +150,7 @@ export default function WrapperContent({
           onDoubleClick={handleDoubleClick}
           selected={!!contextMenu}
         >
-          {renderChildren()}
+          {children}
         </ListItemButton>
       </Fade>
       <Menu
@@ -395,42 +217,6 @@ export default function WrapperContent({
               )
             )}
       </Menu>
-      <Dialog
-        open={renameDialogOpen}
-        onClose={() => setRenameDialogOpen(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle>
-          <Typography variant="h6" fontWeight="bold" fontSize={18}>
-            {t("files.renameFolder")}
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            fullWidth
-            margin="dense"
-            value={renameFolderValue}
-            onChange={(e) => setRenameFolderValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleConfirmRenameFolder();
-            }}
-            inputProps={{ style: { fontSize: 15 } }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setRenameDialogOpen(false)}>{t("common.cancel")}</Button>
-          <Button
-            variant="outlined"
-            size="small"
-            sx={{ textTransform: "none" }}
-            onClick={handleConfirmRenameFolder}
-          >
-            {t("common.rename")}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </React.Fragment>
   );
 }

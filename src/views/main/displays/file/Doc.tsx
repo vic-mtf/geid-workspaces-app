@@ -16,6 +16,7 @@ interface DocProps {
   icon?: string;
   name?: string;
   url?: string;
+  renderName?: React.ReactNode;
   [key: string]: any;
 }
 
@@ -107,20 +108,22 @@ function Doc(props: DocProps) {
         )}
       </Box>
 
-      <Typography
-        width={120}
-        align="center"
-        sx={{
-          display: "-webkit-box",
-          maxWidth: 200,
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical",
-          textOverflow: "ellipsis",
-          overflow: "hidden",
-        }}
-      >
-        {props.name?.replace(/_/gi, " ")}
-      </Typography>
+      {props.renderName ?? (
+        <Typography
+          width={120}
+          align="center"
+          sx={{
+            display: "-webkit-box",
+            maxWidth: 200,
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          }}
+        >
+          {props.name?.replace(/_/gi, " ")}
+        </Typography>
+      )}
     </Box>
   );
 }

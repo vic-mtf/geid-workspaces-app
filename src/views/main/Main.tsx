@@ -34,7 +34,7 @@ import ShareDialog from "@/views/dialogs/ShareDialog";
 import TagsDialog from "@/views/dialogs/TagsDialog";
 import DeleteConfirmDialog from "@/views/main/DeleteConfirmDialog";
 import FileDetailPanel from "@/views/main/FileDetailPanel";
-import ResizeDivider from "@/components/ResizeDivider";
+import DetailResizeDivider from "@/components/DetailResizeDivider";
 import usePanelWidth from "@/hooks/usePanelWidth";
 import useGetData from "@/utils/useGetData";
 import useAxios from "@/utils/useAxios";
@@ -78,9 +78,7 @@ export default function Main() {
   // ── Detail panel ───────────────────────────────────────────
   const [focusedFile, setFocusedFile] = useState<FileItem | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  // contentWidth = largeur de la zone contenu (1ère colonne du grid)
-  // Le détail prend le reste via 1fr
-  const [contentWidth, setContentWidth] = usePanelWidth("workspaceContent", 600);
+  const [detailWidth, setDetailWidth] = usePanelWidth("workspace.detail", 280);
 
   const handleCloseDetail = useCallback(() => {
     setDetailOpen(false);
@@ -280,26 +278,21 @@ export default function Main() {
             <FolderBreadcrumb categoryLabel={CATEGORY_LABELS[key] ?? key} />
 
             {/* ── Grid contenu + détail — prend tout l'espace restant ── */}
-            <MuiBox
-              sx={{
-                display: "grid",
-                flex: 1,
-                minHeight: 0,
-                overflow: "hidden",
-                gridTemplateColumns: showDetail ? `${contentWidth}px 1px 1fr` : "1fr",
-              }}
-            >
-              {/* Col 1 — Contenu */}
-              <DropZone>
-                {renderContent()}
-              </DropZone>
+            <MuiBox sx={{
+              display: "grid",
+              flex: 1,
+              minHeight: 0,
+              overflow: "hidden",
+              gridTemplateColumns: showDetail ? `1fr 1px ${detailWidth}px` : "1fr",
+            }}>
+              <MuiBox sx={{ minWidth: 0, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <DropZone>{renderContent()}</DropZone>
+              </MuiBox>
 
-              {/* Col 2 — Divider ajustable */}
-              {showDetail && <ResizeDivider onResize={setContentWidth} minLeft={300} minRight={220} />}
+              {showDetail && <DetailResizeDivider onResize={setDetailWidth} minWidth={200} maxWidth={450} />}
 
-              {/* Col 3 — Détail */}
               {showDetail && (
-                <MuiBox sx={{ borderLeft: 1, borderColor: "divider", overflow: "auto", display: "flex", flexDirection: "column" }}>
+                <MuiBox sx={{ borderLeft: 1, borderColor: "divider", overflow: "auto" }}>
                   <FileDetailPanel file={focusedFile} onClose={handleCloseDetail} onAction={handleDetailAction} />
                 </MuiBox>
               )}

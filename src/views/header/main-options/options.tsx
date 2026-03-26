@@ -20,26 +20,11 @@ interface OptionItem {
 
 const options: OptionItem[] = [
     {
-        label: i18n.t('header.help'),
-        pin: true,
-        icon: <ContactSupportOutlinedIcon fontSize="small"/>,
-        element: null,
-        disabled: true,
-        key: '_help',
-    },
-    {
         label: i18n.t('header.applications'),
         pin: true,
         icon: <AppsRoundedIcon fontSize="small"/>,
         element: <AppsMenuButton/>,
         key: '_apps',
-    },
-    {
-        label: i18n.t('header.profile'),
-        pin: true,
-        icon: <AccountCircleOutlinedIcon fontSize="small"/>,
-        element: <ProfileMenuButton/>,
-        key: '_profile'
     },
     {
         label: i18n.t('header.downloads'),

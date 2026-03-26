@@ -2,7 +2,10 @@
  * ListView — Affichage en liste des fichiers workspace.
  *
  * Table propre avec Virtuoso, checkbox toujours visible,
- * select-all en header, mode compact optionnel.
+ * select-all en header, mode compact optionnel, renommage inline.
+ *
+ * Pattern : parent 100% relatif → enfant absolu inset 0, flex column
+ * avec header sticky + Virtuoso flex: 1.
  */
 
 import {
@@ -10,12 +13,8 @@ import {
   Box,
   Checkbox,
   Skeleton,
+  TextField,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -32,6 +31,8 @@ import normaliseOctetSize from "@/utils/normaliseOctetSize";
 import optionLocalDate from "@/utils/optionLocalDate";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
+import MoveConfirmDialog from "@/components/MoveConfirmDialog";
+import useDragDropMove from "@/hooks/useDragDropMove";
 import { FileItem, RootState } from "@/types";
 
 interface ListViewProps {
@@ -93,9 +94,18 @@ export default function ListView({
   const rowHeight = compact ? 32 : 42;
   const fontSize = compact ? "0.75rem" : undefined;
 
-  // Drag & drop move confirmation
-  const [moveConfirm, setMoveConfirm] = useState<{ fileName: string; folderName: string } | null>(null);
-  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
+  // Inline rename
+  const [renamingFile, setRenamingFile] = useState<string | null>(null);
+
+  const getCurrentPath = useCallback(() => {
+    const params = new URLSearchParams(search);
+    const folderParam = params.get("folder") || "";
+    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
+    return folderParam ? `${cat}/${folderParam}` : cat;
+  }, [search, pathname]);
+
+  // Drag & drop
+  const { moveConfirm, dragOverFolder, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleConfirmMove, clearMoveConfirm } = useDragDropMove(getCurrentPath);
 
   const data = useMemo(
     () =>
@@ -130,77 +140,28 @@ export default function ListView({
     navigate(`${pathname}?folder=${encodeURIComponent(newFolder)}`);
   }, [search, pathname, navigate]);
 
-  // --- Drag & Drop ---
-  const getCurrentPath = useCallback(() => {
-    const params = new URLSearchParams(search);
-    const folderParam = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folderParam ? `${cat}/${folderParam}` : cat;
-  }, [search, pathname]);
+  const handleRenameConfirm = useCallback(async (oldName: string, newValue: string) => {
+    setRenamingFile(null);
+    const trimmed = newValue.trim();
+    if (!trimmed || trimmed === oldName) return;
 
-  const handleDragStart = useCallback((e: React.DragEvent, fileName: string) => {
-    e.dataTransfer.setData("fileName", fileName);
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent, folderName: string) => {
-    e.preventDefault();
-    setDragOverFolder(folderName);
-  }, []);
-
-  const handleDragLeave = useCallback(() => {
-    setDragOverFolder(null);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent, folderName: string) => {
-    e.preventDefault();
-    setDragOverFolder(null);
-    const fileName = e.dataTransfer.getData("fileName");
-    if (fileName && fileName !== folderName) {
-      setMoveConfirm({ fileName, folderName });
-    }
-  }, []);
-
-  const handleConfirmMove = useCallback(async () => {
-    if (!moveConfirm) return;
-    const { fileName, folderName } = moveConfirm;
     const path = getCurrentPath();
-    setMoveConfirm(null);
+    const ext = getFileExtension(oldName);
+    const finalName = ext ? `${trimmed}.${ext}` : trimmed;
+
     try {
-      const res = await fetch("/api/stuff/workspace/move", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify({ source: `${path}/${fileName}`, destination: `${path}/${folderName}/${fileName}` }),
+      const res = await fetch("/api/stuff/workspace", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user?.token}` },
+        body: JSON.stringify({ oldFilename: oldName, filename: finalName, path, userId: (user as any)?.id }),
       });
       if (!res.ok) throw new Error();
-      enqueueSnackbar(t("dragDrop.moveSuccess"), { variant: "success" });
+      enqueueSnackbar(t("files.fileRenamed"), { variant: "success" });
       document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
     } catch {
-      enqueueSnackbar(t("dragDrop.moveError"), { variant: "error" });
+      enqueueSnackbar(t("files.fileRenameError"), { variant: "error" });
     }
-  }, [moveConfirm, getCurrentPath, user?.token, enqueueSnackbar, t]);
-
-  if (loading) {
-    return (
-      <Box sx={{ height: "100%", overflow: "auto", px: 2, pt: 1 }}>
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} variant="rounded" height={rowHeight} sx={{ borderRadius: 1, mb: 0.5 }} />
-        ))}
-      </Box>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" flex={1} height="100%" py={6} gap={1}>
-        <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
-        <Typography color="text.secondary" fontWeight="bold">{t("files.emptySpace")}</Typography>
-        <Typography variant="body2" color="text.disabled">{t("files.emptySpaceHint")}</Typography>
-      </Box>
-    );
-  }
+  }, [getCurrentPath, user?.token, user, enqueueSnackbar, t]);
 
   const blankIcon = new URL("../../../../../node_modules/file-icon-vectors/dist/icons/vivid/blank.svg", import.meta.url).href;
 
@@ -214,6 +175,13 @@ export default function ListView({
     const isImage = infos?.type === "image";
     const isSelected = selectedFiles.has(file.name ?? "");
     const isDragOverThis = file.isDirectory && dragOverFolder === file.name;
+    const isRenaming = renamingFile === file.name;
+
+    const nameWithoutExt = (() => {
+      const n = file.name || "";
+      const dot = n.lastIndexOf(".");
+      return dot > 0 && !file.isDirectory ? n.substring(0, dot) : n;
+    })();
 
     return (
       <Box
@@ -234,6 +202,7 @@ export default function ListView({
           {...file}
           isDirectory={file.isDirectory}
           onFolderClick={handleFolderClick}
+          onDoubleClickName={() => setRenamingFile(file.name ?? "")}
         >
           <Box
             display="flex"
@@ -270,9 +239,27 @@ export default function ListView({
             </Box>
             {/* Name */}
             <Box flex={1} minWidth={0} pl={0.5}>
-              <Typography variant="body2" noWrap sx={{ fontSize, maxWidth: { xs: 150, sm: 250, md: 400, lg: 500 } }}>
-                {(file.name ?? "").replace(/_/g, " ")}
-              </Typography>
+              {isRenaming ? (
+                <TextField
+                  autoFocus
+                  size="small"
+                  variant="standard"
+                  defaultValue={nameWithoutExt}
+                  onBlur={(e) => handleRenameConfirm(file.name || "", (e.target as HTMLInputElement).value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleRenameConfirm(file.name || "", (e.currentTarget as HTMLInputElement).value);
+                    if (e.key === "Escape") setRenamingFile(null);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  InputProps={{ disableUnderline: false }}
+                  inputProps={{ style: { fontSize: 13, padding: "2px 4px" } }}
+                  sx={{ maxWidth: 300 }}
+                />
+              ) : (
+                <Typography variant="body2" noWrap sx={{ fontSize, maxWidth: { xs: 150, sm: 250, md: 400, lg: 500 } }}>
+                  {(file.name ?? "").replace(/_/g, " ")}
+                </Typography>
+              )}
             </Box>
             {/* Date */}
             <Box width={160} flexShrink={0} display={{ xs: "none", sm: "block" }}>
@@ -290,74 +277,87 @@ export default function ListView({
     );
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+        <Box sx={{ position: "absolute", inset: 0, overflow: "auto", px: 2, pt: 1 }}>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} variant="rounded" height={rowHeight} sx={{ borderRadius: 1, mb: 0.5 }} />
+          ))}
+        </Box>
+      </Box>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+        <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
+          <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
+          <Typography color="text.secondary" fontWeight="bold">{t("files.emptySpace")}</Typography>
+          <Typography variant="body2" color="text.disabled">{t("files.emptySpaceHint")}</Typography>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <>
-      <Box sx={{ height: "100%", display: "flex", flexDirection: "column", px: 0.5 }}>
-        {/* Header */}
-        <Box
-          display="flex"
-          alignItems="center"
-          px={1}
-          sx={{
-            height: rowHeight,
-            bgcolor: "background.paper",
-            borderBottom: 1,
-            borderColor: "divider",
-            flexShrink: 0,
-          }}
-        >
-          <Box width={36} flexShrink={0} display="flex" alignItems="center" justifyContent="center">
-            <Checkbox
-              size="small"
-              checked={allSelected}
-              indeterminate={selectedFiles.size > 0 && !allSelected}
-              onChange={onSelectAll}
-              sx={{ p: 0 }}
-            />
-          </Box>
-          <Box width={36} flexShrink={0} />
-          <Box flex={1} minWidth={0} pl={0.5}>
-            <Typography variant="caption" fontWeight={700} color="text.secondary">{t("list.name")}</Typography>
-          </Box>
-          <Box width={160} flexShrink={0} display={{ xs: "none", sm: "block" }}>
-            <Typography variant="caption" fontWeight={700} color="text.secondary">{t("list.modifiedDate")}</Typography>
-          </Box>
-          {!isSmall && (
-            <Box width={90} flexShrink={0}>
-              <Typography variant="caption" fontWeight={700} color="text.secondary">{t("list.size")}</Typography>
+      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+        <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", px: 0.5 }}>
+          {/* Header */}
+          <Box
+            display="flex"
+            alignItems="center"
+            px={1}
+            sx={{
+              height: rowHeight,
+              bgcolor: "background.paper",
+              borderBottom: 1,
+              borderColor: "divider",
+              flexShrink: 0,
+            }}
+          >
+            <Box width={36} flexShrink={0} display="flex" alignItems="center" justifyContent="center">
+              <Checkbox
+                size="small"
+                checked={allSelected}
+                indeterminate={selectedFiles.size > 0 && !allSelected}
+                onChange={onSelectAll}
+                sx={{ p: 0 }}
+              />
             </Box>
-          )}
-        </Box>
+            <Box width={36} flexShrink={0} />
+            <Box flex={1} minWidth={0} pl={0.5}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary">{t("list.name")}</Typography>
+            </Box>
+            <Box width={160} flexShrink={0} display={{ xs: "none", sm: "block" }}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary">{t("list.modifiedDate")}</Typography>
+            </Box>
+            {!isSmall && (
+              <Box width={90} flexShrink={0}>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">{t("list.size")}</Typography>
+              </Box>
+            )}
+          </Box>
 
-        {/* Virtualized rows */}
-        <Virtuoso
-          totalCount={data!.length}
-          itemContent={renderRow}
-          overscan={300}
-          style={{ flex: 1 }}
-        />
+          {/* Virtualized rows */}
+          <Virtuoso
+            totalCount={data!.length}
+            itemContent={renderRow}
+            overscan={300}
+            style={{ flex: 1 }}
+          />
+        </Box>
       </Box>
 
-      {/* Drag & drop move confirmation dialog */}
-      <Dialog open={!!moveConfirm} onClose={() => setMoveConfirm(null)} fullWidth maxWidth="xs">
-        <DialogTitle>
-          <Typography variant="h6" fontWeight="bold" fontSize={18}>
-            {t("dragDrop.moveConfirmTitle")}
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">
-            {t("dragDrop.moveConfirmMessage", {
-              fileName: (moveConfirm?.fileName ?? "").replace(/_/g, " "),
-              folderName: (moveConfirm?.folderName ?? "").replace(/_/g, " "),
-            })}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setMoveConfirm(null)}>{t("common.cancel")}</Button>
-          <Button variant="contained" onClick={handleConfirmMove}>{t("common.confirm")}</Button>
-        </DialogActions>
-      </Dialog>
+      <MoveConfirmDialog
+        open={!!moveConfirm}
+        fileName={moveConfirm?.fileName ?? ""}
+        folderName={moveConfirm?.folderName ?? ""}
+        onConfirm={handleConfirmMove}
+        onClose={clearMoveConfirm}
+      />
     </>
   );
 }
