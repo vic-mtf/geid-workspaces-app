@@ -27,7 +27,7 @@ function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
     >
       {/* Icône avec badge — pas de container intermédiaire à hauteur fixe */}
       <Box sx={{ position: "relative", display: "inline-flex", lineHeight: 0 }}>
-        <FolderRoundedIcon sx={{ fontSize: 64, color: folderColor }} />
+        <FolderRoundedIcon sx={{ fontSize: 90, color: folderColor }} />
         {count != null && count > 0 && (
           <Typography
             sx={{
