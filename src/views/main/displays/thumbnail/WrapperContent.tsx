@@ -143,8 +143,12 @@ export default function WrapperContent({
   // Timer pour distinguer single clic (→ detail) vs double clic (→ rename)
   const clickTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const navigatingRef = React.useRef(false);
   const handleClick = useCallback((e: React.MouseEvent) => {
     if (isDirectory && onFolderClick && name) {
+      if (navigatingRef.current) return;
+      navigatingRef.current = true;
+      setTimeout(() => { navigatingRef.current = false; }, 500);
       onFolderClick(name);
       return;
     }
