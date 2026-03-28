@@ -86,15 +86,28 @@ export default function RecentView() {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-            {tags.length > 0 && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, px: 2, py: 1, flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}>
-                    <LocalOfferOutlinedIcon sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5, alignSelf: 'center' }} />
-                    <Chip label={t('recent.all') || 'Tout'} size="small" variant={!selectedTag ? 'filled' : 'outlined'} color={!selectedTag ? 'primary' : 'default'} onClick={() => setSelectedTag(null)} sx={{ borderRadius: 1, fontSize: 12 }} />
-                    {tags.slice(0, 20).map((tag) => (
-                        <Chip key={tag} label={tag} size="small" variant={selectedTag === tag ? 'filled' : 'outlined'} color={selectedTag === tag ? 'primary' : 'default'} onClick={() => setSelectedTag(selectedTag === tag ? null : tag)} sx={{ borderRadius: 1, fontSize: 12 }} />
-                    ))}
-                </Box>
-            )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 2, py: 0.75, flexShrink: 0, borderBottom: 1, borderColor: 'divider', overflowX: 'auto', '&::-webkit-scrollbar': { height: 0 } }}>
+                <LocalOfferOutlinedIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+                <Chip
+                    label={t('recent.all') || 'Tout'}
+                    size="small"
+                    variant={!selectedTag ? 'filled' : 'outlined'}
+                    color={!selectedTag ? 'primary' : 'default'}
+                    onClick={() => setSelectedTag(null)}
+                    sx={{ borderRadius: 1, fontSize: 12, flexShrink: 0 }}
+                />
+                {tags.slice(0, 20).map((tag) => (
+                    <Chip
+                        key={tag}
+                        label={tag}
+                        size="small"
+                        variant={selectedTag === tag ? 'filled' : 'outlined'}
+                        color={selectedTag === tag ? 'primary' : 'default'}
+                        onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                        sx={{ borderRadius: 1, fontSize: 12, flexShrink: 0 }}
+                    />
+                ))}
+            </Box>
             {display === 'list' || display === 'compact' ? (
                 <ListView data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} compact={display === 'compact'} />
             ) : (
