@@ -11,12 +11,11 @@ import {
   Skeleton,
   Typography,
 } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState, useRef, forwardRef } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
-import { VirtuosoGrid } from "react-virtuoso";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import getFileExtension from "@/utils/getFileExtension";
 import File from "@/views/main/displays/file/File";
@@ -36,26 +35,6 @@ interface ThumbnailProps {
 
 const EMPTY_SET = new Set<string>();
 const GRID_COLS = "repeat(auto-fill, minmax(160px, 1fr))";
-
-// Composants stables pour VirtuosoGrid
-const GridList = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ style, children, ...props }, ref) => (
-    <Box
-      ref={ref}
-      {...props}
-      style={style}
-      sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5, p: 1 }}
-    >
-      {children}
-    </Box>
-  )
-);
-
-const GridItem: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, ...props }) => (
-  <Box {...props} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
-    {children}
-  </Box>
-);
 
 export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_SET, onToggleSelect }: ThumbnailProps) {
   const { t } = useTranslation();
@@ -257,14 +236,14 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   return (
     <>
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box sx={{ position: "absolute", inset: 0 }}>
-          <VirtuosoGrid
-            totalCount={data.length}
-            overscan={200}
-            components={{ List: GridList, Item: GridItem }}
-            itemContent={renderItem}
-            style={{ height: "100%", width: "100%" }}
-          />
+        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
+            {data.map((_, i) => (
+              <Box key={`${i}_${data[i]?.name}`} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+                {renderItem(i)}
+              </Box>
+            ))}
+          </Box>
         </Box>
       </Box>
 
