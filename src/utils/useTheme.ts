@@ -81,10 +81,21 @@ const useTheme = (): Theme => {
               onContextMenu: (event: React.MouseEvent) => event.preventDefault(),
             },
             styleOverrides: {
-              paper: ({ theme: t }) => ({ border: `1px solid ${(t as Theme).palette.divider}` }),
+              paper: ({ theme: t }) => ({
+                border: `1px solid ${(t as Theme).palette.divider}`,
+                backgroundColor: (t as Theme).palette.background.paper + ((t as any).customOptions?.opacity || ''),
+                backdropFilter: `blur(${(t as any).customOptions?.blur || '15px'})`,
+                borderRadius: 12,
+              }),
+              list: { padding: "4px" },
               root: {
                 "& .MuiBackdrop-root": { backdropFilter: "none" },
               },
+            },
+          },
+          MuiMenuItem: {
+            styleOverrides: {
+              root: { borderRadius: 8, marginBottom: 1 },
             },
           },
           MuiPopover: {

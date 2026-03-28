@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -20,7 +20,7 @@ interface CreateFolderDialogProps {
   onCreated: () => void;
 }
 
-export default function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProps) {
+function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProps) {
   const { t } = useTranslation();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,13 +28,7 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
   const token = useSelector((store: RootState) => store.user.token);
   const { pathname, search } = useLocation();
 
-  // Calcul du chemin courant (catégorie + sous-dossier éventuel)
-  const currentPath = (() => {
-    const params = new URLSearchParams(search);
-    const folder = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folder ? `${cat}/${folder}` : cat;
-  })();
+  const currentPath = new URLSearchParams(search).get("folder") || "";
 
   useEffect(() => {
     if (open) { setName(""); setError(""); }
@@ -68,7 +62,19 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      BackdropProps={{
+        sx: {
+          bgcolor: (theme: any) => theme.palette.background.paper + theme.customOptions.opacity,
+          backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
+        },
+      }}
+      PaperProps={{ sx: { border: 1, borderColor: "divider" } }}
+    >
       <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <FolderOutlinedIcon color="primary" />
         {t("files.newFolder")}
@@ -103,3 +109,5 @@ export default function CreateFolderDialog({ open, onClose, onCreated }: CreateF
     </Dialog>
   );
 }
+
+export default React.memo(CreateFolderDialog);

@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import getFileExtension, { getName } from "@/utils/getFileExtension";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import DownloadsMenuDrawer from "@/views/main/sub-header/Downloads-menu-drawer/DownloadsMenuDrawer";
+import parseFolderUpload from "@/utils/parseFolderUpload";
 import useGetData from "@/utils/useGetData";
 import { RootState } from "@/types";
 
@@ -18,44 +19,48 @@ export default function UploadFilesButton() {
   const [removeList, setRemoveList] = useState<any[]>([]);
   const { pathname, search } = useLocation();
 
-  const [, getDocs] = useGetData({
-    key: "documents",
-    onBeforeUpdate(data: any) {
-      return { ...data, others: [] };
-    },
-  });
-  const [, getImages] = useGetData({ key: "images" });
-  const [, getVideos] = useGetData({
-    key: "videos",
-    onBeforeUpdate(data: any) {
-      return { ...data, audios: [] };
-    },
-  });
+  const [, getFiles] = useGetData({ key: "files" });
 
-  // Détermine le chemin complet courant (catégorie + sous-dossier)
-  const getCurrentPath = () => {
-    const params = new URLSearchParams(search);
-    const folder = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folder ? `${cat}/${folder}` : cat;
-  };
-
-  const getCurrentCategory = () => {
-    if (pathname.includes("images")) return "images";
-    if (pathname.includes("videos")) return "videos";
-    if (pathname.includes("others")) return "others";
-    return "documents";
-  };
-
-  const getCurrentFolder = () => {
-    return new URLSearchParams(search).get("folder") || "";
-  };
+  const getCurrentPath = () => new URLSearchParams(search).get("folder") || "";
+  const getCurrentFolder = () => new URLSearchParams(search).get("folder") || "";
 
   useEffect(() => {
     const rootEl = document.getElementById("root");
-    const handleReverseFile = (event: any) => {
+    const handleReverseFile = async (event: any) => {
       const files = [...event.detail.files];
+      const basePath = getCurrentPath();
+
+      // Détecte si c'est un upload de dossier (webkitRelativePath)
+      const isFolder = files.some((f: any) => f.webkitRelativePath && f.webkitRelativePath.includes("/"));
+      if (isFolder) {
+        const parsed = parseFolderUpload(files);
+        if (parsed.subFolders.length > 0 || parsed.rootName) {
+          const rootFolder = basePath ? `${basePath}/${parsed.rootName}` : parsed.rootName;
+          const allFolders = [parsed.rootName, ...parsed.subFolders.map((sf) => `${parsed.rootName}/${sf}`)];
+          try {
+            await fetch(`${import.meta.env.VITE_SERVER_BASE_URL}/api/stuff/workspace/folder/tree`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ basePath, folders: allFolders }),
+            });
+          } catch { /* ignore — folders may already exist */ }
+
+          // Upload chaque fichier valide avec son chemin relatif
+          for (const { file, relativePath } of parsed.validFiles) {
+            const filePath = basePath ? `${basePath}/${parsed.rootName}/${relativePath.split("/").slice(0, -1).join("/")}` : `${parsed.rootName}/${relativePath.split("/").slice(0, -1).join("/")}`;
+            const uploadPath = filePath.replace(/\/+$/, "") || basePath;
+            uploadSingleFile(file, uploadPath, event.detail.doc);
+          }
+          return;
+        }
+      }
+
       files.forEach((file: File) => {
+        uploadSingleFile(file, basePath, event.detail.doc);
+      });
+    };
+
+    const uploadSingleFile = (file: File, path: string, doc?: any) => {
         let handleSend: ((id?: any, xhr?: XMLHttpRequest) => void) | null = null;
         (handleSend = (__id?: any, _xhr?: XMLHttpRequest) => {
           const _id = typeof __id === "number" ? __id : uploadList.current.length;
@@ -67,18 +72,13 @@ export default function UploadFilesButton() {
             ~exts.indexOf(getFileExtension(file.name) ?? "")
           ) || {};
 
-          // Utilise le chemin courant (catégorie + dossier) comme destination
-          const path = getCurrentPath();
-          const category = getCurrentCategory();
-          const folder = getCurrentFolder();
-
           const filename = getName(file.name);
           const infos: Record<string, any> = {
             userId,
             filename,
             path,
             file,
-            ...event.detail.doc,
+            ...(doc || {}),
           };
           const data = new FormData();
           Object.keys(infos).forEach((key) => {
@@ -92,12 +92,10 @@ export default function UploadFilesButton() {
               loading: false,
             };
             setLoadNumber((nbr) => nbr - 1);
-            // Rafraîchit la catégorie courante au bon niveau de dossier
-            if (category === "images") getImages({ folder });
-            else if (category === "videos") getVideos({ folder });
-            else getDocs({ folder });
+            // Rafraîchit le dossier courant
+            getFiles({ folder: getCurrentFolder() });
             const root = document.getElementById("root");
-            root?.dispatchEvent(new CustomEvent("_load_all_data"));
+            root?.dispatchEvent(new CustomEvent("_reload_current_dir"));
           };
           xhr.onabort = () => {
             uploadList.current[_id] = {
@@ -154,14 +152,13 @@ export default function UploadFilesButton() {
           };
           xhr.send(data);
         })();
-      });
     };
     rootEl?.addEventListener("_upload_files", handleReverseFile);
     return () => {
       rootEl?.removeEventListener("_upload_files", handleReverseFile);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, userId, getImages, getVideos, getDocs, pathname, search]);
+  }, [token, userId, getFiles, pathname, search]);
 
   useEffect(() => {
     const root = document.getElementById("root");

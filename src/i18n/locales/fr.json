@@ -25,13 +25,16 @@
     "new": "Nouveau"
   },
   "nav": {
+    "files": "Mes fichiers",
     "documents": "Documents",
     "images": "Images",
     "videos": "Videos",
     "others": "Autres",
     "favorites": "Favoris",
     "recent": "Recents",
-    "trash": "Corbeille"
+    "trash": "Corbeille",
+    "shared": "Espace partagé",
+    "cloud": "Espace cloud"
   },
   "header": {
     "personalSpace": "Espace personnel",
@@ -59,17 +62,18 @@
     "renameTo": "Renommer",
     "renameFolder": "Renommer le dossier",
     "renaming": "Attribution d'un nouveau nom",
-    "fileRenamed": "Le fichier a ete renomme",
-    "fileRenameError": "Impossible de changer le nom du fichier",
+    "fileRenamed": "Le nom du fichier a bien ete modifie.",
+    "fileRenameError": "Le renommage du fichier n'a pas pu aboutir. Veuillez reessayer.",
     "deleteConfirm": "Supprimer",
     "deletingFile": "Suppression en cours...",
-    "fileDeleted": "Le fichier a ete supprime",
-    "fileDeleteError": "Impossible de supprimer le fichier",
-    "folderDeleteError": "Impossible de supprimer ce dossier.",
-    "deleteError": "Erreur lors de la suppression.",
-    "folderRenameError": "Impossible de renommer ce dossier.",
-    "renameError": "Erreur lors du renommage.",
-    "openFileError": "Impossible d'ouvrir le fichier.",
+    "fileDeleted": "Le fichier a bien ete supprime de votre espace.",
+    "fileDeleteError": "La suppression n'a pas pu aboutir. Veuillez reessayer.",
+    "folderDeleteError": "Ce dossier ne peut pas etre supprime. Verifiez qu'il est bien vide avant de reessayer.",
+    "deleteError": "Une erreur est survenue lors de la suppression. Veuillez reessayer.",
+    "folderRenameError": "Le renommage du dossier n'a pas pu aboutir. Veuillez reessayer.",
+    "renameError": "Le renommage n'a pas pu aboutir. Veuillez reessayer.",
+    "openFileError": "Ce fichier ne peut pas etre ouvert pour le moment. Veuillez reessayer.",
+    "dataUpdated": "Vos fichiers ont ete mis a jour",
     "folderLabel": "Dossier : {{name}}",
     "fileTitleTooltip": "Nom: {{name}}\nType: {{type}}\nDate: {{date}}",
     "dropFilesHere": "Deposez vos fichiers ici",
@@ -86,25 +90,27 @@
     "shareTitle": "Partager",
     "shareLink": "Lien de partage",
     "generateLink": "Generer un lien",
-    "linkGenerated": "Lien de partage genere",
-    "linkGenerateError": "Impossible de generer le lien",
-    "linkCopied": "Lien copie dans le presse-papier",
+    "linkGenerated": "Le lien de partage a ete genere avec succes.",
+    "linkGenerateError": "La generation du lien n'a pas pu aboutir. Veuillez reessayer.",
+    "linkCopied": "Le lien a ete copie dans votre presse-papier.",
     "shareWithUser": "Partager avec un utilisateur",
-    "userIdPlaceholder": "Identifiant utilisateur",
-    "permissionRead": "Lecture",
-    "permissionWrite": "Modification",
-    "fileShared": "Fichier partage",
-    "fileShareError": "Impossible de partager le fichier",
+    "userIdPlaceholder": "Adresse e-mail de l'utilisateur",
+    "permissionRead": "Lecture seule",
+    "permissionWrite": "Lecture et modification",
+    "fileShared": "Le fichier a bien ete partage avec l'utilisateur choisi.",
+    "fileShareError": "Le partage n'a pas pu aboutir. Verifiez que l'utilisateur existe dans la plateforme.",
     "currentShares": "Partages en cours",
-    "shareRevoked": "Partage revoque",
-    "shareRevokeError": "Impossible de revoquer le partage"
+    "shareRevoked": "L'acces au fichier partage a ete revoque.",
+    "shareRevokeError": "La revocation du partage n'a pas pu aboutir. Veuillez reessayer.",
+    "messagePlaceholder": "Ajouter un message (optionnel)",
+    "sendInvitation": "Envoyer l'invitation"
   },
   "tags": {
     "title": "Tags",
     "noTags": "Aucun tag pour le moment",
     "newTag": "Nouveau tag",
-    "tagsUpdated": "Tags mis a jour",
-    "tagsUpdateError": "Impossible de modifier les tags"
+    "tagsUpdated": "Les mots-cles ont ete mis a jour avec succes.",
+    "tagsUpdateError": "La modification des mots-cles n'a pas pu aboutir. Veuillez reessayer."
   },
   "archives": {
     "sendToArchives": "Le service d'archivage",
@@ -182,7 +188,10 @@
     "name": "Nom",
     "date": "Date",
     "ascending": "Croissante",
-    "descending": "Decroissante"
+    "descending": "Decroissante",
+    "size": "Taille",
+    "modified": "Modification",
+    "type": "Type"
   },
   "display": {
     "display": "Affichage",
@@ -221,6 +230,7 @@
     "noFavoritesHint": "Ajoutez des fichiers en favoris depuis le menu contextuel"
   },
   "recent": {
+    "all": "Tout",
     "noRecent": "Aucun fichier consulte recemment",
     "noRecentHint": "Les fichiers que vous ouvrez apparaitront ici"
   },
@@ -229,17 +239,19 @@
     "trashEmpty": "La corbeille est vide",
     "trashEmptyHint": "Les fichiers supprimes apparaitront ici",
     "restore": "Restaurer",
+    "restoreSuccess": "Le fichier a ete restaure dans son emplacement d'origine.",
+    "restoreError": "La restauration n'a pas pu aboutir. Veuillez reessayer.",
     "deletePermanently": "Supprimer definitivement"
   },
   "move": {
-    "fileMoved": "Fichier deplace",
-    "fileMoveError": "Impossible de deplacer le fichier",
+    "fileMoved": "Le fichier a bien ete deplace vers le dossier choisi.",
+    "fileMoveError": "Le deplacement n'a pas pu aboutir. Veuillez reessayer.",
     "chooseFolder": "Choisir un dossier de destination",
     "noSubFolder": "Aucun sous-dossier dans ce repertoire"
   },
   "copyFile": {
-    "fileCopied": "Fichier copie",
-    "fileCopyError": "Impossible de copier le fichier"
+    "fileCopied": "Une copie du fichier a ete creee dans le dossier choisi.",
+    "fileCopyError": "La copie n'a pas pu aboutir. Veuillez reessayer."
   },
   "cover": {
     "personalSpace": "Espace personnel",
@@ -269,10 +281,35 @@
   "dragDrop": {
     "moveConfirmTitle": "Deplacer le fichier",
     "moveConfirmMessage": "Deplacer « {{fileName}} » vers le dossier « {{folderName}} » ?",
-    "moveSuccess": "Fichier deplace dans le dossier",
-    "moveError": "Impossible de deplacer le fichier"
+    "moveSuccess": "Le fichier a bien ete deplace dans le dossier.",
+    "moveError": "Le deplacement n'a pas pu aboutir. Veuillez reessayer."
   },
   "rename": {
     "inlineError": "Impossible de renommer le fichier"
+  },
+  "colors": {
+    "title": "Couleur du dossier",
+    "default": "Par defaut",
+    "blue": "Bleu",
+    "green": "Vert",
+    "red": "Rouge",
+    "purple": "Violet",
+    "orange": "Orange",
+    "teal": "Sarcelle",
+    "pink": "Rose",
+    "colorError": "La couleur du dossier n'a pas pu etre modifiee. Veuillez reessayer."
+  },
+  "shared": {
+    "title": "Espace partage",
+    "received": "Fichiers recus",
+    "sent": "Envoyes",
+    "invitations": "Invitations",
+    "noReceived": "Aucun fichier partage avec vous",
+    "noReceivedHint": "Les fichiers que d'autres utilisateurs partagent avec vous apparaitront ici",
+    "noSent": "Vous n'avez partage aucun fichier",
+    "noInvitations": "Aucune invitation en attente",
+    "invitationAccepted": "L'invitation a ete acceptee. Le fichier est maintenant accessible dans votre espace partage.",
+    "invitationRejected": "L'invitation a ete refusee.",
+    "invitationError": "Le traitement de cette invitation n'a pas pu aboutir. Veuillez reessayer."
   }
 }

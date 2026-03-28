@@ -33,7 +33,7 @@ export default function MoveFileHandler() {
     }, []);
 
     const handleConfirm = (destinationPath: string) => {
-        const fileId = file?.doc?._id || file?._id;
+        const fileId = file?._id;
         if (!fileId) return;
 
         execute({ data: { fileId, destinationPath } })
@@ -56,6 +56,7 @@ export default function MoveFileHandler() {
             open={!!file}
             onClose={() => setFile(null)}
             onConfirm={handleConfirm}
+            excludeName={file?.name}
         />
     );
 }

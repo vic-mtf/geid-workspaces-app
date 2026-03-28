@@ -20,7 +20,7 @@ import SortButton from "@/views/main/sub-header/SortButton";
 import UploadFilesButton from "@/views/main/sub-header/UploadFilesButton";
 import TeleverseButton from "@/views/main/sub-header/TeleverseButton";
 import DisplayButton from "@/views/main/sub-header/DisplayButton";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateFolderDialog from "@/views/main/CreateFolderDialog";
 
@@ -31,7 +31,7 @@ interface SubHeaderProps {
   onMove?: () => void;
 }
 
-export default function SubHeader({
+function SubHeader({
   selectedFiles,
   onClearSelection,
   onDelete,
@@ -97,9 +97,11 @@ export default function SubHeader({
                 open={menuOpen}
                 anchorEl={anchorRef.current}
                 onClose={() => setMenuOpen(false)}
-                MenuListProps={{ dense: true }}
+                MenuListProps={{ dense: true, sx: { px: 0.5 } }}
+                slotProps={{ paper: { sx: { bgcolor: (t: any) => t.palette.background.paper + t.customOptions.opacity, backdropFilter: (t: any) => `blur(${t.customOptions.blur})`, border: 1, borderColor: "divider", borderRadius: 2 } } }}
               >
                 <MenuItem
+                  sx={{ borderRadius: 2 }}
                   onClick={() => {
                     setMenuOpen(false);
                     setFolderDialogOpen(true);
@@ -130,3 +132,5 @@ export default function SubHeader({
     </>
   );
 }
+
+export default React.memo(SubHeader);

@@ -9,11 +9,12 @@ import {
     Popper
 } from '@mui/material';
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
 interface SubMenuOption {
     label: string;
+    icon?: React.ReactNode;
     disabled?: boolean;
     onClick?: (file: any) => void;
 }
@@ -30,116 +31,82 @@ interface SubMenuProps {
 export default function SubMenu ({icon, label, options, file, onClose}: SubMenuProps) {
     const [open, setOpen] = useState(false);
     const anchorRef = useRef<HTMLLIElement>(null);
+    const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const enter = useCallback(() => {
+        if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+        setOpen(true);
+    }, []);
+
+    const leave = useCallback(() => {
+        closeTimer.current = setTimeout(() => setOpen(false), 300);
+    }, []);
 
     return (
         <React.Fragment>
             <MenuItem
                 ref={anchorRef}
-                onMouseEnter={() => setOpen(true)}
-                onMouseLeave={() => setOpen(false)}
+                onMouseEnter={enter}
+                onMouseLeave={leave}
+                sx={{ borderRadius: 2 }}
             >
                 {icon && <ListItemIcon>{icon}</ListItemIcon>}
                 <ListItemText primary={label} />
-                <ListItemIcon
-                    sx={{
-                        '& *': {
-                            ml: 2,
-                        }
-                    }}
-                >
+                <ListItemIcon sx={{ '& *': { ml: 2 } }}>
                     <NavigateNextRoundedIcon/>
                 </ListItemIcon>
             </MenuItem>
-            <CustomMenu
-                onMouseEnter={() => setOpen(true)}
-                onMouseLeave={() => setOpen(false)}
-                anchorEl={anchorRef.current}
-                options={options}
-                onClose={onClose}
-                open={open}
-                file={file}
-            />
-        </React.Fragment>
-    );
-}
-
-interface CustomMenuProps {
-    anchorEl: HTMLElement | null;
-    open: boolean;
-    onMouseEnter: () => void;
-    onMouseLeave: () => void;
-    options: SubMenuOption[];
-    file: any;
-    onClose?: () => void;
-}
-
-const CustomMenu = ({
-    anchorEl,
-    open,
-    onMouseEnter,
-    onMouseLeave,
-    options,
-    file,
-    onClose,
-}: CustomMenuProps) => {
-
-    return (
-        ReactDOM.createPortal(
-            <Popper
-                open={open}
-                anchorEl={anchorEl}
-                role={undefined}
-                placement="right-start"
-                transition
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-                sx={{
-                    zIndex: (theme: any) => theme.zIndex.drawer + 100,
-                }}
-            >
-            {({ TransitionProps, placement }) => (
-                <Grow
-                    {...TransitionProps}
-                    style={{
-                        transformOrigin:
-                            placement === 'right-start' ? 'left top' : 'right top',
-                    }}
+            {ReactDOM.createPortal(
+                <Popper
+                    open={open}
+                    anchorEl={anchorRef.current}
+                    role={undefined}
+                    placement="right-start"
+                    transition
+                    onMouseEnter={enter}
+                    onMouseLeave={leave}
+                    sx={{ zIndex: (theme: any) => theme.zIndex.drawer + 100 }}
                 >
-                    <Paper
-                        sx={{
-                            mx: .5,
-                            bgcolor: (theme: any) => theme.palette.background.paper +
-                            theme.customOptions.opacity,
-                            border: (theme: any) => `1px solid ${theme.palette.divider}`,
-                            backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`
-                        }}
-
+                {({ TransitionProps, placement }) => (
+                    <Grow
+                        {...TransitionProps}
+                        style={{ transformOrigin: placement === 'right-start' ? 'left top' : 'right top' }}
                     >
-                        <ClickAwayListener onClickAway={() => null} >
-                            <MenuList
-                                autoFocusItem={open}
-                            >
-                                {options?.map((option, index) => (
+                        <Paper
+                            sx={{
+                                mx: .5,
+                                borderRadius: 2,
+                                bgcolor: (theme: any) => theme.palette.background.paper + theme.customOptions.opacity,
+                                border: (theme: any) => `1px solid ${theme.palette.divider}`,
+                                backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`
+                            }}
+                        >
+                            <ClickAwayListener onClickAway={() => setOpen(false)}>
+                                <MenuList autoFocusItem={open} dense sx={{ px: 0.5 }}>
+                                    {options?.map((option, index) => (
                                         <MenuItem
                                             key={index}
-                                            onClick={() => {
+                                            onClick={(e) => {
+                                                e.stopPropagation();
                                                 option?.onClick?.(file);
-                                                if(typeof onClose === 'function')
-                                                    onClose();
+                                                setOpen(false);
+                                                if(typeof onClose === 'function') onClose();
                                             }}
                                             disabled={option.disabled}
+                                            sx={{ borderRadius: 2 }}
                                         >
+                                            {option.icon && <ListItemIcon>{option.icon}</ListItemIcon>}
                                             <ListItemText primary={option?.label} />
                                         </MenuItem>
-                                ))}
-                            </MenuList>
-                        </ClickAwayListener>
-                    </Paper>
-                </Grow>
+                                    ))}
+                                </MenuList>
+                            </ClickAwayListener>
+                        </Paper>
+                    </Grow>
+                )}
+                </Popper>,
+                document.getElementById('root')!
             )}
-        </Popper>
-            ,
-            document.getElementById('root')!
-        )
-    )
+        </React.Fragment>
+    );
 }

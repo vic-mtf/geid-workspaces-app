@@ -1,22 +1,22 @@
 /**
- * Thumbnail — Vue vignette avec grille adaptive (ResizeObserver).
+ * Thumbnail — Vue vignette virtualisée avec grille adaptive.
  *
- * Pattern : parent 100% relatif → enfant absolu inset 0 overflow auto.
- * Colonnes recalculées selon largeur réelle via useContainerSize.
+ * Utilise VirtuosoGrid pour ne rendre que les items visibles.
+ * Pattern : parent relatif → enfant absolu inset 0.
  */
 
 import {
   Box,
   Checkbox,
   Skeleton,
-  TextField,
   Typography,
 } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef, forwardRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
+import { VirtuosoGrid } from "react-virtuoso";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import getFileExtension from "@/utils/getFileExtension";
 import File from "@/views/main/displays/file/File";
@@ -35,6 +35,27 @@ interface ThumbnailProps {
 }
 
 const EMPTY_SET = new Set<string>();
+const GRID_COLS = "repeat(auto-fill, minmax(160px, 1fr))";
+
+// Composants stables pour VirtuosoGrid
+const GridList = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ style, children, ...props }, ref) => (
+    <Box
+      ref={ref}
+      {...props}
+      style={style}
+      sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5, p: 1 }}
+    >
+      {children}
+    </Box>
+  )
+);
+
+const GridItem: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, ...props }) => (
+  <Box {...props} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+    {children}
+  </Box>
+);
 
 export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_SET, onToggleSelect }: ThumbnailProps) {
   const { t } = useTranslation();
@@ -44,19 +65,20 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   const { pathname, search } = useLocation();
   const user = useSelector((store: RootState) => store.user);
 
-  const gridCols = "repeat(auto-fill, minmax(160px, 1fr))";
-
   // Inline rename
   const [renamingFile, setRenamingFile] = useState<string | null>(null);
 
+  useEffect(() => {
+    const root = document.getElementById("root");
+    const handler = (e: any) => { if (e.detail?.fileName) setRenamingFile(e.detail.fileName); };
+    root?.addEventListener("_trigger_inline_rename", handler);
+    return () => root?.removeEventListener("_trigger_inline_rename", handler);
+  }, []);
+
   const getCurrentPath = useCallback(() => {
-    const params = new URLSearchParams(search);
-    const folderParam = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folderParam ? `${cat}/${folderParam}` : cat;
+    return new URLSearchParams(search).get("folder") || "";
   }, [search, pathname]);
 
-  // Drag & drop
   const { moveConfirm, dragOverFolder, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleConfirmMove, clearMoveConfirm } = useDragDropMove(getCurrentPath);
 
   const data = useMemo(
@@ -92,11 +114,12 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   const handleRenameConfirm = useCallback(async (oldName: string, newValue: string) => {
     setRenamingFile(null);
     const trimmed = newValue.trim();
-    if (!trimmed || trimmed === oldName) return;
+    const hasDot = oldName.includes(".");
+    const oldWithoutExt = hasDot ? oldName.substring(0, oldName.lastIndexOf(".")) : oldName;
+    if (!trimmed || trimmed === oldWithoutExt) return;
 
     const path = getCurrentPath();
-    const ext = getFileExtension(oldName);
-    const finalName = ext ? `${trimmed}.${ext}` : trimmed;
+    const finalName = trimmed;
 
     try {
       const res = await fetch("/api/stuff/workspace", {
@@ -120,29 +143,96 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
       return dot > 0 && !file.isDirectory ? n.substring(0, dot) : n;
     })();
     return (
-      <TextField
-        autoFocus
-        size="small"
-        variant="standard"
-        defaultValue={nameWithoutExt}
-        onBlur={(e) => handleRenameConfirm(file.name || "", (e.target as HTMLInputElement).value)}
+      <Typography
+        component="span"
+        contentEditable
+        suppressContentEditableWarning
+        ref={(el: HTMLSpanElement | null) => {
+          if (el) {
+            setTimeout(() => {
+              el.focus();
+              const range = document.createRange();
+              range.selectNodeContents(el);
+              const sel = window.getSelection();
+              sel?.removeAllRanges();
+              sel?.addRange(range);
+            }, 50);
+          }
+        }}
+        onBlur={(e) => handleRenameConfirm(file.name || "", (e.target as HTMLElement).textContent || "")}
         onKeyDown={(e) => {
-          if (e.key === "Enter") handleRenameConfirm(file.name || "", (e.currentTarget as HTMLInputElement).value);
+          if (e.key === "Enter") { e.preventDefault(); handleRenameConfirm(file.name || "", (e.target as HTMLElement).textContent || ""); }
           if (e.key === "Escape") setRenamingFile(null);
         }}
         onClick={(e) => e.stopPropagation()}
-        InputProps={{ disableUnderline: false }}
-        inputProps={{ style: { fontSize: 11, textAlign: "center", padding: "2px 4px" } }}
-        sx={{ maxWidth: 120 }}
-      />
+        variant="caption"
+        align="center"
+        sx={{
+          maxWidth: 120, fontSize: 11, lineHeight: 1.3, fontWeight: 600,
+          outline: "none", borderRadius: 0.5, px: 0.5,
+          bgcolor: "action.selected", cursor: "text",
+          display: "inline-block", minWidth: 30, wordBreak: "break-word",
+        }}
+      >
+        {nameWithoutExt}
+      </Typography>
     );
   }, [renamingFile, handleRenameConfirm]);
+
+  // Rendu d'un item — mémoïsé par index
+  const renderItem = useCallback((index: number) => {
+    const file = data[index];
+    if (!file) return null;
+    const isSelected = selectedFiles.has(file.name ?? "");
+
+    if (file.isDirectory) {
+      return (
+        <Box
+          sx={{
+            position: "relative", width: "100%",
+            "&:hover .select-checkbox": { opacity: 1 },
+            border: dragOverFolder === file.name ? 2 : 0,
+            borderColor: "primary.main", borderRadius: 2, transition: "border-color 0.15s",
+          }}
+          draggable
+          onDragStart={(e) => handleDragStart(e, file.name ?? "", file._id)}
+          onDragOver={(e) => handleDragOver(e, file.name ?? "")}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, file.name ?? "")}
+        >
+          <Checkbox className="select-checkbox" size="small" checked={isSelected}
+            onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
+            sx={{ position: "absolute", top: 2, left: 2, zIndex: 2, opacity: isSelected ? 1 : 0, transition: "opacity 0.15s" }}
+          />
+          <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
+            <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} color={file.color} renderName={makeRenderName(file)} />
+          </WrapperContent>
+        </Box>
+      );
+    }
+
+    const infos = fileExtensionBase.find(({ exts }) => exts.includes(getFileExtension(file.name ?? "") ?? ""));
+
+    return (
+      <Box sx={{ position: "relative", width: "100%", "&:hover .select-checkbox": { opacity: 1 } }}
+        draggable onDragStart={(e) => handleDragStart(e, file.name ?? "", file._id)}
+      >
+        <Checkbox className="select-checkbox" size="small" checked={isSelected}
+          onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
+          sx={{ position: "absolute", top: 2, left: 2, zIndex: 2, opacity: isSelected ? 1 : 0, transition: "opacity 0.15s" }}
+        />
+        <WrapperContent {...infos} {...file} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
+          <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} renderName={makeRenderName(file)} />
+        </WrapperContent>
+      </Box>
+    );
+  }, [data, selectedFiles, dragOverFolder, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleFolderClick, onToggleSelect, makeRenderName]);
 
   if (loading) {
     return (
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
         <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: gridCols, gap: 0.5 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
             {Array.from({ length: 12 }).map((_, i) => (
               <Skeleton key={i} variant="rounded" height={150} sx={{ borderRadius: 2 }} />
             ))}
@@ -167,81 +257,14 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   return (
     <>
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: gridCols, gap: 0.5 }}>
-            {data.map((file, index) => {
-              const isSelected = selectedFiles.has(file.name ?? "");
-
-              if (file.isDirectory) {
-                return (
-                  <Box key={`dir_${index}_${file.name}`} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
-                    <Box
-                      sx={{
-                        position: "relative",
-                        width: "100%",
-                        "&:hover .select-checkbox": { opacity: 1 },
-                        border: dragOverFolder === file.name ? 2 : 0,
-                        borderColor: "primary.main",
-                        borderRadius: 2,
-                        transition: "border-color 0.15s",
-                      }}
-                      onDragOver={(e) => handleDragOver(e, file.name ?? "")}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, file.name ?? "")}
-                    >
-                      <Checkbox
-                        className="select-checkbox"
-                        size="small"
-                        checked={isSelected}
-                        onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
-                        sx={{
-                          position: "absolute", top: 2, left: 2, zIndex: 2,
-                          opacity: isSelected ? 1 : 0,
-                          transition: "opacity 0.15s",
-                        }}
-                      />
-                      <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
-                        <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} renderName={makeRenderName(file)} />
-                      </WrapperContent>
-                    </Box>
-                  </Box>
-                );
-              }
-
-              const infos = fileExtensionBase.find(({ exts }) =>
-                exts.includes(getFileExtension(file.name ?? "") ?? "")
-              );
-
-              return (
-                <Box key={`${index}_${file.name}`} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
-                  <Box
-                    sx={{
-                      position: "relative",
-                      width: "100%",
-                      "&:hover .select-checkbox": { opacity: 1 },
-                    }}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, file.name ?? "")}
-                  >
-                    <Checkbox
-                      className="select-checkbox"
-                      size="small"
-                      checked={isSelected}
-                      onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
-                      sx={{
-                        position: "absolute", top: 2, left: 2, zIndex: 2,
-                        opacity: isSelected ? 1 : 0,
-                        transition: "opacity 0.15s",
-                      }}
-                    />
-                    <WrapperContent {...infos} {...file} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
-                      <File {...infos} name={file.name} date={file.createdAt} url={file.url} renderName={makeRenderName(file)} />
-                    </WrapperContent>
-                  </Box>
-                </Box>
-              );
-            })}
-          </Box>
+        <Box sx={{ position: "absolute", inset: 0 }}>
+          <VirtuosoGrid
+            totalCount={data.length}
+            overscan={200}
+            components={{ List: GridList, Item: GridItem }}
+            itemContent={renderItem}
+            style={{ height: "100%", width: "100%" }}
+          />
         </Box>
       </Box>
 

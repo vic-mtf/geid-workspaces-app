@@ -11,9 +11,10 @@ export const useGetUrlData = () => {
   const userId = useSelector((store: RootState) => store.user.id);
   const getUrlData = useCallback(
     ({ token: tk, ...data }: any) => ({
-      url: `/api/stuff/workspace/${stringify({ userId, ...data })}`,
+      url: `/api/stuff/workspace/${encodeURIComponent(stringify({ userId, ...data }))}`,
       headers: {
         Authorization: `Bearer ${token || tk}`,
+        "Cache-Control": "no-cache",
       },
     }),
     [token, userId]
@@ -40,13 +41,14 @@ const useGetData = ({ key, urlProps, onBeforeUpdate }: UseGetDataOptions) => {
     (data?: any) => {
       // Support folder navigation: data.folder = sous-dossier courant
       const subFolder: string = data?.folder ?? "";
-      const fullPath = subFolder ? `${key}/${subFolder}` : key;
-      return refetch(getUrlData({ path: fullPath, ...(urlProps || data?.urlProps) })).then(
+      // Pour key "files", on envoie directement le folder (ou "" pour la racine)
+      const apiPath = key === "files" ? subFolder : (subFolder ? `${key}/${subFolder}` : key);
+      const cachePath = subFolder ? `${key}/${subFolder}` : key;
+      return refetch(getUrlData({ path: apiPath, ...(urlProps || data?.urlProps) })).then(
         ({ data: responseData }: any) => {
           const processed = onBefore({ [key]: responseData });
           dispatch(updateData({ data: processed }));
-          // Mettre à jour le cache pour ce chemin
-          dispatch(setFolderCache({ path: fullPath, data: processed[key] }));
+          dispatch(setFolderCache({ path: cachePath, data: processed[key] }));
         }
       );
     },

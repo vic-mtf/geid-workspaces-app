@@ -1,8 +1,7 @@
 /**
  * File — Dispatcher de rendu par type de fichier.
- *
  * Délègue à Photo, Doc, Video selon le type.
- * Fallback inconnu : même style paper que Doc avec l'icône blank.svg de file-icon-vectors.
+ * Fallback inconnu : react-file-icon moderne.
  */
 
 import React from "react";
@@ -10,10 +9,9 @@ import { Box, Typography } from "@mui/material";
 import Doc from "@/views/main/displays/file/Doc";
 import Photo from "@/views/main/displays/file/Photo";
 import Video from "@/views/main/displays/file/Video";
+import FileTypeIcon from "@/components/FileTypeIcon";
+import getFileExtension from "@/utils/getFileExtension";
 import style from "@/styles/paper.module.css";
-
-// Icône fichier générique (blank) de file-icon-vectors
-const blankIcon = new URL("../../../../../node_modules/file-icon-vectors/dist/icons/vivid/blank.svg", import.meta.url).href;
 
 interface FileProps {
   type?: string;
@@ -28,8 +26,8 @@ function File(props: FileProps) {
   if (props.type === "document") return <Doc {...props} />;
   if (props.type === "video") return <Video {...props} />;
 
-  // Fallback : fichier inconnu — même style paper que Doc
-  const ext = props.name?.split(".").pop()?.toUpperCase() ?? "";
+  // Fallback : fichier inconnu
+  const ext = getFileExtension(props.name ?? "") ?? "txt";
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
@@ -47,25 +45,7 @@ function File(props: FileProps) {
           overflow: "hidden",
         }}
       >
-        <Box component="img" src={blankIcon} sx={{ width: 40, height: 40, opacity: 0.7 }} />
-
-        {ext && (
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 4,
-              left: 4,
-              px: 0.5,
-              py: 0.15,
-              borderRadius: 0.5,
-              bgcolor: "rgba(0,0,0,0.6)",
-            }}
-          >
-            <Typography sx={{ fontSize: 9, fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>
-              {ext}
-            </Typography>
-          </Box>
-        )}
+        <FileTypeIcon extension={ext} size={48} />
       </Box>
       {props.renderName ?? (
         <Typography

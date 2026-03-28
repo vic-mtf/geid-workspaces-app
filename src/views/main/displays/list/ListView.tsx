@@ -33,6 +33,7 @@ import fileExtensionBase from "@/utils/fileExtensionBase";
 import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
 import MoveConfirmDialog from "@/components/MoveConfirmDialog";
 import useDragDropMove from "@/hooks/useDragDropMove";
+import FileTypeIcon from "@/components/FileTypeIcon";
 import { FileItem, RootState } from "@/types";
 
 interface ListViewProps {
@@ -97,11 +98,17 @@ export default function ListView({
   // Inline rename
   const [renamingFile, setRenamingFile] = useState<string | null>(null);
 
+  useEffect(() => {
+    const root = document.getElementById("root");
+    const handler = (e: any) => { if (e.detail?.fileName) setRenamingFile(e.detail.fileName); };
+    root?.addEventListener("_trigger_inline_rename", handler);
+    return () => root?.removeEventListener("_trigger_inline_rename", handler);
+  }, []);
+
   const getCurrentPath = useCallback(() => {
     const params = new URLSearchParams(search);
     const folderParam = params.get("folder") || "";
-    const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-    return folderParam ? `${cat}/${folderParam}` : cat;
+    return folderParam;
   }, [search, pathname]);
 
   // Drag & drop
@@ -143,11 +150,12 @@ export default function ListView({
   const handleRenameConfirm = useCallback(async (oldName: string, newValue: string) => {
     setRenamingFile(null);
     const trimmed = newValue.trim();
-    if (!trimmed || trimmed === oldName) return;
+    const hasDot = oldName.includes(".");
+    const oldWithoutExt = hasDot ? oldName.substring(0, oldName.lastIndexOf(".")) : oldName;
+    if (!trimmed || trimmed === oldWithoutExt) return;
 
     const path = getCurrentPath();
-    const ext = getFileExtension(oldName);
-    const finalName = ext ? `${trimmed}.${ext}` : trimmed;
+    const finalName = trimmed;
 
     try {
       const res = await fetch("/api/stuff/workspace", {
@@ -163,13 +171,15 @@ export default function ListView({
     }
   }, [getCurrentPath, user?.token, user, enqueueSnackbar, t]);
 
-  const blankIcon = new URL("../../../../../node_modules/file-icon-vectors/dist/icons/vivid/blank.svg", import.meta.url).href;
+  // blankIcon supprimé — utilise FileTypeIcon
 
   const renderRow = (index: number) => {
     const file = data![index];
     if (!file) return null;
     const date = file.createdAt ? new Date(file.createdAt).toLocaleDateString("fr-FR", optionLocalDate) : "\u2014";
-    const sizeStr = file.isDirectory || !file.size ? "\u2014" : normaliseOctetSize(file.size);
+    const sizeStr = file.isDirectory
+      ? (file.count != null ? `${file.count} élément${file.count > 1 ? "s" : ""}` : "\u2014")
+      : (file.size ? normaliseOctetSize(file.size) : "\u2014");
     const ext = getFileExtension(file.name ?? "")?.toLowerCase() ?? "";
     const infos = file.isDirectory ? undefined : fileExtensionBase.find(({ exts }) => exts.includes(ext));
     const isImage = infos?.type === "image";
@@ -185,8 +195,8 @@ export default function ListView({
 
     return (
       <Box
-        draggable={!file.isDirectory}
-        onDragStart={!file.isDirectory ? (e: React.DragEvent) => handleDragStart(e, file.name ?? "") : undefined}
+        draggable
+        onDragStart={(e: React.DragEvent) => handleDragStart(e, file.name ?? "", (file as any)._id)}
         onDragOver={file.isDirectory ? (e: React.DragEvent) => handleDragOver(e, file.name ?? "") : undefined}
         onDragLeave={file.isDirectory ? handleDragLeave : undefined}
         onDrop={file.isDirectory ? (e: React.DragEvent) => handleDrop(e, file.name ?? "") : undefined}
@@ -230,10 +240,8 @@ export default function ListView({
                 <FolderRoundedIcon color="warning" fontSize="small" />
               ) : isImage ? (
                 <ListThumbnail url={file.url} />
-              ) : infos?.icon ? (
-                <Box component="img" src={infos.icon} sx={{ width: 22, height: 22 }} />
               ) : (
-                <Box component="img" src={blankIcon} sx={{ width: 22, height: 22, opacity: 0.6 }} />
+                <FileTypeIcon extension={ext || "txt"} size={22} />
               )}
             </Box>
             {/* Name */}

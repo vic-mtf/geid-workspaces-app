@@ -18,7 +18,10 @@ export default function SortButton() {
 
   const sortTypes = useMemo(() => [
     { label: t("sort.name"), value: "name" },
-    { label: t("sort.date"), value: "date" },
+    { label: t("sort.date") || "Date", value: "date" },
+    { label: t("sort.size") || "Taille", value: "size" },
+    { label: t("sort.modified") || "Modification", value: "modified" },
+    { label: t("sort.type") || "Type", value: "type" },
   ], [t]);
 
   const sortDirs = useMemo(() => [
@@ -32,7 +35,8 @@ export default function SortButton() {
         variant="outlined" color="inherit" ref={anchorEl} onClick={() => setOpenMenu(true)}>
         {t("sort.sort")}
       </Button>
-      <Menu open={openMenu} MenuListProps={{ dense: true }} anchorEl={anchorEl.current} onClose={() => setOpenMenu(false)}>
+      <Menu open={openMenu} MenuListProps={{ dense: true }} anchorEl={anchorEl.current} onClose={() => setOpenMenu(false)}
+        slotProps={{ paper: { sx: { bgcolor: (t: any) => t.palette.background.paper + t.customOptions.opacity, backdropFilter: (t: any) => `blur(${t.customOptions.blur})`, border: 1, borderColor: "divider", borderRadius: 2 } } }}>
         {sortTypes.map(({ label, value }) => (
           <MenuItem key={value} onClick={() => { dispatch(setSort(value)); setOpenMenu(false); }}>
             <ListItemIcon>{value === sort ? <CheckRoundedIcon /> : null}</ListItemIcon>

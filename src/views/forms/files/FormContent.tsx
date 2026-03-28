@@ -30,7 +30,7 @@ export default function FormContent ({
         <Dialog
           open={!!files}
           PaperProps={{
-            sx: {overflow: 'hidden'}
+            sx: { overflow: 'hidden', border: 1, borderColor: 'divider' }
           }}
           BackdropProps={{
             sx: {

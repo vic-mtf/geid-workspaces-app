@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { useTranslation } from 'react-i18next';
@@ -18,40 +18,41 @@ import {
     ListItem,
     ListItemText,
     ListItemSecondaryAction,
+    ListItemAvatar,
+    Avatar,
     Divider,
     Box,
     InputAdornment,
+    Autocomplete,
+    Chip,
 } from '@mui/material';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import useAxios from '@/utils/useAxios';
+import avatarColor from '@/utils/avatarColor';
 import { RootState } from '@/types';
 
 export default function ShareDialog() {
     const { t } = useTranslation();
-    const { token } = useSelector((store: RootState) => store.user);
+    const { token, id: currentUserId } = useSelector((store: RootState) => store.user);
     const { enqueueSnackbar } = useSnackbar();
 
     const [file, setFile] = useState<any>(null);
     const [shareLink, setShareLink] = useState('');
-    const [targetUserId, setTargetUserId] = useState('');
-    const [permission, setPermission] = useState('read');
-    const [shares, setShares] = useState<any[]>([]);
+    const [targetEmail, setTargetEmail] = useState('');
+    const [message, setMessage] = useState('');
+    const [permission, setPermission] = useState('view');
+    const [users, setUsers] = useState<any[]>([]);
 
-    const headers = { Authorization: `Bearer ${token}` };
+    const headers = useMemo(() => ({ Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }), [token]);
 
-    const [, generateLink] = useAxios(
-        { method: 'POST', headers },
-        { manual: true }
-    );
-    const [, shareWith] = useAxios(
-        { method: 'POST', headers },
-        { manual: true }
-    );
-    const [, revokeShare] = useAxios(
-        { method: 'DELETE', headers },
-        { manual: true }
-    );
+    const [, generateLink] = useAxios({ method: 'POST', headers }, { manual: true });
+    const [, shareWith] = useAxios({ method: 'POST', headers }, { manual: true });
+    const [, revokeShare] = useAxios({ method: 'DELETE', headers }, { manual: true });
+    const [, fetchUsers] = useAxios({ url: '/api/stuff/workspace/users/list', headers: { Authorization: `Bearer ${token}` } }, { manual: true });
 
     useEffect(() => {
         const root = document.getElementById('root');
@@ -59,83 +60,50 @@ export default function ShareDialog() {
             const f = event.detail?.file;
             setFile(f);
             setShareLink('');
-            setTargetUserId('');
-            setPermission('read');
-            setShares([]);
+            setTargetEmail('');
+            setMessage('');
+            setPermission('view');
+            // Charger la liste des utilisateurs
+            fetchUsers().then((res: any) => {
+                const list = (res.data || []).filter((u: any) => u._id !== currentUserId);
+                setUsers(list);
+            }).catch(() => {});
         };
         root?.addEventListener('_open_share_dialog', handler);
-        return () => {
-            root?.removeEventListener('_open_share_dialog', handler);
-        };
-    }, []);
+        return () => root?.removeEventListener('_open_share_dialog', handler);
+    }, [fetchUsers, currentUserId]);
 
-    const fileId = file?.doc?._id || file?._id;
+    const fileId = file?._id;
+    const fileName = file?.name || '';
 
     const handleGenerateLink = () => {
         if (!fileId) return;
-        generateLink({
-            url: '/api/stuff/workspace/share/link',
-            data: { fileId },
-        })
+        generateLink({ url: '/api/stuff/workspace/share/link', data: { fileId } })
             .then((res: any) => {
-                const link = res.data?.shareLink || '';
-                setShareLink(link);
-                enqueueSnackbar(t('share.linkGenerated'), {
-                    variant: 'success',
-                });
+                setShareLink(res.data?.shareLink || '');
+                enqueueSnackbar(t('share.linkGenerated'), { variant: 'success' });
             })
-            .catch(() => {
-                enqueueSnackbar(t('share.linkGenerateError'), {
-                    variant: 'error',
-                });
-            });
+            .catch(() => enqueueSnackbar(t('share.linkGenerateError'), { variant: 'error' }));
     };
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(shareLink).then(() => {
-            enqueueSnackbar(t('share.linkCopied'), {
-                variant: 'info',
-            });
-        });
+        navigator.clipboard.writeText(shareLink).then(() =>
+            enqueueSnackbar(t('share.linkCopied'), { variant: 'info' })
+        );
     };
 
     const handleShare = () => {
-        if (!fileId || !targetUserId.trim()) return;
+        if (!fileId || !targetEmail.trim()) return;
         shareWith({
             url: '/api/stuff/workspace/share',
-            data: { fileId, targetUserId: targetUserId.trim(), permission },
+            data: { fileId, targetEmail: targetEmail.trim(), permission, message: message.trim() || undefined },
         })
             .then(() => {
                 enqueueSnackbar(t('share.fileShared'), { variant: 'success' });
-                setShares((prev) => [
-                    ...prev,
-                    { userId: targetUserId.trim(), permission },
-                ]);
-                setTargetUserId('');
+                setTargetEmail('');
+                setMessage('');
             })
-            .catch(() => {
-                enqueueSnackbar(t('share.fileShareError'), {
-                    variant: 'error',
-                });
-            });
-    };
-
-    const handleRevoke = (userId: string) => {
-        revokeShare({
-            url: `/api/stuff/workspace/share/${fileId}`,
-            data: { targetUserId: userId },
-        })
-            .then(() => {
-                enqueueSnackbar(t('share.shareRevoked'), { variant: 'success' });
-                setShares((prev) =>
-                    prev.filter((s) => s.userId !== userId)
-                );
-            })
-            .catch(() => {
-                enqueueSnackbar(t('share.shareRevokeError'), {
-                    variant: 'error',
-                });
-            });
+            .catch(() => enqueueSnackbar(t('share.fileShareError'), { variant: 'error' }));
     };
 
     const handleClose = () => setFile(null);
@@ -148,25 +116,101 @@ export default function ShareDialog() {
             maxWidth="sm"
             BackdropProps={{
                 sx: {
-                    bgcolor: (theme: any) =>
-                        theme.palette.background.paper +
-                        theme.customOptions.opacity,
-                    backdropFilter: (theme: any) =>
-                        `blur(${theme.customOptions.blur})`,
+                    bgcolor: (theme: any) => theme.palette.background.paper + theme.customOptions.opacity,
+                    backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
                 },
             }}
+            PaperProps={{ sx: { border: 1, borderColor: "divider" } }}
         >
-            <DialogTitle>
-                {t('share.shareTitle')}{' '}
-                <Typography
-                    component="span"
-                    fontWeight="bold"
-                >
-                    {file?.name || ''}
-                </Typography>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <PersonAddOutlinedIcon color="primary" />
+                <Box>
+                    <Typography variant="h6" fontSize={16} fontWeight="bold">
+                        {t('share.shareTitle')}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" noWrap sx={{ maxWidth: 350, display: 'block' }}>
+                        {fileName}
+                    </Typography>
+                </Box>
             </DialogTitle>
+
             <DialogContent>
-                <Typography variant="subtitle2" sx={{ mt: 1, mb: 1 }}>
+                {/* Partager avec un utilisateur */}
+                <Typography variant="subtitle2" sx={{ mt: 1, mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <PersonAddOutlinedIcon sx={{ fontSize: 16 }} />
+                    {t('share.shareWithUser')}
+                </Typography>
+
+                <Autocomplete
+                    freeSolo
+                    options={users}
+                    getOptionLabel={(opt: any) => typeof opt === 'string' ? opt : `${opt.fname || ''} ${opt.lname || ''} (${opt.email})`}
+                    inputValue={targetEmail}
+                    onInputChange={(_, val) => setTargetEmail(val)}
+                    onChange={(_, val) => {
+                        if (val && typeof val !== 'string') setTargetEmail(val.email || '');
+                    }}
+                    renderOption={(props, option: any) => (
+                        <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Avatar sx={{ width: 28, height: 28, fontSize: 12, bgcolor: avatarColor(option._id || '') }}>
+                                {(option.fname?.[0] || '').toUpperCase()}{(option.lname?.[0] || '').toUpperCase()}
+                            </Avatar>
+                            <Box>
+                                <Typography variant="body2">{option.fname} {option.lname}</Typography>
+                                <Typography variant="caption" color="text.secondary">{option.email}</Typography>
+                            </Box>
+                        </Box>
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            size="small"
+                            placeholder={t('share.userIdPlaceholder')}
+                            sx={{ mb: 1 }}
+                        />
+                    )}
+                />
+
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ mb: 1 }}>
+                    <Select
+                        size="small"
+                        value={permission}
+                        onChange={(e) => setPermission(e.target.value)}
+                        sx={{ minWidth: 160 }}
+                    >
+                        <MenuItem value="view">{t('share.permissionRead')}</MenuItem>
+                        <MenuItem value="edit">{t('share.permissionWrite')}</MenuItem>
+                    </Select>
+                </Stack>
+
+                <TextField
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    maxRows={3}
+                    placeholder={t('share.messagePlaceholder') || 'Ajouter un message (optionnel)'}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    sx={{ mb: 2 }}
+                />
+
+                <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<SendRoundedIcon />}
+                    onClick={handleShare}
+                    disabled={!targetEmail.trim()}
+                    sx={{ textTransform: 'none', mb: 2 }}
+                >
+                    {t('share.sendInvitation') || 'Envoyer l\'invitation'}
+                </Button>
+
+                <Divider sx={{ my: 1 }} />
+
+                {/* Lien de partage */}
+                <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <LinkOutlinedIcon sx={{ fontSize: 16 }} />
                     {t('share.shareLink')}
                 </Typography>
                 {shareLink ? (
@@ -178,99 +222,28 @@ export default function ShareDialog() {
                             readOnly: true,
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    <IconButton
-                                        size="small"
-                                        onClick={handleCopyLink}
-                                    >
+                                    <IconButton size="small" onClick={handleCopyLink}>
                                         <ContentCopyOutlinedIcon fontSize="small" />
                                     </IconButton>
                                 </InputAdornment>
                             ),
                         }}
-                        sx={{ mb: 2 }}
                     />
                 ) : (
                     <Button
                         variant="outlined"
                         size="small"
+                        startIcon={<LinkOutlinedIcon />}
                         onClick={handleGenerateLink}
-                        sx={{ mb: 2, textTransform: 'none' }}
+                        sx={{ textTransform: 'none' }}
                     >
                         {t('share.generateLink')}
                     </Button>
                 )}
-
-                <Divider sx={{ my: 2 }} />
-
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                    {t('share.shareWithUser')}
-                </Typography>
-                <Stack
-                    direction={{ xs: 'column', sm: 'row' }}
-                    spacing={1}
-                    alignItems={{ sm: 'center' }}
-                    sx={{ mb: 2 }}
-                >
-                    <TextField
-                        size="small"
-                        placeholder={t('share.userIdPlaceholder')}
-                        value={targetUserId}
-                        onChange={(e) => setTargetUserId(e.target.value)}
-                        sx={{ flex: 1 }}
-                    />
-                    <Select
-                        size="small"
-                        value={permission}
-                        onChange={(e) => setPermission(e.target.value)}
-                        sx={{ minWidth: 130 }}
-                    >
-                        <MenuItem value="read">{t('share.permissionRead')}</MenuItem>
-                        <MenuItem value="write">{t('share.permissionWrite')}</MenuItem>
-                    </Select>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={handleShare}
-                        sx={{ textTransform: 'none' }}
-                    >
-                        {t('common.share')}
-                    </Button>
-                </Stack>
-
-                {shares.length > 0 && (
-                    <Box>
-                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            {t('share.currentShares')}
-                        </Typography>
-                        <List dense>
-                            {shares.map((share, index) => (
-                                <ListItem key={index}>
-                                    <ListItemText
-                                        primary={share.userId}
-                                        secondary={
-                                            share.permission === 'read'
-                                                ? t('share.permissionRead')
-                                                : t('share.permissionWrite')
-                                        }
-                                    />
-                                    <ListItemSecondaryAction>
-                                        <IconButton
-                                            size="small"
-                                            onClick={() =>
-                                                handleRevoke(share.userId)
-                                            }
-                                        >
-                                            <DeleteOutlinedIcon fontSize="small" />
-                                        </IconButton>
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Box>
-                )}
             </DialogContent>
+
             <DialogActions>
-                <Button onClick={handleClose}>{t('common.close')}</Button>
+                <Button onClick={handleClose} color="inherit">{t('common.close') || 'Fermer'}</Button>
             </DialogActions>
         </Dialog>
     );

@@ -37,12 +37,13 @@ export default function DisplayButton() {
       >{t('display.display')}</Button>
       <Menu
         open={openMenu}
-        MenuListProps={{ dense: true }}
+        MenuListProps={{ dense: true, sx: { px: 0.5 } }}
         anchorEl={anchorEl.current}
         onClose={() => setOpenMenu(false)}
+        slotProps={{ paper: { sx: { bgcolor: (t: any) => t.palette.background.paper + t.customOptions.opacity, backdropFilter: (t: any) => `blur(${t.customOptions.blur})`, border: 1, borderColor: "divider", borderRadius: 2 } } }}
       >
         {listDisplayMode.map(({ icon, label, key, value }) => (
-          <MenuItem key={key} onClick={() => { dispatch(setDisplay(value)); setOpenMenu(false); }}>
+          <MenuItem key={key} sx={{ borderRadius: 2 }} onClick={() => { dispatch(setDisplay(value)); setOpenMenu(false); }}>
             <ListItemIcon>{key === btnSelected?.key ? <CheckRoundedIcon /> : null}</ListItemIcon>
             <ListItemIcon>{icon}</ListItemIcon>
             <ListItemText primary={label} />

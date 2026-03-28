@@ -33,7 +33,7 @@ export default function CopyFileHandler() {
     }, []);
 
     const handleConfirm = (destinationPath: string) => {
-        const fileId = file?.doc?._id || file?._id;
+        const fileId = file?._id;
         if (!fileId) return;
 
         execute({ data: { fileId, destinationPath } })

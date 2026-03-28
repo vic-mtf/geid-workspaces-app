@@ -49,7 +49,7 @@ export default function TagsDialog() {
         const handler = (event: any) => {
             const f = event.detail?.file;
             setFile(f);
-            setTags(f?.doc?.tags || f?.tags || []);
+            setTags(f?.tags || []);
             setNewTag('');
             fetchSuggestions()
                 .then((res: any) => {
@@ -68,7 +68,7 @@ export default function TagsDialog() {
         };
     }, [fetchSuggestions]);
 
-    const fileId = file?.doc?._id || file?._id;
+    const fileId = file?._id;
 
     const handleAddTag = () => {
         const trimmed = newTag.trim();
@@ -119,6 +119,7 @@ export default function TagsDialog() {
                         `blur(${theme.customOptions.blur})`,
                 },
             }}
+            PaperProps={{ sx: { border: 1, borderColor: "divider" } }}
         >
             <DialogTitle>{t('tags.title')}</DialogTitle>
             <DialogContent>

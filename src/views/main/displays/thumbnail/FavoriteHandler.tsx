@@ -23,7 +23,7 @@ export default function FavoriteHandler() {
 
         const handler = (event: any) => {
             const file = event.detail?.file;
-            const id = file?.doc?._id || file?._id;
+            const id = file?._id;
             if (!id) return;
 
             execute({ url: `/api/stuff/workspace/favorite/${id}` })

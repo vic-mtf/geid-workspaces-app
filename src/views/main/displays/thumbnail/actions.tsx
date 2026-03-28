@@ -51,17 +51,8 @@ const actions: ActionOption[] = [
         label: i18n.t('common.rename'),
         icon: <EditOutlinedIcon/>,
         onClick: (file: any) => {
-            const customEvent = new CustomEvent(
-                '_open_detail_file',
-                {
-                    detail : {
-                        name: '_open_detail_file',
-                        file,
-                    }
-                }
-            );
             document.getElementById('root')
-            ?.dispatchEvent(customEvent);
+            ?.dispatchEvent(new CustomEvent('_trigger_inline_rename', { detail: { fileName: file?.name } }));
         }
     },
     {

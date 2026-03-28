@@ -22,36 +22,12 @@ export default function Cover ({ setOpened }: CoverProps) {
     const { t } = useTranslation();
     const connected = useSelector((store: RootState) => store.user.connected);
     const dispatch = useDispatch();
-    const [loadingDocs, getDocs] = useGetData({
-        key: 'documents',
-        onBeforeUpdate (data: any) {
-          return {
-            ...data,
-            others: [],
-          }
-        }
-    });
-    const [loadingImages, getImages] = useGetData({ key: 'images' });
-    const [loadingVideos, getVideos] = useGetData({
-        key: 'videos',
-        onBeforeUpdate (data: any) {
-            return {
-            ...data,
-                audios: [],
-            }
-        }
-    });
+    const [loading, getFiles] = useGetData({ key: 'files' });
 
-    const loading = useMemo(() =>
-      [loadingDocs, loadingImages, loadingVideos].some(Boolean),
-      [loadingDocs, loadingImages, loadingVideos]
-    );
     const getData = useCallback(async (data?: any) => {
-        await getDocs(data);
-        await getImages(data);
-        await getVideos(data);
+        await getFiles(data);
         setOpened(true)
-    }, [getDocs, getImages, getVideos, setOpened]);
+    }, [getFiles, setOpened]);
 
     const handleFinish = useCallback(() => {
         if(connected) getData();

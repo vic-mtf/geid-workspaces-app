@@ -136,6 +136,8 @@ export interface NavOption {
   to: string;
   divider?: boolean;
   showInBottomNav?: boolean;
+  children?: NavOption[];
+  disabled?: boolean;
 }
 
 // Apps list type

@@ -10,6 +10,8 @@ import React, { useEffect, useState } from "react";
 import { Box, Skeleton, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/types";
+import FileTypeIcon from "@/components/FileTypeIcon";
+import getFileExtension from "@/utils/getFileExtension";
 import style from "@/styles/paper.module.css";
 
 interface DocProps {
@@ -81,13 +83,13 @@ function Doc(props: DocProps) {
           />
         )}
 
-        {/* État : pas de miniature → icône au centre */}
-        {!thumbUrl && !loading && props.icon && (
-          <Box component="img" src={props.icon} sx={{ width: 40, height: 40, opacity: 0.8 }} />
+        {/* État : pas de miniature → icône moderne au centre */}
+        {!thumbUrl && !loading && (
+          <FileTypeIcon extension={getFileExtension(props.name ?? "") ?? "txt"} size={48} />
         )}
 
-        {/* Badge extension en bas gauche (toujours visible quand on a la miniature) */}
-        {thumbUrl && !loading && props.icon && (
+        {/* Badge extension en bas gauche */}
+        {thumbUrl && !loading && (
           <Box
             sx={{
               position: "absolute",
@@ -103,7 +105,7 @@ function Doc(props: DocProps) {
               backdropFilter: "blur(4px)",
             }}
           >
-            <Box component="img" src={props.icon} sx={{ width: 14, height: 14 }} />
+            <FileTypeIcon extension={getFileExtension(props.name ?? "") ?? "txt"} size={14} />
           </Box>
         )}
       </Box>

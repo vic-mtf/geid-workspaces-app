@@ -17,8 +17,10 @@ import {
   Box,
 } from "@mui/material";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
-import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import { useTranslation } from "react-i18next";
+import FileTypeIcon from "@/components/FileTypeIcon";
+import getFileExtension from "@/utils/getFileExtension";
 
 interface DeleteConfirmDialogProps {
   open: boolean;
@@ -59,7 +61,7 @@ const DeleteConfirmDialog = React.memo(function DeleteConfirmDialog({
           {shown.map((name) => (
             <ListItem key={name} disableGutters sx={{ py: 0.25 }}>
               <ListItemIcon sx={{ minWidth: 28 }}>
-                <InsertDriveFileOutlinedIcon fontSize="small" />
+                {getFileExtension(name) ? <FileTypeIcon extension={getFileExtension(name) ?? "txt"} size={20} /> : <FolderRoundedIcon fontSize="small" color="warning" />}
               </ListItemIcon>
               <ListItemText
                 primary={name.replace(/_/g, " ")}

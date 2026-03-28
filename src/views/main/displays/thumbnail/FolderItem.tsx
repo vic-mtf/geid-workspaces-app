@@ -1,14 +1,19 @@
-import { Box, Typography } from "@mui/material";
+import React from "react";
+import { Box, Typography, useTheme } from "@mui/material";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 
 interface FolderItemProps {
   name?: string;
   date?: string;
   count?: number;
+  color?: string | null;
   renderName?: React.ReactNode;
 }
 
-export default function FolderItem({ name, date, count, renderName }: FolderItemProps) {
+function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
+  const theme = useTheme();
+  const folderColor = color || theme.palette.warning.main;
+  const badgeColor = color || theme.palette.warning.dark;
   const formattedDate = date
     ? new Date(date).toLocaleDateString("fr-FR")
     : undefined;
@@ -18,43 +23,32 @@ export default function FolderItem({ name, date, count, renderName }: FolderItem
       display="flex"
       flexDirection="column"
       alignItems="center"
-      justifyContent="center"
-      sx={{ userSelect: "none", width: "100%" }}
+      sx={{ userSelect: "none", width: "100%", gap: 0 }}
     >
-      {/* Icon container */}
-      <Box
-        sx={{
-          position: "relative",
-          width: 100,
-          height: 120,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 0.5,
-        }}
-      >
-        <FolderRoundedIcon sx={{ fontSize: 64, color: "warning.main" }} />
+      {/* Icône avec badge — pas de container intermédiaire à hauteur fixe */}
+      <Box sx={{ position: "relative", display: "inline-flex", lineHeight: 0 }}>
+        <FolderRoundedIcon sx={{ fontSize: 64, color: folderColor }} />
         {count != null && count > 0 && (
-          <Box
+          <Typography
             sx={{
               position: "absolute",
-              bottom: 18,
-              left: 14,
-              bgcolor: "warning.dark",
-              color: "#fff",
-              fontSize: 10,
-              fontWeight: 700,
-              borderRadius: 0.5,
-              minWidth: 16,
-              textAlign: "center",
-              lineHeight: "16px",
-              px: 0.3,
+              bottom: "10px",
+              left: "12px",
+              color: badgeColor,
+              fontSize: 12,
+              fontWeight: 800,
+              lineHeight: 1,
+              filter: "brightness(0.7)",
+              pointerEvents: "none",
+              textShadow: "0 0 2px rgba(0,0,0,0.15)",
             }}
           >
             {count}
-          </Box>
+          </Typography>
         )}
       </Box>
+
+      {/* Nom — directement collé sous l'icône */}
       {renderName ?? (
         <Typography
           variant="caption"
@@ -70,16 +64,19 @@ export default function FolderItem({ name, date, count, renderName }: FolderItem
             fontSize: 11,
             lineHeight: 1.3,
             fontWeight: 600,
+            mt: -0.5,
           }}
         >
           {(name || "").replace(/_/g, " ")}
         </Typography>
       )}
+
+      {/* Date — collée sous le nom */}
       {formattedDate && (
         <Typography
           variant="caption"
           color="text.secondary"
-          sx={{ fontSize: 10, lineHeight: 1.2, mt: 0.25 }}
+          sx={{ fontSize: 10, lineHeight: 1.2 }}
         >
           {formattedDate}
         </Typography>
@@ -87,3 +84,5 @@ export default function FolderItem({ name, date, count, renderName }: FolderItem
     </Box>
   );
 }
+
+export default React.memo(FolderItem);

@@ -17,7 +17,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "notistack";
-import { updateData, setFolderCache, invalidateFolderCache, type FolderCacheEntry } from "@/redux/data";
+import { updateData, invalidateFolderCache, type FolderCacheEntry } from "@/redux/data";
+import { incrementPendingShare, setPendingShareCount } from "@/redux/app";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
 import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
@@ -43,6 +44,11 @@ import { RootState, FileItem } from "@/types";
 import FavoritesView from "@/views/favorites/FavoritesView";
 import RecentView from "@/views/recent/RecentView";
 import TrashView from "@/views/trash/TrashView";
+import SharedView from "@/views/shared/SharedView";
+import useSocket from "@/hooks/useSocket";
+import UpdateToast from "@/components/UpdateToast";
+
+const SYSTEM_FILES = new Set(["thumbs.db", "Thumbs.db", ".gitkeep", ".DS_Store"]);
 
 // ── Styled main — même pattern que archives ──────────────────
 const StyledMain = styled("main")({
@@ -62,17 +68,35 @@ export default function Main() {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const isMobile = !isDesktop;
+  const dispatch = useDispatch();
+  const user = useSelector((store: RootState) => store.user);
 
-  const CATEGORY_LABELS: Record<string, string> = {
-    documents: t("nav.documents"),
-    images: t("nav.images"),
-    videos: t("nav.videos"),
-    others: t("nav.others"),
-  };
+  // Charger le badge invitations au montage
+  useEffect(() => {
+    if (!user?.token) return;
+    fetch("/api/stuff/workspace/share/invitations", { headers: { Authorization: `Bearer ${user.token}` } })
+      .then((r) => r.json())
+      .then((d: any[]) => { const pending = d.filter((i) => i.status === "pending").length; dispatch(setPendingShareCount(pending)); })
+      .catch(() => {});
+  }, [user?.token, dispatch]);
+
+  // Socket.io — notifications temps réel
+  useSocket(useCallback((event: string, socketData: any) => {
+    if (event === "workspace:share-invitation") {
+      const senderName = socketData.invitation?.fromName || "Un utilisateur";
+      const fileName = socketData.invitation?.fileName || "un fichier";
+      enqueueSnackbar(`${senderName} souhaite partager « ${fileName} » avec vous. Consultez votre espace partage pour accepter ou refuser.`, { variant: "info" });
+      dispatch(incrementPendingShare());
+    }
+    if (event === "workspace:share-accepted") {
+      enqueueSnackbar(`${socketData.accepterName || "L'utilisateur"} a accepte votre partage de « ${socketData.invitation?.fileName || "votre fichier"} ».`, { variant: "success" });
+    }
+    document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_shared"));
+  }, [enqueueSnackbar]));
+
+  const FILES_LABEL = t("nav.files");
 
   const data = useSelector((store: RootState) => store.data);
-  const user = useSelector((store: RootState) => store.user);
-  const dispatch = useDispatch();
   const { pathname, search } = useLocation();
 
   // ── Detail panel ───────────────────────────────────────────
@@ -87,12 +111,7 @@ export default function Main() {
 
   const handleDetailAction = useCallback((action: string, file: FileItem) => {
     const root = document.getElementById("root");
-    const currentPath = (() => {
-      const params = new URLSearchParams(search);
-      const folder = params.get("folder") || "";
-      const cat = ["images", "videos", "others"].find((c) => pathname.includes(c)) ?? "documents";
-      return folder ? `${cat}/${folder}` : cat;
-    })();
+    const currentPath = new URLSearchParams(search).get("folder") || "";
 
     switch (action) {
       case "open":
@@ -157,90 +176,125 @@ export default function Main() {
   // ── Delete ─────────────────────────────────────────────────
   const [deleteConfirmFiles, setDeleteConfirmFiles] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteMode, setDeleteMode] = useState<{ isDirectory?: boolean; isPermanent?: boolean; fileId?: string }>({});
   const [, executeDelete] = useAxios({ headers: { Authorization: `Bearer ${user?.token}` } }, { manual: true });
 
   // ── Data fetching ──────────────────────────────────────────
   const isSpecialView = useMemo(() => {
     if (pathname.startsWith("/favorites")) return "favorites";
     if (pathname.startsWith("/recent")) return "recent";
+    if (pathname.startsWith("/shared")) return "shared";
     if (pathname.startsWith("/trash")) return "trash";
     return null;
   }, [pathname]);
 
-  const key = useMemo(() => {
-    if (pathname.match(/images/)) return "images";
-    if (pathname.match(/videos/)) return "videos";
-    if (pathname.match(/others/)) return "others";
-    return "documents";
-  }, [pathname]);
+  const key = "files";
 
   const folder = useMemo(() => new URLSearchParams(search).get("folder") || "", [search]);
 
-  const [, getDocs] = useGetData({ key: "documents", onBeforeUpdate(d: any) { return { ...d, others: [] }; } });
-  const [, getImages] = useGetData({ key: "images" });
-  const [, getVideos] = useGetData({ key: "videos", onBeforeUpdate(d: any) { return { ...d, audios: [] }; } });
-
-  const getByKey = useCallback((k: string, f: string) => {
-    if (k === "images") return getImages({ folder: f });
-    if (k === "videos") return getVideos({ folder: f });
-    return getDocs({ folder: f });
-  }, [getDocs, getImages, getVideos]);
+  const [, getFiles] = useGetData({ key: "files" });
 
   const [loading, setLoading] = useState(false);
 
-  const cachePath = folder ? `${key}/${folder}` : key;
+  const cachePath = folder ? `files/${folder}` : "files";
   const folderCache = useSelector((store: RootState) => ((store.data as any).folderCache as Record<string, FolderCacheEntry>)?.[cachePath]);
 
+  // Toast pour signaler les nouvelles données en arrière-plan
+  const [showUpdateToast, setShowUpdateToast] = useState(false);
+  const hideToast = useCallback(() => setShowUpdateToast(false), []);
+
   useEffect(() => {
+    if (isSpecialView) return;
     clearSelection();
-    if (folderCache?.data) {
+
+    const hasCache = folderCache?.data && (folderCache.data as any[]).length > 0;
+    const hasReduxData = Array.isArray((data as any)[key]) && (data as any)[key].length > 0;
+
+    if (hasCache) {
+      // Cache dispo → afficher immédiatement
       dispatch(updateData({ data: { [key]: folderCache.data } }));
-      if (Date.now() - folderCache.timestamp > 30000) getByKey(key, folder);
+      setLoading(false);
+      // Refresh silencieux si cache > 30s
+      if (Date.now() - folderCache.timestamp > 30000) {
+        getFiles({ folder });
+      }
       return;
     }
-    setLoading(true);
-    getByKey(key, folder).finally(() => setLoading(false));
+
+    if (hasReduxData) {
+      // Redux a déjà des données → pas de skeleton, fetch en arrière-plan
+      setLoading(false);
+      getFiles({ folder });
+    } else {
+      // Aucune donnée → skeleton visible une seule fois
+      setLoading(true);
+      getFiles({ folder }).finally(() => setLoading(false));
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, folder]);
+  }, [folder, isSpecialView]);
 
   useEffect(() => {
     const root = document.getElementById("root");
-    const handler = () => { dispatch(invalidateFolderCache(cachePath)); getByKey(key, folder); };
+    const handler = () => {
+      dispatch(invalidateFolderCache(undefined)); // Invalide tout le cache
+      getFiles({ folder });
+    };
     root?.addEventListener("_reload_current_dir", handler);
     return () => root?.removeEventListener("_reload_current_dir", handler);
-  }, [key, folder, getByKey, cachePath, dispatch]);
+  }, [folder, getFiles, cachePath, dispatch]);
 
   const display = useSelector((store: RootState) => (store.app as any).display ?? "thumbnail");
   const sort = useSelector((store: RootState) => (store.app as any).sort ?? "name");
   const order = useSelector((store: RootState) => (store.app as any).order ?? "ascending");
-  const SYSTEM_FILES = new Set(["thumbs.db", "Thumbs.db", ".gitkeep", ".DS_Store"]);
 
   const _data = useMemo(() => {
     let __data = [...((data as any)[key] || [])].filter((f: any) => f.name && !f.name.startsWith(".") && !SYSTEM_FILES.has(f.name));
     if (!sort || sort === "name") __data.sort((a: any, b: any) => { if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1; return (a?.name || "").toUpperCase().localeCompare((b?.name || "").toUpperCase()); });
-    if (sort === "date") __data.sort((a: any, b: any) => new Date(a?.createdAt).getTime() - new Date(b?.createdAt).getTime());
+    else if (sort === "date") __data.sort((a: any, b: any) => new Date(a?.createdAt).getTime() - new Date(b?.createdAt).getTime());
+    else if (sort === "size") __data.sort((a: any, b: any) => { if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1; return (a?.size || 0) - (b?.size || 0); });
+    else if (sort === "modified") __data.sort((a: any, b: any) => new Date(a?.lastAccessedAt || a?.createdAt).getTime() - new Date(b?.lastAccessedAt || b?.createdAt).getTime());
     if (order === "descending") __data = __data.reverse();
     return __data;
   }, [key, data, sort, order]);
 
   const allSelected = useMemo(() => _data.length > 0 && _data.every((f) => selectedFiles.has(f.name ?? "")), [_data, selectedFiles]);
   const selectAll = useCallback(() => { if (allSelected) clearSelection(); else setSelectedFiles(new Set(_data.map((f) => f.name ?? ""))); }, [allSelected, _data, clearSelection]);
-  const getCurrentPath = useCallback(() => folder ? `${key}/${folder}` : key, [key, folder]);
+  const getCurrentPath = useCallback(() => folder || "", [folder]);
 
   const handleDeleteConfirm = useCallback(async () => {
     setDeleteConfirmOpen(false);
     const path = getCurrentPath();
     try {
-      await Promise.all(deleteConfirmFiles.map((fn) => executeDelete({ method: "delete", url: `/api/stuff/workspace/${JSON.stringify({ userId: user?.id, path, filename: fn })}` })));
+      if (deleteMode.isPermanent && deleteMode.fileId) {
+        // Suppression permanente depuis la corbeille
+        await executeDelete({ method: "delete", url: `/api/stuff/workspace/trash/${deleteMode.fileId}` });
+      } else if (deleteMode.isDirectory) {
+        // Suppression dossier
+        await Promise.all(deleteConfirmFiles.map((fn) =>
+          executeDelete({ method: "delete", url: `/api/stuff/workspace/folder/${encodeURIComponent(JSON.stringify({ path, folderName: fn }))}` })
+        ));
+      } else {
+        // Suppression fichier(s) normal
+        await Promise.all(deleteConfirmFiles.map((fn) =>
+          executeDelete({ method: "delete", url: `/api/stuff/workspace/${JSON.stringify({ userId: user?.id, path, filename: fn })}` })
+        ));
+      }
       enqueueSnackbar(t("files.fileDeleted"), { variant: "success" });
     } catch { enqueueSnackbar(t("files.fileDeleteError"), { variant: "error" }); }
-    clearSelection(); setDeleteConfirmFiles([]);
+    clearSelection(); setDeleteConfirmFiles([]); setDeleteMode({});
     document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
-  }, [deleteConfirmFiles, getCurrentPath, user?.id, executeDelete, enqueueSnackbar, t, clearSelection]);
+  }, [deleteConfirmFiles, deleteMode, getCurrentPath, user?.id, executeDelete, enqueueSnackbar, t, clearSelection]);
 
   useEffect(() => {
     const root = document.getElementById("root");
-    const handler = (event: any) => { const fns: string[] = event.detail?.fileNames || []; if (fns.length > 0) { setDeleteConfirmFiles(fns); setDeleteConfirmOpen(true); } };
+    const handler = (event: any) => {
+      const fns: string[] = event.detail?.fileNames || [];
+      if (fns.length > 0) {
+        setDeleteConfirmFiles(fns);
+        setDeleteMode({ isDirectory: event.detail?.isDirectory, isPermanent: event.detail?.isPermanent, fileId: event.detail?.fileId });
+        setDeleteConfirmOpen(true);
+      }
+    };
     root?.addEventListener("_confirm_delete", handler);
     return () => root?.removeEventListener("_confirm_delete", handler);
   }, []);
@@ -269,15 +323,25 @@ export default function Main() {
         <SubHeader selectedFiles={selectedFiles} onClearSelection={clearSelection} onDelete={handleSelectionDelete} onMove={handleSelectionMove} />
         <Divider />
 
+        {!isSpecialView && <FolderBreadcrumb categoryLabel={FILES_LABEL} />}
+
         {isSpecialView ? (
-          <MuiBox flex={1} minHeight={0} overflow="hidden" display="flex" flexDirection="column">
-            {isSpecialView === "favorites" && <FavoritesView />}
-            {isSpecialView === "recent" && <RecentView />}
-            {isSpecialView === "trash" && <TrashView />}
+          <MuiBox sx={{ display: "grid", flex: 1, minHeight: 0, overflow: "hidden", gridTemplateColumns: showDetail ? `1fr 1px ${detailWidth}px` : "1fr" }}>
+            <MuiBox sx={{ minWidth: 0, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+              {isSpecialView === "favorites" && <FavoritesView />}
+              {isSpecialView === "recent" && <RecentView />}
+              {isSpecialView === "shared" && <SharedView />}
+              {isSpecialView === "trash" && <TrashView />}
+            </MuiBox>
+            {showDetail && <DetailResizeDivider onResize={setDetailWidth} minWidth={200} maxWidth={450} />}
+            {showDetail && (
+              <MuiBox sx={{ borderLeft: 1, borderColor: "divider", overflow: "auto" }}>
+                <FileDetailPanel file={focusedFile} onClose={handleCloseDetail} onAction={handleDetailAction} />
+              </MuiBox>
+            )}
           </MuiBox>
         ) : (
           <>
-            <FolderBreadcrumb categoryLabel={CATEGORY_LABELS[key] ?? key} />
 
             {/* ── Grid contenu + détail — prend tout l'espace restant ── */}
             <MuiBox sx={{
@@ -323,6 +387,7 @@ export default function Main() {
       <TagsDialog />
       <DeleteConfirmDialog open={deleteConfirmOpen} fileNames={deleteConfirmFiles} onConfirm={handleDeleteConfirm}
         onClose={() => { setDeleteConfirmOpen(false); setDeleteConfirmFiles([]); }} />
+      <UpdateToast open={showUpdateToast} onClose={hideToast} />
     </>
   );
 }

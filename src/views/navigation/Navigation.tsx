@@ -2,6 +2,7 @@ import { Avatar, Drawer, Toolbar, Box as MuiBox, Typography, useTheme, useMediaQ
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import ListOptions from "@/views/navigation/ListOptions";
+import QuotaDisplay from "@/views/navigation/QuotaDisplay";
 import getFullName from "@/utils/getFullName";
 import avatarColor from "@/utils/avatarColor";
 import { RootState } from "@/types";
@@ -45,6 +46,7 @@ export default function Navigation() {
       <MuiBox sx={{ overflow: "auto", flex: 1 }}>
         <ListOptions />
       </MuiBox>
+      <QuotaDisplay />
     </Drawer>
   );
 }

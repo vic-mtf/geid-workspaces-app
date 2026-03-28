@@ -36,11 +36,13 @@ export default function TeleverseButton() {
       </Button>
       <Menu
         open={openMenu}
-        MenuListProps={{ dense: true }}
+        MenuListProps={{ dense: true, sx: { px: 0.5 } }}
         anchorEl={anchorEl.current}
         onClose={() => setOpenMenu(false)}
+        slotProps={{ paper: { sx: { bgcolor: (t: any) => t.palette.background.paper + t.customOptions.opacity, backdropFilter: (t: any) => `blur(${t.customOptions.blur})`, border: 1, borderColor: "divider", borderRadius: 2 } } }}
       >
         <MenuItem
+          sx={{ borderRadius: 2 }}
           onClick={async () => {
             const files = await getFile({ multiple: true, accept: "*.*" });
             if (files) dispatchFiles(files as unknown as FileList);
@@ -53,6 +55,7 @@ export default function TeleverseButton() {
           <ListItemText primary={t("files.uploadFileItem")} />
         </MenuItem>
         <MenuItem
+          sx={{ borderRadius: 2 }}
           onClick={() => {
             folderInputRef.current?.click();
             setOpenMenu(false);

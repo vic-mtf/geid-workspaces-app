@@ -1,3 +1,4 @@
+import React from "react";
 import { Breadcrumbs, Link, Typography, Box as MuiBox } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -7,14 +8,12 @@ interface FolderBreadcrumbProps {
   categoryLabel: string;
 }
 
-export default function FolderBreadcrumb({ categoryLabel }: FolderBreadcrumbProps) {
+function FolderBreadcrumb({ categoryLabel }: FolderBreadcrumbProps) {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(search);
   const folder = params.get("folder") || "";
   const parts = folder ? folder.split("/").filter(Boolean) : [];
-
-  if (parts.length === 0) return null;
 
   const goToIndex = (index: number) => {
     if (index < 0) {
@@ -32,15 +31,22 @@ export default function FolderBreadcrumb({ categoryLabel }: FolderBreadcrumbProp
         separator={<NavigateNextIcon fontSize="small" />}
         sx={{ fontSize: 13, color: "text.secondary" }}
       >
-        <Link
-          underline="hover"
-          color="inherit"
-          sx={{ display: "flex", alignItems: "center", gap: 0.5, cursor: "pointer", fontSize: 13 }}
-          onClick={() => goToIndex(-1)}
-        >
-          <HomeOutlinedIcon sx={{ fontSize: 15 }} />
-          {categoryLabel}
-        </Link>
+        {parts.length > 0 ? (
+          <Link
+            underline="hover"
+            color="inherit"
+            sx={{ display: "flex", alignItems: "center", gap: 0.5, cursor: "pointer", fontSize: 13 }}
+            onClick={() => goToIndex(-1)}
+          >
+            <HomeOutlinedIcon sx={{ fontSize: 15 }} />
+            {categoryLabel}
+          </Link>
+        ) : (
+          <Typography sx={{ display: "flex", alignItems: "center", gap: 0.5, fontSize: 13, fontWeight: 600 }} color="text.primary">
+            <HomeOutlinedIcon sx={{ fontSize: 15 }} />
+            {categoryLabel}
+          </Typography>
+        )}
         {parts.map((part, i) => {
           const isLast = i === parts.length - 1;
           return isLast ? (
@@ -63,3 +69,5 @@ export default function FolderBreadcrumb({ categoryLabel }: FolderBreadcrumbProp
     </MuiBox>
   );
 }
+
+export default React.memo(FolderBreadcrumb);

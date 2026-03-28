@@ -1,51 +1,78 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { useState, useCallback, useMemo } from 'react';
+import { Box, Chip, Typography } from '@mui/material';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import useAxios from '@/utils/useAxios';
+import useViewData from '@/hooks/useViewData';
 import Thumbnail from '@/views/main/displays/thumbnail/Thumbnail';
+import ListView from '@/views/main/displays/list/ListView';
+import AdaptiveSkeleton from '@/components/AdaptiveSkeleton';
+import UpdateToast from '@/components/UpdateToast';
+import { RootState } from '@/types';
 
 export default function RecentView() {
     const { t } = useTranslation();
-    const token = useSelector((store: any) => store.user.token);
-    const [data, setData] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [, refetch] = useAxios({ url: '/api/stuff/workspace/recent?limit=50', headers: { Authorization: `Bearer ${token}` } }, { manual: true });
+    const token = useSelector((store: RootState) => store.user.token);
+    const display = useSelector((store: RootState) => (store.app as any).display ?? 'thumbnail');
+    const sort = useSelector((store: RootState) => (store.app as any).sort ?? 'name');
+    const order = useSelector((store: RootState) => (store.app as any).order ?? 'ascending');
 
-    const load = useCallback(() => {
-        setLoading(true);
-        refetch().then(({ data: res }) => {
-            const mapped = (res || [])
-                .filter((f: any) => f.name && !f.name.startsWith('.') && f.name !== 'thumbs.db' && f.name !== 'Thumbs.db')
-                .map((f: any) => ({
-                    name: f.name,
-                    url: f.contentUrl ? `/api/stuff/workspace/file/${encodeURIComponent(f.contentUrl.replace('workspace/', ''))}` : null,
-                    createdAt: f.updatedAt || f.createdAt,
-                    size: f.size || 0,
-                    isDirectory: f.isDirectory || false,
-                    doc: f,
-                }));
-            setData(mapped);
-        }).catch(() => setData([])).finally(() => setLoading(false));
-    }, [refetch]);
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [tags, setTags] = useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState(new Set<string>());
 
-    useEffect(() => { load(); }, [load]);
+    const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
-    useEffect(() => {
-        const root = document.getElementById('root');
-        const handler = () => load();
-        root?.addEventListener('_reload_recent', handler);
-        return () => root?.removeEventListener('_reload_recent', handler);
-    }, [load]);
+    const [, refetch] = useAxios({ url: '/api/stuff/workspace/recent?limit=50', headers }, { manual: true });
+    const [, refetchTags] = useAxios({ url: '/api/stuff/workspace/recent/tags', headers }, { manual: true });
 
-    if (loading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" flex={1} height="100%" py={6}>
-                <CircularProgress size={24} />
-            </Box>
-        );
-    }
+    const fetchFn = useCallback(async () => {
+        const [{ data: res }, { data: tagsRes }] = await Promise.all([refetch(), refetchTags()]);
+        const tagList = (tagsRes || []).map((t: any) => typeof t === 'string' ? t : t.tag).filter((t: string) => t && t.trim());
+        setTags(tagList);
+        return res || [];
+    }, [refetch, refetchTags]);
+
+    const mapFn = useCallback((res: any[]) => {
+        return res
+            .filter((f: any) => f.name && !f.name.startsWith('.') && f.name !== 'thumbs.db')
+            .map((f: any) => ({
+                _id: f._id,
+                name: f.name,
+                url: f.url || (f.contentUrl ? `/api/stuff/workspace/file/${f.contentUrl.replace('workspace/', '')}` : null),
+                createdAt: f.updatedAt || f.createdAt,
+                size: f.size || 0,
+                isDirectory: f.isDirectory || false,
+                tags: f.tags || [],
+                duration: f.duration || null,
+                videoWidth: f.videoWidth || null,
+                videoHeight: f.videoHeight || null,
+            }));
+    }, []);
+
+    const { data, loading, showToast, hideToast } = useViewData({ viewKey: 'recent', fetchFn, mapFn });
+
+    const filtered = useMemo(() => {
+        let result = data;
+        if (selectedTag) result = result.filter((f) => f.tags?.includes(selectedTag));
+        result = [...result].sort((a, b) => {
+            let cmp = 0;
+            if (sort === 'name') cmp = (a.name || '').localeCompare(b.name || '');
+            else if (sort === 'date' || sort === 'modified') cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            else if (sort === 'size') cmp = (a.size || 0) - (b.size || 0);
+            else if (sort === 'type') cmp = (a.name || '').split('.').pop()!.localeCompare((b.name || '').split('.').pop()!);
+            return order === 'descending' ? -cmp : cmp;
+        });
+        return result;
+    }, [data, selectedTag, sort, order]);
+
+    const onToggleSelect = useCallback((name: string) => {
+        setSelectedFiles((prev) => { const next = new Set(prev); next.has(name) ? next.delete(name) : next.add(name); return next; });
+    }, []);
+
+    if (loading) return <AdaptiveSkeleton />;
 
     if (data.length === 0) {
         return (
@@ -57,5 +84,23 @@ export default function RecentView() {
         );
     }
 
-    return <Thumbnail data={data} />;
+    return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+            {tags.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, px: 2, py: 1, flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}>
+                    <LocalOfferOutlinedIcon sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5, alignSelf: 'center' }} />
+                    <Chip label={t('recent.all') || 'Tout'} size="small" variant={!selectedTag ? 'filled' : 'outlined'} color={!selectedTag ? 'primary' : 'default'} onClick={() => setSelectedTag(null)} sx={{ borderRadius: 1, fontSize: 12 }} />
+                    {tags.slice(0, 20).map((tag) => (
+                        <Chip key={tag} label={tag} size="small" variant={selectedTag === tag ? 'filled' : 'outlined'} color={selectedTag === tag ? 'primary' : 'default'} onClick={() => setSelectedTag(selectedTag === tag ? null : tag)} sx={{ borderRadius: 1, fontSize: 12 }} />
+                    ))}
+                </Box>
+            )}
+            {display === 'list' || display === 'compact' ? (
+                <ListView data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} compact={display === 'compact'} />
+            ) : (
+                <Thumbnail data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} />
+            )}
+            <UpdateToast open={showToast} onClose={hideToast} />
+        </Box>
+    );
 }

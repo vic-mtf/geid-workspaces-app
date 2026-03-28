@@ -10,13 +10,20 @@ export interface FolderCacheEntry {
   timestamp: number;
 }
 
+/** Cache d'une vue spéciale (recent, favorites, trash, shared) */
+export interface ViewCacheEntry {
+  data: unknown[];
+  timestamp: number;
+}
+
 const data = createSlice({
   name: "data",
   initialState: {
     loaded: false,
     folderCache: {} as Record<string, FolderCacheEntry>,
+    viewCache: {} as Record<string, ViewCacheEntry>,
     panelWidths: {} as Record<string, number>,
-  } as DataSliceState & { folderCache: Record<string, FolderCacheEntry>; panelWidths: Record<string, number> },
+  } as DataSliceState & { folderCache: Record<string, FolderCacheEntry>; viewCache: Record<string, ViewCacheEntry>; panelWidths: Record<string, number> },
   reducers: {
     updateData(state, action: PayloadAction<{ data: Partial<DataSliceState> }>) {
       const { data } = action.payload;
@@ -24,20 +31,12 @@ const data = createSlice({
       Object.keys(states).forEach((key) => {
         (state as any)[key] = (states as any)[key];
       });
-      const directories = ["documents", "images", "videos", "audios", "others"];
-      const loaded = directories.every((directory) =>
-        Array.isArray((state as any)[directory])
-      );
-      if (loaded) state.loaded = true;
+      if (Array.isArray((state as any).files)) state.loaded = true;
     },
     addData(state, action: PayloadAction<{ key: string; data: any }>) {
       const { key, data } = action.payload;
       (state as any)[key] = data;
-      const directories = ["documents", "images", "videos", "others"];
-      const loaded = directories.every((directory) =>
-        Array.isArray((state as any)[directory])
-      );
-      if (loaded) state.loaded = true;
+      if (Array.isArray((state as any).files)) state.loaded = true;
     },
     removeData(state, action: PayloadAction<{ keys?: string[]; key?: string } | undefined>) {
       const keys =
@@ -48,10 +47,8 @@ const data = createSlice({
         state.isAllData = false;
       });
       if (keys?.length === 0) {
-        delete (state as any).documents;
-        delete (state as any).photos;
-        delete (state as any).videos;
-        delete (state as any).others;
+        delete (state as any).files;
+        state.loaded = false;
         state.isAllData = false;
       }
     },
@@ -66,6 +63,13 @@ const data = createSlice({
     setPanelWidth(state, action: PayloadAction<{ key: string; width: number }>) {
       (state as any).panelWidths[action.payload.key] = action.payload.width;
     },
+    // Cache une vue spéciale
+    setViewCache(state, action: PayloadAction<{ view: string; data: unknown[] }>) {
+      (state as any).viewCache[action.payload.view] = {
+        data: action.payload.data,
+        timestamp: Date.now(),
+      };
+    },
     // Invalide le cache d'un chemin ou préfixe
     invalidateFolderCache(state, action: PayloadAction<string | undefined>) {
       const prefix = action.payload;
@@ -79,7 +83,7 @@ const data = createSlice({
   },
 });
 
-export const { addData, removeData, updateData, setFolderCache, invalidateFolderCache, setPanelWidth } = data.actions;
+export const { addData, removeData, updateData, setFolderCache, setViewCache, invalidateFolderCache, setPanelWidth } = data.actions;
 export default persistReducer(
   { storage, key: "__ROOT_GEID_DATA_APP" },
   data.reducer

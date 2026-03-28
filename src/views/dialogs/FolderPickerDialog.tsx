@@ -25,18 +25,20 @@ interface FolderPickerDialogProps {
     open: boolean;
     onClose: () => void;
     onConfirm: (path: string) => void;
+    excludeName?: string;
 }
 
 export default function FolderPickerDialog({
     open,
     onClose,
     onConfirm,
+    excludeName,
 }: FolderPickerDialogProps) {
     const { t } = useTranslation();
     const { token, id: userId } = useSelector(
         (store: RootState) => store.user
     );
-    const [currentPath, setCurrentPath] = useState('documents');
+    const [currentPath, setCurrentPath] = useState('');
     const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
 
     const [{ data, loading }, fetchFolders] = useAxios(
@@ -50,16 +52,16 @@ export default function FolderPickerDialog({
     const loadFolders = useCallback(
         (path: string) => {
             const query = JSON.stringify({ userId, path });
-            fetchFolders({ url: `/api/stuff/workspace/${query}` });
+            fetchFolders({ url: `/api/stuff/workspace/${encodeURIComponent(query)}` });
         },
         [fetchFolders, userId]
     );
 
     useEffect(() => {
         if (open) {
-            setCurrentPath('documents');
+            setCurrentPath('');
             setSelectedFolder(null);
-            loadFolders('documents');
+            loadFolders('');
         }
     }, [open, loadFolders]);
 
@@ -107,9 +109,10 @@ export default function FolderPickerDialog({
                         `blur(${theme.customOptions.blur})`,
                 },
             }}
+            PaperProps={{ sx: { border: 1, borderColor: "divider", minHeight: 350, maxHeight: 450 } }}
         >
             <DialogTitle>{t('move.chooseFolder')}</DialogTitle>
-            <DialogContent>
+            <DialogContent sx={{ minHeight: 200 }}>
                 <Breadcrumbs sx={{ mb: 2 }}>
                     {pathSegments.map((segment, index) => {
                         const isLast = index === pathSegments.length - 1;
@@ -154,12 +157,16 @@ export default function FolderPickerDialog({
                     </Typography>
                 ) : (
                     <List dense>
-                        {folders.map((folder: any, i: number) => (
+                        {folders.map((folder: any, i: number) => {
+                            const isSelf = excludeName && folder.name === excludeName;
+                            return (
                             <ListItemButton
                                 key={i}
                                 selected={selectedFolder === folder.name}
-                                onClick={() => setSelectedFolder(folder.name)}
-                                onDoubleClick={() => handleNavigate(folder)}
+                                disabled={!!isSelf}
+                                onClick={() => !isSelf && setSelectedFolder(folder.name)}
+                                onDoubleClick={() => !isSelf && handleNavigate(folder)}
+                                sx={isSelf ? { opacity: 0.4 } : {}}
                             >
                                 <ListItemIcon sx={{ minWidth: 36 }}>
                                     <FolderRoundedIcon color="primary" />
@@ -172,7 +179,8 @@ export default function FolderPickerDialog({
                                     }}
                                 />
                             </ListItemButton>
-                        ))}
+                            );
+                        })}
                     </List>
                 )}
             </DialogContent>

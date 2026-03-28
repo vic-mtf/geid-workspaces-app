@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import { Box, Typography, IconButton, Stack, Skeleton, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
@@ -7,13 +7,17 @@ import ShareIcon from "@mui/icons-material/Share";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { FileItem, RootState } from "@/types";
+import { FileItem } from "@/types";
+import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import getFileInfos from "@/utils/getFileInfos";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
 import optionLocalDate from "@/utils/optionLocalDate";
 import capStr from "@/utils/capStr";
+import FileTypeIcon from "@/components/FileTypeIcon";
+import getFileExtension from "@/utils/getFileExtension";
+import fileExtensionBase from "@/utils/fileExtensionBase";
 
 interface FileDetailPanelProps {
   file: FileItem | null;
@@ -23,30 +27,35 @@ interface FileDetailPanelProps {
 
 const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onAction }: FileDetailPanelProps) {
   const { t } = useTranslation();
-  const token = useSelector((store: RootState) => store.user.token);
-  const [thumbUrl, setThumbUrl] = useState<string | null>(null);
-  const [thumbLoading, setThumbLoading] = useState(false);
 
-  useEffect(() => {
-    setThumbUrl(null);
-    if (!file || file.isDirectory || !file.url) return;
-    let cancelled = false;
-    setThumbLoading(true);
-    fetch(file.url, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => { if (!r.ok) throw new Error(); return r.blob(); })
-      .then((b) => { if (!cancelled && b.type.startsWith("image/")) setThumbUrl(URL.createObjectURL(b)); })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setThumbLoading(false); });
-    return () => { cancelled = true; setThumbLoading(false); };
-  }, [file?.name, file?.url, file?.isDirectory, token]);
+  // Détecter le type de fichier pour savoir si on affiche un thumbnail
+  const ext = useMemo(() => getFileExtension(file?.name ?? "")?.toLowerCase() ?? "", [file?.name]);
+  const fileType = useMemo(() => {
+    if (!ext) return null;
+    return fileExtensionBase.find(({ exts }) => exts.includes(ext))?.type ?? null;
+  }, [ext]);
+  // Tous les types de fichiers peuvent avoir un thumbnail via le microservice
+  const showThumb = !file?.isDirectory && !!file?.url;
 
-  useEffect(() => () => { if (thumbUrl) URL.revokeObjectURL(thumbUrl); }, [thumbUrl]);
+  // Thumbnail progressif low → medium → high
+  const thumbFileUrl = showThumb ? file!.url : null;
+  const { src: thumbUrl, loading: thumbLoading, isBlurred } = useAdaptiveThumbnail(thumbFileUrl);
 
   const info = useMemo(() => file?.name ? getFileInfos({ name: file.name }) : null, [file?.name]);
   const size = useMemo(() => file?.size ? normaliseOctetSize(file.size) : "-", [file?.size]);
   const date = useMemo(() => file?.createdAt ? capStr(new Date(file.createdAt).toLocaleDateString(undefined, optionLocalDate)) : "-", [file?.createdAt]);
 
   const act = useCallback((a: string) => { if (file) onAction(a, file); }, [file, onAction]);
+
+  // Pan-on-hover cover
+  const [panY, setPanY] = useState("center");
+  const coverRef = useRef<HTMLDivElement>(null);
+  const handleCoverMove = useCallback((e: React.MouseEvent) => {
+    const rect = coverRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPanY(`${Math.max(0, Math.min(100, Math.round(((e.clientY - rect.top) / rect.height) * 100)))}%`);
+  }, []);
+  const handleCoverLeave = useCallback(() => setPanY("center"), []);
 
   if (!file) return (
     <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}>
@@ -73,16 +82,35 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
         <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </Stack>
 
-      {/* Thumbnail */}
+      {/* Cover thumbnail — pan on hover, chargement progressif */}
       {!file.isDirectory && (
-        <Box sx={{ textAlign: "center", py: 1, px: 1 }}>
-          {thumbLoading ? (
-            <Skeleton variant="rectangular" width="100%" height={80} sx={{ borderRadius: 1 }} />
+        <Box ref={coverRef} onMouseMove={handleCoverMove} onMouseLeave={handleCoverLeave}
+          sx={{ width: "100%", height: 160, position: "relative", overflow: "hidden", bgcolor: "action.hover", flexShrink: 0, cursor: thumbUrl ? "crosshair" : "default" }}>
+          {thumbLoading && !thumbUrl ? (
+            <Skeleton variant="rectangular" width="100%" height="100%" />
           ) : thumbUrl ? (
-            <Box component="img" src={thumbUrl} alt={file.name} sx={{ maxWidth: "100%", maxHeight: 100, borderRadius: 1, objectFit: "contain" }} />
-          ) : info?.icon ? (
-            <Box component="img" src={info.icon} alt={file.name} sx={{ height: 36, width: 36, mx: "auto" }} />
-          ) : null}
+            <>
+              <Box component="img" src={thumbUrl} alt={file.name} draggable={false} sx={{
+                width: "100%", height: "100%", objectFit: "cover",
+                objectPosition: `center ${panY}`,
+                transition: panY === "center" ? "object-position 0.4s ease" : "none",
+                filter: isBlurred ? "blur(3px)" : "none",
+                pointerEvents: "none",
+              }} />
+              {/* Play overlay pour les vidéos */}
+              {fileType === "video" && (
+                <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                  <Box sx={{ bgcolor: "rgba(0,0,0,0.45)", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
+                    <PlayArrowRoundedIcon sx={{ color: "common.white", fontSize: 24 }} />
+                  </Box>
+                </Box>
+              )}
+            </>
+          ) : (
+            <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <FileTypeIcon extension={ext || "txt"} size={48} />
+            </Box>
+          )}
         </Box>
       )}
 

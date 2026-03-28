@@ -4,7 +4,7 @@ import Workspace from "@/views/Workspace";
 const router = createBrowserRouter(
   [
     {
-      element: <Navigate to="/documents" />,
+      element: <Navigate to="/files" />,
       path: "/",
     },
     {
