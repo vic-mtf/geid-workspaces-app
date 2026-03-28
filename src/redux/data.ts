@@ -16,14 +16,24 @@ export interface ViewCacheEntry {
   timestamp: number;
 }
 
+// ── Module-level in-memory cache ────────────────────────────────
+// Survives component remounts, instant synchronous access.
+// Only empty on full page refresh (F5).
+export const dataStore = {
+  files: null as any[] | null,
+  folderData: {} as Record<string, { data: any[]; timestamp: number }>,
+  recent: null as any[] | null,
+  favorites: null as any[] | null,
+  trash: null as any[] | null,
+  shared: null as any[] | null,
+};
+
 const data = createSlice({
   name: "data",
   initialState: {
     loaded: false,
-    folderCache: {} as Record<string, FolderCacheEntry>,
-    viewCache: {} as Record<string, ViewCacheEntry>,
     panelWidths: {} as Record<string, number>,
-  } as DataSliceState & { folderCache: Record<string, FolderCacheEntry>; viewCache: Record<string, ViewCacheEntry>; panelWidths: Record<string, number> },
+  } as DataSliceState & { panelWidths: Record<string, number> },
   reducers: {
     updateData(state, action: PayloadAction<{ data: Partial<DataSliceState> }>) {
       const { data } = action.payload;
@@ -52,39 +62,38 @@ const data = createSlice({
         state.isAllData = false;
       }
     },
-    // Cache un dossier par clé (ex: "documents", "images/photo")
-    setFolderCache(state, action: PayloadAction<{ path: string; data: unknown[] }>) {
-      (state as any).folderCache[action.payload.path] = {
-        data: action.payload.data,
-        timestamp: Date.now(),
-      };
-    },
     // Largeur persistée d'un panneau ajustable
     setPanelWidth(state, action: PayloadAction<{ key: string; width: number }>) {
       (state as any).panelWidths[action.payload.key] = action.payload.width;
     },
-    // Cache une vue spéciale
-    setViewCache(state, action: PayloadAction<{ view: string; data: unknown[] }>) {
-      (state as any).viewCache[action.payload.view] = {
-        data: action.payload.data,
-        timestamp: Date.now(),
-      };
-    },
-    // Invalide le cache d'un chemin ou préfixe
-    invalidateFolderCache(state, action: PayloadAction<string | undefined>) {
-      const prefix = action.payload;
-      if (!prefix) {
-        (state as any).folderCache = {};
-      } else {
-        const cache = (state as any).folderCache as Record<string, FolderCacheEntry>;
-        Object.keys(cache).forEach((k) => { if (k.startsWith(prefix)) delete cache[k]; });
-      }
-    },
   },
 });
 
-export const { addData, removeData, updateData, setFolderCache, setViewCache, invalidateFolderCache, setPanelWidth } = data.actions;
+export const { addData, removeData, updateData, setPanelWidth } = data.actions;
+
+// Keep these names exported for backward compatibility (no-op or adapted)
+export const setFolderCache = (_payload: { path: string; data: unknown[] }) => {
+  // Write to in-memory dataStore instead of Redux
+  dataStore.folderData[_payload.path] = { data: _payload.data as any[], timestamp: Date.now() };
+  // Return a dummy action so existing dispatch(setFolderCache(...)) calls don't crash
+  return { type: "data/noop" };
+};
+export const setViewCache = (_payload: { view: string; data: unknown[] }) => {
+  dataStore[_payload.view as keyof typeof dataStore] = _payload.data as any;
+  return { type: "data/noop" };
+};
+export const invalidateFolderCache = (_prefix?: string) => {
+  if (!_prefix) {
+    dataStore.folderData = {};
+  } else {
+    Object.keys(dataStore.folderData).forEach((k) => {
+      if (k.startsWith(_prefix)) delete dataStore.folderData[k];
+    });
+  }
+  return { type: "data/noop" };
+};
+
 export default persistReducer(
-  { storage, key: "__ROOT_GEID_DATA_APP" },
+  { storage, key: "__ROOT_GEID_DATA_APP", whitelist: ["panelWidths"] },
   data.reducer
 );

@@ -17,7 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "notistack";
-import { updateData, invalidateFolderCache, type FolderCacheEntry } from "@/redux/data";
+import { updateData, dataStore } from "@/redux/data";
 import { incrementPendingShare, setPendingShareCount } from "@/redux/app";
 import ArchivesForm from "@/views/forms/archives/ArchivesForm";
 import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
@@ -197,7 +197,6 @@ export default function Main() {
   const [loading, setLoading] = useState(false);
 
   const cachePath = folder ? `files/${folder}` : "files";
-  const folderCache = useSelector((store: RootState) => ((store.data as any).folderCache as Record<string, FolderCacheEntry>)?.[cachePath]);
 
   // Toast pour signaler les nouvelles données en arrière-plan
   const [showUpdateToast, setShowUpdateToast] = useState(false);
@@ -207,26 +206,25 @@ export default function Main() {
     if (isSpecialView) return;
     clearSelection();
 
-    const hasCache = folderCache?.data && (folderCache.data as any[]).length > 0;
-    const hasReduxData = Array.isArray((data as any)[key]) && (data as any)[key].length > 0;
-
-    if (hasCache) {
-      // Cache dispo → afficher immédiatement
-      dispatch(updateData({ data: { [key]: folderCache.data } }));
+    // 1. Check in-memory dataStore FIRST (instant, no rehydration delay)
+    const memCache = dataStore.folderData[cachePath];
+    if (memCache?.data && memCache.data.length > 0) {
+      dispatch(updateData({ data: { [key]: memCache.data } }));
       setLoading(false);
-      // Refresh silencieux si cache > 30s
-      if (Date.now() - folderCache.timestamp > 30000) {
+      // Background refresh if cache > 30s
+      if (Date.now() - memCache.timestamp > 30000) {
         getFiles({ folder });
       }
       return;
     }
 
+    // 2. Check Redux data (may have data from current session)
+    const hasReduxData = Array.isArray((data as any)[key]) && (data as any)[key].length > 0;
     if (hasReduxData) {
-      // Redux a déjà des données → pas de skeleton, fetch en arrière-plan
       setLoading(false);
       getFiles({ folder });
     } else {
-      // Aucune donnée → skeleton visible une seule fois
+      // 3. Truly first visit — show skeleton once
       setLoading(true);
       getFiles({ folder }).finally(() => setLoading(false));
     }
@@ -236,12 +234,12 @@ export default function Main() {
   useEffect(() => {
     const root = document.getElementById("root");
     const handler = () => {
-      dispatch(invalidateFolderCache(undefined)); // Invalide tout le cache
+      // Just refetch — do NOT clear the dataStore cache
       getFiles({ folder });
     };
     root?.addEventListener("_reload_current_dir", handler);
     return () => root?.removeEventListener("_reload_current_dir", handler);
-  }, [folder, getFiles, cachePath, dispatch]);
+  }, [folder, getFiles]);
 
   const display = useSelector((store: RootState) => (store.app as any).display ?? "thumbnail");
   const sort = useSelector((store: RootState) => (store.app as any).sort ?? "name");

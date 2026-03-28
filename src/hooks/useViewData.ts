@@ -7,9 +7,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setViewCache, type ViewCacheEntry } from "@/redux/data";
-import { RootState } from "@/types";
+import { useDispatch } from "react-redux";
+import { dataStore } from "@/redux/data";
 
 interface UseViewDataOptions {
   viewKey: string;
@@ -21,17 +20,12 @@ function dataFingerprint(items: any[]): string {
   return items.map((x) => `${x._id}:${x.name}`).join("|");
 }
 
-// Cache mémoire global — survit aux remontages de composants
-const memoryCache: Record<string, any[]> = {};
-
 export default function useViewData({ viewKey, fetchFn, mapFn }: UseViewDataOptions) {
   const dispatch = useDispatch();
-  const cached = useSelector(
-    (store: RootState) => ((store.data as any).viewCache as Record<string, ViewCacheEntry>)?.[viewKey]
-  );
 
-  // Source de données initiale : mémoire > Redux > vide
-  const initialData = memoryCache[viewKey] || (cached?.data as any[]) || [];
+  // Source de données initiale : dataStore (module-level, instant, synchronous)
+  const storeKey = viewKey as keyof typeof dataStore;
+  const initialData = (dataStore[storeKey] as any[] | null) || [];
   const hasInitialData = initialData.length > 0;
 
   const [data, setData] = useState<any[]>(initialData);
@@ -60,8 +54,8 @@ export default function useViewData({ viewKey, fetchFn, mapFn }: UseViewDataOpti
 
         const hadData = dataRef.current.length > 0;
         setData(mapped);
-        memoryCache[viewKey] = mapped; // Sauvegarder en mémoire
-        dispatch(setViewCache({ view: viewKey, data: mapped }));
+        // Write to in-memory dataStore for instant access on next visit
+        (dataStore as any)[viewKey] = mapped;
 
         if (silent && hadData) setShowToast(true);
       })

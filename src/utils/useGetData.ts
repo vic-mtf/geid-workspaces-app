@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import useAxios from "@/utils/useAxios";
 import { useDispatch, useSelector } from "react-redux";
-import { updateData, setFolderCache } from "@/redux/data";
+import { updateData, dataStore } from "@/redux/data";
 import { RootState } from "@/types";
 
 const { stringify } = JSON;
@@ -47,8 +47,11 @@ const useGetData = ({ key, urlProps, onBeforeUpdate }: UseGetDataOptions) => {
       return refetch(getUrlData({ path: apiPath, ...(urlProps || data?.urlProps) })).then(
         ({ data: responseData }: any) => {
           const processed = onBefore({ [key]: responseData });
+          // Write to Redux for reactivity
           dispatch(updateData({ data: processed }));
-          dispatch(setFolderCache({ path: cachePath, data: processed[key] }));
+          // Write to in-memory dataStore for instant access on remount
+          dataStore.folderData[cachePath] = { data: processed[key], timestamp: Date.now() };
+          if (key === "files") dataStore.files = processed[key];
         }
       );
     },
