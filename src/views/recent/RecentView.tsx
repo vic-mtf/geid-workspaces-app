@@ -85,7 +85,7 @@ export default function RecentView() {
     }
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 2, py: 0.75, flexShrink: 0, borderBottom: 1, borderColor: 'divider', overflowX: 'auto', '&::-webkit-scrollbar': { height: 0 } }}>
                 <LocalOfferOutlinedIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
                 <Chip

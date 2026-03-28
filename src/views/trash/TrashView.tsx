@@ -78,7 +78,7 @@ export default function TrashView() {
     }
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
             <Box display="flex" justifyContent="flex-end" px={2} py={0.5} flexShrink={0}>
                 <Button size="small" color="error" variant="outlined" startIcon={<DeleteForeverOutlinedIcon />} onClick={handleEmptyTrash} sx={{ textTransform: 'none', fontSize: isMobile ? 12 : 13 }}>
                     {t('trash.emptyTrash')}
