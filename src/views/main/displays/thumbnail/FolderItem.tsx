@@ -32,8 +32,8 @@ function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
           <Typography
             sx={{
               position: "absolute",
-              bottom: "26px",
-              left: "14px",
+              bottom: "30px",
+              left: "16px",
               color: badgeColor,
               fontSize: 16,
               fontWeight: 800,
