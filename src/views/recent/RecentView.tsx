@@ -57,15 +57,17 @@ export default function RecentView() {
     const filtered = useMemo(() => {
         let result = data;
         if (selectedTag) result = result.filter((f) => f.tags?.includes(selectedTag));
-        result = [...result].sort((a, b) => {
-            let cmp = 0;
-            if (sort === 'name') cmp = (a.name || '').localeCompare(b.name || '');
-            else if (sort === 'date' || sort === 'modified') cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-            else if (sort === 'size') cmp = (a.size || 0) - (b.size || 0);
-            else if (sort === 'type') cmp = (a.name || '').split('.').pop()!.localeCompare((b.name || '').split('.').pop()!);
-            return order === 'descending' ? -cmp : cmp;
-        });
-        return result;
+        const sortFn = (a: any, b: any) => {
+            if (sort === 'name' || !sort) return (a.name || '').localeCompare(b.name || '');
+            if (sort === 'date' || sort === 'modified') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            if (sort === 'size') return (a.size || 0) - (b.size || 0);
+            if (sort === 'type') return (a.name || '').split('.').pop()!.localeCompare((b.name || '').split('.').pop()!);
+            return 0;
+        };
+        const dirs = [...result.filter((f) => f.isDirectory)].sort(sortFn);
+        const files = [...result.filter((f) => !f.isDirectory)].sort(sortFn);
+        if (order === 'descending') { dirs.reverse(); files.reverse(); }
+        return [...dirs, ...files];
     }, [data, selectedTag, sort, order]);
 
     const onToggleSelect = useCallback((name: string) => {

@@ -48,13 +48,17 @@ export default function FavoritesView() {
     const { data, loading, showToast, hideToast } = useViewData({ viewKey: 'favorites', fetchFn, mapFn });
 
     const sorted = useMemo(() => {
-        let result = [...data];
-        if (sort === 'name') result.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-        else if (sort === 'date' || sort === 'modified') result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-        else if (sort === 'size') result.sort((a, b) => (a.size || 0) - (b.size || 0));
-        else if (sort === 'type') result.sort((a, b) => (a.name || '').split('.').pop()!.localeCompare((b.name || '').split('.').pop()!));
-        if (order === 'descending') result.reverse();
-        return result;
+        const sortFn = (a: any, b: any) => {
+            if (sort === 'name' || !sort) return (a.name || '').localeCompare(b.name || '');
+            if (sort === 'date' || sort === 'modified') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            if (sort === 'size') return (a.size || 0) - (b.size || 0);
+            if (sort === 'type') return (a.name || '').split('.').pop()!.localeCompare((b.name || '').split('.').pop()!);
+            return 0;
+        };
+        const dirs = [...data.filter((f) => f.isDirectory)].sort(sortFn);
+        const files = [...data.filter((f) => !f.isDirectory)].sort(sortFn);
+        if (order === 'descending') { dirs.reverse(); files.reverse(); }
+        return [...dirs, ...files];
     }, [data, sort, order]);
 
     const onToggleSelect = useCallback((name: string) => {

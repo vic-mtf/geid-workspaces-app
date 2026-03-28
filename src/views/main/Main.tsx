@@ -248,13 +248,21 @@ export default function Main() {
   const order = useSelector((store: RootState) => (store.app as any).order ?? "ascending");
 
   const _data = useMemo(() => {
-    let __data = [...((data as any)[key] || [])].filter((f: any) => f.name && !f.name.startsWith(".") && !SYSTEM_FILES.has(f.name));
-    if (!sort || sort === "name") __data.sort((a: any, b: any) => { if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1; return (a?.name || "").toUpperCase().localeCompare((b?.name || "").toUpperCase()); });
-    else if (sort === "date") __data.sort((a: any, b: any) => new Date(a?.createdAt).getTime() - new Date(b?.createdAt).getTime());
-    else if (sort === "size") __data.sort((a: any, b: any) => { if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1; return (a?.size || 0) - (b?.size || 0); });
-    else if (sort === "modified") __data.sort((a: any, b: any) => new Date(a?.lastAccessedAt || a?.createdAt).getTime() - new Date(b?.lastAccessedAt || b?.createdAt).getTime());
-    if (order === "descending") __data = __data.reverse();
-    return __data;
+    const filtered = [...((data as any)[key] || [])].filter((f: any) => f.name && !f.name.startsWith(".") && !SYSTEM_FILES.has(f.name));
+    const dirs = filtered.filter((f: any) => f.isDirectory);
+    const files = filtered.filter((f: any) => !f.isDirectory);
+    const sortFn = (a: any, b: any) => {
+      if (!sort || sort === "name") return (a?.name || "").toUpperCase().localeCompare((b?.name || "").toUpperCase());
+      if (sort === "date") return new Date(a?.createdAt).getTime() - new Date(b?.createdAt).getTime();
+      if (sort === "size") return (a?.size || 0) - (b?.size || 0);
+      if (sort === "modified") return new Date(a?.lastAccessedAt || a?.createdAt).getTime() - new Date(b?.lastAccessedAt || b?.createdAt).getTime();
+      if (sort === "type") return (a?.name || "").split(".").pop()!.localeCompare((b?.name || "").split(".").pop()!);
+      return 0;
+    };
+    dirs.sort(sortFn);
+    files.sort(sortFn);
+    if (order === "descending") { dirs.reverse(); files.reverse(); }
+    return [...dirs, ...files];
   }, [key, data, sort, order]);
 
   const allSelected = useMemo(() => _data.length > 0 && _data.every((f) => selectedFiles.has(f.name ?? "")), [_data, selectedFiles]);
