@@ -280,6 +280,12 @@
     "title": "Confirmer la suppression",
     "messageSingle": "Voulez-vous vraiment supprimer ce fichier ?",
     "messageMultiple": "Voulez-vous vraiment supprimer ces {{count}} elements ?",
+    "folderSingle": "Voulez-vous vraiment supprimer ce dossier et tout son contenu ?",
+    "folderMultiple": "Voulez-vous vraiment supprimer ces {{count}} dossiers et tout leur contenu ?",
+    "permanentOption": "Supprimer definitivement (sans passer par la corbeille)",
+    "moveToTrash": "Mettre a la corbeille",
+    "deletePermanent": "Supprimer definitivement",
+    "movedToTrash": "L'element a ete deplace vers la corbeille. Vous pouvez le restaurer depuis la corbeille.",
     "andMore": "+ {{count}} autre element",
     "andMore_other": "+ {{count}} autres elements"
   },

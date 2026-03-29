@@ -325,27 +325,33 @@ export default function Main() {
   const selectAll = useCallback(() => { if (allSelected) clearSelection(); else setSelectedFiles(new Set(_data.map((f) => f.name ?? ""))); }, [allSelected, _data, clearSelection]);
   const getCurrentPath = useCallback(() => folder || "", [folder]);
 
-  const handleDeleteConfirm = useCallback(async () => {
+  const handleDeleteConfirm = useCallback(async (permanent: boolean) => {
     setDeleteConfirmOpen(false);
     const path = getCurrentPath();
     try {
       if (deleteMode.isPermanent && deleteMode.fileId) {
         // Suppression permanente depuis la corbeille
         await executeDelete({ method: "delete", url: `/api/stuff/workspace/trash/${deleteMode.fileId}` });
-      } else if (deleteMode.isDirectory) {
-        // Suppression dossier
-        await Promise.all(deleteConfirmFiles.map((fn) =>
-          executeDelete({ method: "delete", url: `/api/stuff/workspace/folder/${encodeURIComponent(JSON.stringify({ path, folderName: fn }))}` })
-        ));
+      } else if (permanent) {
+        // Suppression définitive directe (sans passer par la corbeille)
+        if (deleteMode.isDirectory) {
+          await Promise.all(deleteConfirmFiles.map((fn) =>
+            executeDelete({ method: "delete", url: `/api/stuff/workspace/folder/${encodeURIComponent(JSON.stringify({ path, folderName: fn }))}` })
+          ));
+        } else {
+          await Promise.all(deleteConfirmFiles.map((fn) =>
+            executeDelete({ method: "delete", url: `/api/stuff/workspace/${JSON.stringify({ userId: user?.id, path, filename: fn })}` })
+          ));
+        }
       } else {
-        // Suppression fichier(s) normal
-        await Promise.all(deleteConfirmFiles.map((fn) =>
-          executeDelete({ method: "delete", url: `/api/stuff/workspace/${JSON.stringify({ userId: user?.id, path, filename: fn })}` })
+        // Déplacer vers la corbeille
+        const ids = _data.filter((f) => deleteConfirmFiles.includes(f.name ?? "")).map((f) => f._id).filter(Boolean);
+        await Promise.all(ids.map((id) =>
+          executeDelete({ method: "patch", url: `/api/stuff/workspace/trash/${id}` })
         ));
       }
-      if (deleteMode.isPermanent) enqueueSnackbar(t("trash.permanentSuccess"), { variant: "success" });
-      else if (deleteMode.isDirectory) enqueueSnackbar(t("files.folderDeleted"), { variant: "success" });
-      else enqueueSnackbar(t("files.fileDeleted"), { variant: "success" });
+      if (deleteMode.isPermanent || permanent) enqueueSnackbar(t("trash.permanentSuccess"), { variant: "success" });
+      else enqueueSnackbar(t("deleteConfirm.movedToTrash"), { variant: "success" });
     } catch {
       if (deleteMode.isDirectory) enqueueSnackbar(t("files.folderDeleteError"), { variant: "error" });
       else enqueueSnackbar(t("files.fileDeleteError"), { variant: "error" });
@@ -454,8 +460,10 @@ export default function Main() {
       <CopyFileHandler />
       <ShareDialog />
       <TagsDialog />
-      <DeleteConfirmDialog open={deleteConfirmOpen} fileNames={deleteConfirmFiles} onConfirm={handleDeleteConfirm}
-        onClose={() => { setDeleteConfirmOpen(false); setDeleteConfirmFiles([]); }} />
+      <DeleteConfirmDialog open={deleteConfirmOpen} fileNames={deleteConfirmFiles}
+        isDirectory={deleteMode.isDirectory} isPermanent={deleteMode.isPermanent}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => { setDeleteConfirmOpen(false); setDeleteConfirmFiles([]); setDeleteMode({}); }} />
       <UpdateToast open={showUpdateToast} onClose={hideToast} />
     </>
   );
