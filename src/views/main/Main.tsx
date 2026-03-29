@@ -196,7 +196,7 @@ export default function Main() {
     return () => root?.removeEventListener("_go_to_location", handler);
   }, [navigateTo]);
 
-  useEffect(() => { handleCloseDetail(); }, [pathname, search, handleCloseDetail]);
+  useEffect(() => { handleCloseDetail(); clearSelection(); }, [pathname, handleCloseDetail]);
 
   // ── Multi-selection ────────────────────────────────────────
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
@@ -370,10 +370,10 @@ export default function Main() {
         {isSpecialView ? (
           <MuiBox sx={{ display: "grid", flex: 1, minHeight: 0, overflow: "hidden", gridTemplateColumns: showDetail ? `1fr 1px ${detailWidth}px` : "1fr" }}>
             <MuiBox sx={{ minWidth: 0, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-              {isSpecialView === "favorites" && <FavoritesView />}
-              {isSpecialView === "recent" && <RecentView />}
+              {isSpecialView === "favorites" && <FavoritesView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} />}
+              {isSpecialView === "recent" && <RecentView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} />}
               {isSpecialView === "shared" && <SharedView />}
-              {isSpecialView === "trash" && <TrashView />}
+              {isSpecialView === "trash" && <TrashView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} />}
             </MuiBox>
             {showDetail && <DetailResizeDivider onResize={setDetailWidth} minWidth={200} maxWidth={450} />}
             {showDetail && (

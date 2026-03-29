@@ -11,13 +11,17 @@ import AdaptiveSkeleton from '@/components/AdaptiveSkeleton';
 import UpdateToast from '@/components/UpdateToast';
 import { RootState } from '@/types';
 
-export default function FavoritesView() {
+interface FavoritesViewProps {
+    selectedFiles?: Set<string>;
+    onToggleSelect?: (name: string) => void;
+}
+
+export default function FavoritesView({ selectedFiles = new Set(), onToggleSelect }: FavoritesViewProps) {
     const { t } = useTranslation();
     const token = useSelector((store: RootState) => store.user.token);
     const display = useSelector((store: RootState) => (store.app as any).display ?? 'thumbnail');
     const sort = useSelector((store: RootState) => (store.app as any).sort ?? 'name');
     const order = useSelector((store: RootState) => (store.app as any).order ?? 'ascending');
-    const [selectedFiles, setSelectedFiles] = useState(new Set<string>());
 
     const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
@@ -42,6 +46,7 @@ export default function FavoritesView() {
                 duration: f.duration || null,
                 videoWidth: f.videoWidth || null,
                 videoHeight: f.videoHeight || null,
+                currentPath: f.path || '',
             }));
     }, []);
 
@@ -61,9 +66,6 @@ export default function FavoritesView() {
         return [...dirs, ...files];
     }, [data, sort, order]);
 
-    const onToggleSelect = useCallback((name: string) => {
-        setSelectedFiles((prev) => { const next = new Set(prev); next.has(name) ? next.delete(name) : next.add(name); return next; });
-    }, []);
 
     if (loading) return <AdaptiveSkeleton />;
 
@@ -80,9 +82,9 @@ export default function FavoritesView() {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
             {display === 'list' || display === 'compact' ? (
-                <ListView data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} compact={display === 'compact'} />
+                <ListView data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} compact={display === 'compact'} />
             ) : (
-                <Thumbnail data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} />
+                <Thumbnail data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} />
             )}
             <UpdateToast open={showToast} onClose={hideToast} />
         </Box>

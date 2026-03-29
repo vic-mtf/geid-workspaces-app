@@ -12,7 +12,12 @@ import AdaptiveSkeleton from '@/components/AdaptiveSkeleton';
 import UpdateToast from '@/components/UpdateToast';
 import { RootState } from '@/types';
 
-export default function TrashView() {
+interface TrashViewProps {
+    selectedFiles?: Set<string>;
+    onToggleSelect?: (name: string) => void;
+}
+
+export default function TrashView({ selectedFiles = new Set(), onToggleSelect }: TrashViewProps) {
     const { t } = useTranslation();
     const token = useSelector((store: RootState) => store.user.token);
     const display = useSelector((store: RootState) => (store.app as any).display ?? 'thumbnail');
@@ -20,7 +25,6 @@ export default function TrashView() {
     const order = useSelector((store: RootState) => (store.app as any).order ?? 'ascending');
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [selectedFiles, setSelectedFiles] = useState(new Set<string>());
 
     const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
     const [, fetchTrashApi] = useAxios({ url: '/api/stuff/workspace/trash', headers }, { manual: true });
@@ -65,9 +69,6 @@ export default function TrashView() {
         return [...dirs, ...files];
     }, [data, sort, order]);
 
-    const onToggleSelect = useCallback((name: string) => {
-        setSelectedFiles((prev) => { const next = new Set(prev); next.has(name) ? next.delete(name) : next.add(name); return next; });
-    }, []);
 
     if (loading) return <AdaptiveSkeleton />;
 
@@ -89,9 +90,9 @@ export default function TrashView() {
                 </Button>
             </Box>
             {display === 'list' || display === 'compact' ? (
-                <ListView data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} compact={display === 'compact'} />
+                <ListView data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} compact={display === 'compact'} />
             ) : (
-                <Thumbnail data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} />
+                <Thumbnail data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} />
             )}
             <UpdateToast open={showToast} onClose={hideToast} />
         </Box>

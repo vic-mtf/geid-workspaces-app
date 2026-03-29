@@ -12,7 +12,12 @@ import AdaptiveSkeleton from '@/components/AdaptiveSkeleton';
 import UpdateToast from '@/components/UpdateToast';
 import { RootState } from '@/types';
 
-export default function RecentView() {
+interface RecentViewProps {
+    selectedFiles?: Set<string>;
+    onToggleSelect?: (name: string) => void;
+}
+
+export default function RecentView({ selectedFiles = new Set(), onToggleSelect }: RecentViewProps) {
     const { t } = useTranslation();
     const token = useSelector((store: RootState) => store.user.token);
     const display = useSelector((store: RootState) => (store.app as any).display ?? 'thumbnail');
@@ -21,7 +26,6 @@ export default function RecentView() {
 
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
     const [tags, setTags] = useState<string[]>([]);
-    const [selectedFiles, setSelectedFiles] = useState(new Set<string>());
 
     const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
@@ -49,6 +53,7 @@ export default function RecentView() {
                 duration: f.duration || null,
                 videoWidth: f.videoWidth || null,
                 videoHeight: f.videoHeight || null,
+                currentPath: f.currentPath || f.path || '',
             }));
     }, []);
 
@@ -70,9 +75,6 @@ export default function RecentView() {
         return [...dirs, ...files];
     }, [data, selectedTag, sort, order]);
 
-    const onToggleSelect = useCallback((name: string) => {
-        setSelectedFiles((prev) => { const next = new Set(prev); next.has(name) ? next.delete(name) : next.add(name); return next; });
-    }, []);
 
     if (loading) return <AdaptiveSkeleton />;
 
@@ -111,9 +113,9 @@ export default function RecentView() {
                 ))}
             </Box>
             {display === 'list' || display === 'compact' ? (
-                <ListView data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} compact={display === 'compact'} />
+                <ListView data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} compact={display === 'compact'} />
             ) : (
-                <Thumbnail data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect} />
+                <Thumbnail data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} />
             )}
             <UpdateToast open={showToast} onClose={hideToast} />
         </Box>

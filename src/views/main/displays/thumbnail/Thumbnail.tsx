@@ -181,7 +181,13 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
         >
           <Checkbox className="select-checkbox" size="small" checked={isSelected}
             onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
-            sx={{ position: "absolute", top: 2, left: 2, zIndex: 2, opacity: isSelected ? 1 : 0, transition: "opacity 0.15s" }}
+            sx={{
+              position: "absolute", top: 2, left: 2, zIndex: 2,
+              opacity: isSelected ? 1 : 0, transition: "opacity 0.15s",
+              bgcolor: "rgba(255,255,255,0.7)", borderRadius: "50%",
+              width: 28, height: 28, p: 0,
+              "&.Mui-checked": { bgcolor: "rgba(255,255,255,0.9)" },
+            }}
           />
           <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
             <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} color={file.color} renderName={makeRenderName(file)} />
@@ -198,7 +204,13 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
       >
         <Checkbox className="select-checkbox" size="small" checked={isSelected}
           onClick={(e) => { e.stopPropagation(); onToggleSelect?.(file.name ?? ""); }}
-          sx={{ position: "absolute", top: 2, left: 2, zIndex: 2, opacity: isSelected ? 1 : 0, transition: "opacity 0.15s" }}
+          sx={{
+            position: "absolute", top: 2, left: 2, zIndex: 2,
+            opacity: isSelected ? 1 : 0, transition: "opacity 0.15s",
+            bgcolor: "rgba(255,255,255,0.7)", borderRadius: "50%",
+            width: 28, height: 28, p: 0,
+            "&.Mui-checked": { bgcolor: "rgba(255,255,255,0.9)" },
+          }}
         />
         <WrapperContent {...infos} {...file} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
           <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} renderName={makeRenderName(file)} />
