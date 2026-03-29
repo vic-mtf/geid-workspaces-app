@@ -31,12 +31,13 @@ interface ThumbnailProps {
   loading?: boolean;
   selectedFiles?: Set<string>;
   onToggleSelect?: (name: string) => void;
+  highlightFile?: string | null;
 }
 
 const EMPTY_SET = new Set<string>();
 const GRID_COLS = "repeat(auto-fill, minmax(160px, 1fr))";
 
-export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_SET, onToggleSelect }: ThumbnailProps) {
+export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_SET, onToggleSelect, highlightFile }: ThumbnailProps) {
   const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
   const [findName, setFindName] = useState("");
@@ -158,10 +159,11 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     );
   }, [renamingFile, handleRenameConfirm]);
 
-  // Rendu d'un item — mémoïsé par index
+  // Rendu d'un item
   const renderItem = useCallback((index: number) => {
     const file = data[index];
     if (!file) return null;
+    const isHighlighted = highlightFile === file.name;
     const isSelected = selectedFiles.has(file.name ?? "");
 
     if (file.isDirectory) {
@@ -172,6 +174,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
             "&:hover .select-checkbox": { opacity: 1 },
             border: dragOverFolder === file.name ? 2 : 0,
             borderColor: "primary.main", borderRadius: 2, transition: "border-color 0.15s",
+            ...(isHighlighted && { bgcolor: "action.selected", animation: "highlightFlash 2s ease-out", "@keyframes highlightFlash": { "0%": { opacity: 0.3 }, "100%": { opacity: 0 } } }),
           }}
           draggable
           onDragStart={(e) => handleDragStart(e, file.name ?? "", file._id)}
@@ -199,7 +202,10 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     const infos = fileExtensionBase.find(({ exts }) => exts.includes(getFileExtension(file.name ?? "") ?? ""));
 
     return (
-      <Box sx={{ position: "relative", width: "100%", "&:hover .select-checkbox": { opacity: 1 } }}
+      <Box sx={{
+          position: "relative", width: "100%", "&:hover .select-checkbox": { opacity: 1 },
+          ...(isHighlighted && { bgcolor: "action.selected", borderRadius: 2, animation: "highlightFlash 2s ease-out", "@keyframes highlightFlash": { "0%": { bgcolor: "primary.main", opacity: 0.3 }, "100%": { opacity: 0 } } }),
+        }}
         draggable onDragStart={(e) => handleDragStart(e, file.name ?? "", file._id)}
       >
         <Checkbox className="select-checkbox" size="small" checked={isSelected}
@@ -217,7 +223,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
         </WrapperContent>
       </Box>
     );
-  }, [data, selectedFiles, dragOverFolder, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleFolderClick, onToggleSelect, makeRenderName]);
+  }, [data, selectedFiles, dragOverFolder, highlightFile, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleFolderClick, onToggleSelect, makeRenderName]);
 
   if (loading) {
     return (

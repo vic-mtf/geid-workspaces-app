@@ -179,13 +179,16 @@ export default function Main() {
 
   // Aller à l'emplacement d'un fichier/dossier
   const navigateTo = useNavigate();
+  const [highlightFile, setHighlightFile] = useState<string | null>(null);
   useEffect(() => {
     const root = document.getElementById("root");
     const handler = (event: any) => {
       const file = event.detail?.file;
       if (!file) return;
-      // currentPath = le dossier parent (ex: "Documents/sous-dossier")
       const parentPath = file.currentPath || file.path || "";
+      // Flash le fichier cible après navigation
+      setHighlightFile(file.name || null);
+      setTimeout(() => setHighlightFile(null), 2500);
       if (parentPath) {
         navigateTo(`/files?folder=${encodeURIComponent(parentPath)}`);
       } else {
@@ -351,7 +354,7 @@ export default function Main() {
 
   // ── Render content view ────────────────────────────────────
   const renderContent = () => {
-    const viewProps = { data: _data, loading, selectedFiles, onToggleSelect: toggleSelect, allSelected, onSelectAll: selectAll };
+    const viewProps = { data: _data, loading, selectedFiles, onToggleSelect: toggleSelect, allSelected, onSelectAll: selectAll, highlightFile };
     if (!display || display === "thumbnail") return <Thumbnail {...viewProps} />;
     if (display === "compact") return <ListView {...viewProps} compact />;
     return <ListView {...viewProps} />;
