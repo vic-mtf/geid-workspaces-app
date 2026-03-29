@@ -74,6 +74,11 @@ export default function WrapperContent({
   );
 
   const isTrashView = pathname.startsWith("/trash");
+  const isRecentView = pathname.startsWith("/recent");
+  const isFavoritesView = pathname.startsWith("/favorites");
+  const isSharedView = pathname.startsWith("/shared");
+  const isFilesView = pathname.startsWith("/files");
+  const showGoToLocation = isRecentView || isFavoritesView;
 
   const getCurrentPath = useCallback(() => {
     return new URLSearchParams(search).get("folder") || "";
@@ -177,21 +182,20 @@ export default function WrapperContent({
     { label: t("trash.deletePermanently") || "Supprimer definitivement", icon: <DeleteForeverOutlinedIcon />, onClick: handleTrashDelete },
   ];
 
-  const folderActions = [
-    { label: t("common.open"), icon: <FolderOpenOutlinedIcon />, onClick: () => { setContextMenu(null); if (onFolderClick && name) onFolderClick(name); } },
-    { label: t("common.goToLocation"), icon: <FolderOpenOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_go_to_location", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); } },
-    { label: t("common.rename"), icon: <EditOutlinedIcon />, onClick: handleRenameFromMenu },
-    { label: t("common.move") || "Deplacer", icon: <DriveFileMoveOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_move_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); } },
-    { label: t("common.copy") || "Copier", icon: <ContentCopyOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_copy_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); } },
-    {
-      label: t("colors.title") || "Couleur",
-      icon: <PaletteOutlinedIcon />,
-      subOptions: FOLDER_COLORS.map((c) => ({ label: c.label, icon: <CircleIcon sx={{ color: c.hex, fontSize: 16 }} />, onClick: () => handleSetColor(c.value) })),
-    },
-    { label: t("common.share") || "Partager", icon: <ShareOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_share_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); } },
-    { label: t("detail.title") || "Details", icon: <InfoOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_detail_file", { detail: { file } })); } },
-    { label: t("common.delete"), icon: <DeleteOutlinedIcon />, onClick: handleDeleteFolder },
+  const allFolderActions = [
+    { id: "open", label: t("common.open"), icon: <FolderOpenOutlinedIcon />, onClick: () => { setContextMenu(null); if (onFolderClick && name) onFolderClick(name); }, views: ["files"] },
+    { id: "goTo", label: t("common.goToLocation"), icon: <FolderOpenOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_go_to_location", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); }, views: ["recent", "favorites"] },
+    { id: "rename", label: t("common.rename"), icon: <EditOutlinedIcon />, onClick: handleRenameFromMenu, views: ["files"] },
+    { id: "move", label: t("common.move"), icon: <DriveFileMoveOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_move_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); }, views: ["files"] },
+    { id: "copy", label: t("common.copy"), icon: <ContentCopyOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_copy_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); }, views: ["files"] },
+    { id: "color", label: t("colors.title"), icon: <PaletteOutlinedIcon />, subOptions: FOLDER_COLORS.map((c) => ({ label: c.label, icon: <CircleIcon sx={{ color: c.hex, fontSize: 16 }} />, onClick: () => handleSetColor(c.value) })), views: ["files"] },
+    { id: "share", label: t("common.share"), icon: <ShareOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_share_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); }, views: ["files"] },
+    { id: "detail", label: t("detail.title"), icon: <InfoOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_detail_file", { detail: { file } })); }, views: ["files", "recent", "favorites"] },
+    { id: "delete", label: t("common.delete"), icon: <DeleteOutlinedIcon />, onClick: handleDeleteFolder, views: ["files"] },
   ] as any[];
+
+  const currentView = isFilesView ? "files" : isRecentView ? "recent" : isFavoritesView ? "favorites" : isSharedView ? "shared" : "files";
+  const folderActions = allFolderActions.filter((a: any) => !a.views || a.views.includes(currentView));
 
   return (
     <React.Fragment>
@@ -261,7 +265,7 @@ export default function WrapperContent({
                   </MenuItem>
                 )
               )
-          : actions.map((action, index) =>
+          : actions.filter((a: any) => !a.views || a.views.includes(currentView)).map((action, index) =>
               action.options ? (
                 <SubMenu
                   options={action.options}
