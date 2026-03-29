@@ -206,25 +206,24 @@ export default function Main() {
     if (isSpecialView) return;
     clearSelection();
 
-    // 1. Check in-memory dataStore FIRST (instant, no rehydration delay)
+    // 1. Check in-memory dataStore (instant, synchrone)
     const memCache = dataStore.folderData[cachePath];
-    if (memCache?.data && memCache.data.length > 0) {
+    if (memCache) {
+      // Deja visite (meme si vide []) → pas de skeleton
       dispatch(updateData({ data: { [key]: memCache.data } }));
       setLoading(false);
-      // Background refresh if cache > 30s
-      if (Date.now() - memCache.timestamp > 30000) {
-        getFiles({ folder });
-      }
+      if (Date.now() - memCache.timestamp > 30000) getFiles({ folder });
       return;
     }
 
-    // 2. Check Redux data (may have data from current session)
-    const hasReduxData = Array.isArray((data as any)[key]) && (data as any)[key].length > 0;
-    if (hasReduxData) {
+    // 2. Check Redux (array existe = deja charge, meme si vide)
+    const reduxData = (data as any)[key];
+    if (Array.isArray(reduxData)) {
+      // Deja charge → pas de skeleton
       setLoading(false);
       getFiles({ folder });
     } else {
-      // 3. Truly first visit — show skeleton once
+      // 3. Jamais charge (undefined/null) → skeleton une seule fois
       setLoading(true);
       getFiles({ folder }).finally(() => setLoading(false));
     }

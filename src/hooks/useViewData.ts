@@ -25,11 +25,12 @@ export default function useViewData({ viewKey, fetchFn, mapFn }: UseViewDataOpti
 
   // Source de données initiale : dataStore (module-level, instant, synchronous)
   const storeKey = viewKey as keyof typeof dataStore;
-  const initialData = (dataStore[storeKey] as any[] | null) || [];
-  const hasInitialData = initialData.length > 0;
+  const storeData = dataStore[storeKey] as any[] | null;
+  const alreadyLoaded = storeData !== null; // null = jamais charge, [] = charge mais vide
+  const initialData = storeData || [];
 
   const [data, setData] = useState<any[]>(initialData);
-  const [loading, setLoading] = useState(!hasInitialData);
+  const [loading, setLoading] = useState(!alreadyLoaded);
   const [showToast, setShowToast] = useState(false);
 
   const dataRef = useRef(data);
@@ -59,16 +60,16 @@ export default function useViewData({ viewKey, fetchFn, mapFn }: UseViewDataOpti
 
         if (silent && hadData) setShowToast(true);
       })
-      .catch(() => { if (!silent && mountedRef.current) setData([]); })
+      .catch(() => { if (!silent && mountedRef.current) { setData([]); (dataStore as any)[storeKey] = []; } })
       .finally(() => { if (mountedRef.current) setLoading(false); });
   }, [fetchFn, mapFn, viewKey, dispatch]);
 
-  // Au montage : si données dispo → refresh silencieux. Sinon → skeleton.
+  // Au montage : deja charge → refresh silencieux. Jamais charge → skeleton.
   useEffect(() => {
-    if (hasInitialData) {
-      load(true);
+    if (alreadyLoaded) {
+      load(true); // silencieux
     } else {
-      load(false);
+      load(false); // skeleton
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
