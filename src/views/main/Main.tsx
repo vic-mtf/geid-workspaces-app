@@ -50,6 +50,9 @@ import UpdateToast from "@/components/UpdateToast";
 
 const SYSTEM_FILES = new Set(["thumbs.db", "Thumbs.db", ".gitkeep", ".DS_Store"]);
 
+// Module-level pour survivre au remontage du composant
+let _pendingHighlight: string | null = null;
+
 // ── Styled main — même pattern que archives ──────────────────
 const StyledMain = styled("main")({
   flexGrow: 1,
@@ -179,16 +182,27 @@ export default function Main() {
 
   // Aller à l'emplacement d'un fichier/dossier
   const navigateTo = useNavigate();
-  const [highlightFile, setHighlightFile] = useState<string | null>(null);
+  const [highlightFile, setHighlightFile] = useState<string | null>(_pendingHighlight);
+
+  // Consommer le highlight pending au montage
+  useEffect(() => {
+    if (_pendingHighlight) {
+      setHighlightFile(_pendingHighlight);
+      const timer = setTimeout(() => { setHighlightFile(null); _pendingHighlight = null; }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   useEffect(() => {
     const root = document.getElementById("root");
     const handler = (event: any) => {
       const file = event.detail?.file;
       if (!file) return;
       const parentPath = file.currentPath || file.path || "";
-      // Flash le fichier cible après navigation
+      // Stocker en module-level pour survivre au remontage
+      _pendingHighlight = file.name || null;
       setHighlightFile(file.name || null);
-      setTimeout(() => setHighlightFile(null), 2500);
+      setTimeout(() => { setHighlightFile(null); _pendingHighlight = null; }, 2500);
       if (parentPath) {
         navigateTo(`/files?folder=${encodeURIComponent(parentPath)}`);
       } else {
