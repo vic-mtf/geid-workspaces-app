@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Box, Typography, Button, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, useMediaQuery, useTheme } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import useAxios from '@/utils/useAxios';
@@ -51,7 +52,9 @@ export default function TrashView({ selectedFiles = new Set(), onToggleSelect }:
 
     const { data, loading, showToast, hideToast, reload } = useViewData({ viewKey: 'trash', fetchFn, mapFn });
 
+    const [emptyConfirmOpen, setEmptyConfirmOpen] = useState(false);
     const handleEmptyTrash = () => {
+        setEmptyConfirmOpen(false);
         emptyTrash().then(() => reload(false));
     };
 
@@ -85,7 +88,7 @@ export default function TrashView({ selectedFiles = new Set(), onToggleSelect }:
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
             <Box display="flex" justifyContent="flex-end" px={2} py={0.5} flexShrink={0}>
-                <Button size="small" color="error" variant="outlined" startIcon={<DeleteForeverOutlinedIcon />} onClick={handleEmptyTrash} sx={{ textTransform: 'none', fontSize: isMobile ? 12 : 13 }}>
+                <Button size="small" color="error" variant="outlined" startIcon={<DeleteForeverOutlinedIcon />} onClick={() => setEmptyConfirmOpen(true)} sx={{ textTransform: 'none', fontSize: isMobile ? 12 : 13 }}>
                     {t('trash.emptyTrash')}
                 </Button>
             </Box>
@@ -94,6 +97,30 @@ export default function TrashView({ selectedFiles = new Set(), onToggleSelect }:
             ) : (
                 <Thumbnail data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} />
             )}
+            <Dialog open={emptyConfirmOpen} onClose={() => setEmptyConfirmOpen(false)} maxWidth="xs" fullWidth
+                BackdropProps={{ sx: { bgcolor: (theme: any) => theme.palette.background.paper + theme.customOptions.opacity, backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})` } }}
+                PaperProps={{ sx: { border: 1, borderColor: "divider" } }}
+            >
+                <DialogTitle>
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <WarningAmberRoundedIcon color="warning" />
+                        <Typography variant="h6" fontWeight="bold" fontSize={18}>
+                            {t('trash.emptyTrashConfirmTitle') || 'Vider la corbeille'}
+                        </Typography>
+                    </Box>
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary">
+                        {t('trash.emptyTrashConfirmMessage') || 'Tous les elements de la corbeille seront definitivement supprimes. Cette action est irreversible.'}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setEmptyConfirmOpen(false)} color="inherit">{t('common.cancel')}</Button>
+                    <Button variant="contained" color="error" startIcon={<DeleteForeverOutlinedIcon />} onClick={handleEmptyTrash}>
+                        {t('trash.emptyTrashConfirm') || 'Vider definitivement'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <UpdateToast open={showToast} onClose={hideToast} />
         </Box>
     );

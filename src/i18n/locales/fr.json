@@ -246,7 +246,10 @@
     "restoreSuccess": "Le fichier a ete restaure dans son emplacement d'origine.",
     "restoreError": "La restauration n'a pas pu aboutir. Veuillez reessayer.",
     "deletePermanently": "Supprimer definitivement",
-    "permanentSuccess": "L'element a ete definitivement supprime."
+    "permanentSuccess": "L'element a ete definitivement supprime.",
+    "emptyTrashConfirmTitle": "Vider la corbeille",
+    "emptyTrashConfirmMessage": "Tous les elements de la corbeille seront definitivement supprimes. Cette action est irreversible.",
+    "emptyTrashConfirm": "Vider definitivement"
   },
   "move": {
     "fileMoved": "L'element a bien ete deplace vers le dossier choisi.",
