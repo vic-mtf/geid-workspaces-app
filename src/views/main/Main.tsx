@@ -159,7 +159,20 @@ export default function Main() {
 
   useEffect(() => {
     const root = document.getElementById("root");
-    const handler = (event: any) => { if (event.detail?.file) { setFocusedFile(event.detail.file); setDetailOpen(true); } };
+    const handler = (event: any) => {
+      if (event.detail?.file) {
+        setFocusedFile(event.detail.file);
+        setDetailOpen(true);
+        // Marquer comme consulté (fire-and-forget)
+        const fileId = event.detail.file._id;
+        if (fileId && !event.detail.file.isDirectory) {
+          fetch(`/api/stuff/workspace/touch/${fileId}`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${user?.token}` },
+          }).catch(() => {});
+        }
+      }
+    };
     root?.addEventListener("_open_detail_file", handler);
     return () => root?.removeEventListener("_open_detail_file", handler);
   }, []);
