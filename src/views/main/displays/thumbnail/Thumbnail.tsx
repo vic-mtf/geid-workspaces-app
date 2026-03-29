@@ -230,6 +230,16 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     );
   }, [data, selectedFiles, dragOverFolder, highlightFile, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleFolderClick, onToggleSelect, makeRenderName]);
 
+  // Scroll vers le fichier highlighté quand les données arrivent
+  useEffect(() => {
+    if (!highlightFile || !data.length) return;
+    const timer = setTimeout(() => {
+      const el = document.querySelector(`[data-filename="${CSS.escape(highlightFile)}"]`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [highlightFile, data]);
+
   if (loading) {
     return (
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
@@ -262,7 +272,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
         <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
           <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
             {data.map((_, i) => (
-              <Box key={`${i}_${data[i]?.name}`} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+              <Box key={`${i}_${data[i]?.name}`} data-filename={data[i]?.name} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
                 {renderItem(i)}
               </Box>
             ))}

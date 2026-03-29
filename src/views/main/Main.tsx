@@ -188,7 +188,7 @@ export default function Main() {
   useEffect(() => {
     if (_pendingHighlight) {
       setHighlightFile(_pendingHighlight);
-      const timer = setTimeout(() => { setHighlightFile(null); _pendingHighlight = null; }, 2500);
+      const timer = setTimeout(() => { setHighlightFile(null); _pendingHighlight = null; }, 3500);
       return () => clearTimeout(timer);
     }
   }, []);
