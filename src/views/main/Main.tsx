@@ -155,8 +155,18 @@ export default function Main() {
       case "share": root?.dispatchEvent(new CustomEvent("_open_share_dialog", { detail: { file: { ...file, currentPath } } })); break;
       case "move": root?.dispatchEvent(new CustomEvent("_open_move_dialog", { detail: { file: { ...file, currentPath } } })); break;
       case "copy": root?.dispatchEvent(new CustomEvent("_open_copy_dialog", { detail: { file: { ...file, currentPath } } })); break;
-      case "delete": root?.dispatchEvent(new CustomEvent("_confirm_delete", { detail: { fileNames: [file.name] } })); break;
+      case "delete": root?.dispatchEvent(new CustomEvent("_confirm_delete", { detail: { fileNames: [file.name], isDirectory: file.isDirectory } })); break;
       case "archive": root?.dispatchEvent(new CustomEvent("_open_archives_form", { detail: { file: { ...file, currentPath } } })); break;
+      case "favorite": root?.dispatchEvent(new CustomEvent("_toggle_favorite", { detail: { file } })); break;
+      case "goToLocation": root?.dispatchEvent(new CustomEvent("_go_to_location", { detail: { file } })); break;
+      case "restore": {
+        const id = file._id;
+        if (id) fetch(`/api/stuff/workspace/restore/${id}`, { method: "PATCH", headers: { Authorization: `Bearer ${user?.token}` } })
+          .then((r) => { if (!r.ok) throw new Error(); enqueueSnackbar(t("trash.restoreSuccess"), { variant: "success" }); root?.dispatchEvent(new CustomEvent("_reload_current_dir")); })
+          .catch(() => enqueueSnackbar(t("trash.restoreError"), { variant: "error" }));
+        break;
+      }
+      case "permanentDelete": root?.dispatchEvent(new CustomEvent("_confirm_delete", { detail: { fileNames: [file.name], isPermanent: true, fileId: file._id } })); break;
     }
   }, [search, pathname, user?.token, enqueueSnackbar, t]);
 

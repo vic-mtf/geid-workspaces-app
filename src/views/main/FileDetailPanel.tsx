@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import { Box, Typography, IconButton, Stack, Skeleton, Tooltip } from "@mui/material";
+import { Box, Typography, IconButton, Stack, Skeleton, Tooltip, Chip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -7,8 +7,15 @@ import ShareIcon from "@mui/icons-material/Share";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
+import RestoreOutlinedIcon from "@mui/icons-material/RestoreOutlined";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import FolderOpenOutlinedIcon from "@mui/icons-material/FolderOpenOutlined";
+import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
+import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { FileItem } from "@/types";
 import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import getFileInfos from "@/utils/getFileInfos";
@@ -27,22 +34,27 @@ interface FileDetailPanelProps {
 
 const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onAction }: FileDetailPanelProps) {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
 
-  // Détecter le type de fichier pour savoir si on affiche un thumbnail
+  const isTrash = pathname.startsWith("/trash");
+  const isRecent = pathname.startsWith("/recent");
+  const isFavorites = pathname.startsWith("/favorites");
+  const isFiles = pathname.startsWith("/files");
+
   const ext = useMemo(() => getFileExtension(file?.name ?? "")?.toLowerCase() ?? "", [file?.name]);
   const fileType = useMemo(() => {
     if (!ext) return null;
     return fileExtensionBase.find(({ exts }) => exts.includes(ext))?.type ?? null;
   }, [ext]);
-  // Tous les types de fichiers peuvent avoir un thumbnail via le microservice
   const showThumb = !file?.isDirectory && !!file?.url;
-
-  // Thumbnail progressif low → medium → high
   const thumbFileUrl = showThumb ? file!.url : null;
   const { src: thumbUrl, loading: thumbLoading, isBlurred } = useAdaptiveThumbnail(thumbFileUrl);
 
   const info = useMemo(() => file?.name ? getFileInfos({ name: file.name }) : null, [file?.name]);
-  const size = useMemo(() => file?.size ? normaliseOctetSize(file.size) : "-", [file?.size]);
+  const size = useMemo(() => {
+    if (file?.isDirectory) return file?.count != null ? `${file.count} element${(file.count as number) > 1 ? "s" : ""}` : "-";
+    return file?.size ? normaliseOctetSize(file.size) : "-";
+  }, [file?.size, file?.isDirectory, file?.count]);
   const date = useMemo(() => file?.createdAt ? capStr(new Date(file.createdAt).toLocaleDateString(undefined, optionLocalDate)) : "-", [file?.createdAt]);
 
   const act = useCallback((a: string) => { if (file) onAction(a, file); }, [file, onAction]);
@@ -63,14 +75,22 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
     </Box>
   );
 
-  const actions = [
-    { key: "open", tip: t("common.open"), icon: <OpenInNewIcon fontSize="small" /> },
-    { key: "download", tip: t("common.download"), icon: <DownloadIcon fontSize="small" /> },
-    { key: "share", tip: t("common.share"), icon: <ShareIcon fontSize="small" /> },
-    { key: "move", tip: t("common.move"), icon: <DriveFileMoveOutlinedIcon fontSize="small" /> },
-    { key: "delete", tip: t("common.delete"), icon: <DeleteOutlinedIcon fontSize="small" />, color: "error" as const },
-    { key: "archive", tip: t("archives.sendToArchives"), icon: <ArchiveOutlinedIcon fontSize="small" /> },
+  // Actions adaptées par type + navigation
+  const allActions = [
+    { key: "open", tip: t("common.open"), icon: <OpenInNewIcon fontSize="small" />, show: !file.isDirectory && !isTrash },
+    { key: "goToLocation", tip: t("common.goToLocation"), icon: <FolderOpenOutlinedIcon fontSize="small" />, show: (isRecent || isFavorites) && !file.isDirectory },
+    { key: "download", tip: t("common.download"), icon: <DownloadIcon fontSize="small" />, show: !file.isDirectory && !isTrash },
+    { key: "favorite", tip: t("favorites.addToFavorites"), icon: <StarBorderOutlinedIcon fontSize="small" />, show: !isTrash },
+    { key: "share", tip: t("common.share"), icon: <ShareIcon fontSize="small" />, show: isFiles },
+    { key: "move", tip: t("common.move"), icon: <DriveFileMoveOutlinedIcon fontSize="small" />, show: isFiles },
+    { key: "copy", tip: t("common.copy"), icon: <ContentCopyOutlinedIcon fontSize="small" />, show: isFiles && !file.isDirectory },
+    { key: "archive", tip: t("archives.sendToArchives"), icon: <ArchiveOutlinedIcon fontSize="small" />, show: isFiles && !file.isDirectory },
+    { key: "delete", tip: t("common.delete"), icon: <DeleteOutlinedIcon fontSize="small" />, color: "error" as const, show: isFiles },
+    { key: "restore", tip: t("trash.restore"), icon: <RestoreOutlinedIcon fontSize="small" />, show: isTrash },
+    { key: "permanentDelete", tip: t("trash.deletePermanently"), icon: <DeleteForeverOutlinedIcon fontSize="small" />, color: "error" as const, show: isTrash },
   ];
+
+  const visibleActions = allActions.filter((a) => a.show);
 
   return (
     <Box sx={{ height: "100%", overflow: "auto", display: "flex", flexDirection: "column" }}>
@@ -82,8 +102,12 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
         <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </Stack>
 
-      {/* Cover thumbnail — pan on hover, chargement progressif */}
-      {!file.isDirectory && (
+      {/* Cover — fichier: thumbnail, dossier: icône grande */}
+      {file.isDirectory ? (
+        <Box sx={{ width: "100%", height: 120, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "action.hover", flexShrink: 0 }}>
+          <FolderRoundedIcon sx={{ fontSize: 80, color: (file as any).color || "warning.main" }} />
+        </Box>
+      ) : (
         <Box ref={coverRef} onMouseMove={handleCoverMove} onMouseLeave={handleCoverLeave}
           sx={{ width: "100%", height: 160, position: "relative", overflow: "hidden", bgcolor: "action.hover", flexShrink: 0, cursor: thumbUrl ? "crosshair" : "default" }}>
           {thumbLoading && !thumbUrl ? (
@@ -97,7 +121,6 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
                 filter: isBlurred ? "blur(3px)" : "none",
                 pointerEvents: "none",
               }} />
-              {/* Play overlay pour les vidéos */}
               {fileType === "video" && (
                 <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                   <Box sx={{ bgcolor: "rgba(0,0,0,0.45)", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
@@ -116,22 +139,32 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
 
       {/* Info rows */}
       <Stack spacing={0.5} sx={{ px: 1.5, py: 1 }}>
-        <Row label={t("detail.type")} value={info?.docType || file.type || "-"} />
-        <Row label={t("detail.size")} value={size} />
+        {!file.isDirectory && <Row label={t("detail.type")} value={info?.docType || file.type || "-"} />}
+        <Row label={file.isDirectory ? t("detail.elements") || "Elements" : t("detail.size")} value={size} />
         <Row label={t("detail.created")} value={date} />
         {file.currentPath && <Row label={t("detail.path")} value={file.currentPath} />}
+        {/* Tags */}
+        {(file as any).tags?.length > 0 && (
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
+            {(file as any).tags.map((tag: string, i: number) => tag && (
+              <Chip key={i} label={tag} size="small" variant="outlined" sx={{ fontSize: 10, height: 20 }} />
+            ))}
+          </Box>
+        )}
       </Stack>
 
-      {/* Actions */}
-      <Stack direction="row" spacing={0.5} sx={{ px: 1.5, py: 1, borderTop: 1, borderColor: "divider", flexWrap: "wrap" }}>
-        {actions.map((a) => (
-          <Tooltip key={a.key} title={a.tip} arrow>
-            <IconButton size="small" color={a.color || "default"} onClick={() => act(a.key)}>
-              {a.icon}
-            </IconButton>
-          </Tooltip>
-        ))}
-      </Stack>
+      {/* Actions adaptées */}
+      {visibleActions.length > 0 && (
+        <Stack direction="row" spacing={0.5} sx={{ px: 1.5, py: 1, borderTop: 1, borderColor: "divider", flexWrap: "wrap" }}>
+          {visibleActions.map((a) => (
+            <Tooltip key={a.key} title={a.tip} arrow>
+              <IconButton size="small" color={a.color || "default"} onClick={() => act(a.key)}>
+                {a.icon}
+              </IconButton>
+            </Tooltip>
+          ))}
+        </Stack>
+      )}
     </Box>
   );
 });
