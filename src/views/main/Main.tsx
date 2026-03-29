@@ -268,24 +268,17 @@ export default function Main() {
     // 1. Check in-memory dataStore (instant, synchrone)
     const memCache = dataStore.folderData[cachePath];
     if (memCache) {
-      // Deja visite (meme si vide []) → pas de skeleton
+      // Deja visite (meme si vide []) → afficher immediatement
       dispatch(updateData({ data: { [key]: memCache.data } }));
       setLoading(false);
       if (Date.now() - memCache.timestamp > 30000) getFiles({ folder });
       return;
     }
 
-    // 2. Check Redux (array existe = deja charge, meme si vide)
-    const reduxData = (data as any)[key];
-    if (Array.isArray(reduxData)) {
-      // Deja charge → pas de skeleton
-      setLoading(false);
-      getFiles({ folder });
-    } else {
-      // 3. Jamais charge (undefined/null) → skeleton une seule fois
-      setLoading(true);
-      getFiles({ folder }).finally(() => setLoading(false));
-    }
+    // 2. Jamais visite ce dossier → vider Redux + skeleton
+    dispatch(updateData({ data: { [key]: [] } }));
+    setLoading(true);
+    getFiles({ folder }).finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folder, isSpecialView]);
 
