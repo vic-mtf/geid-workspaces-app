@@ -252,7 +252,7 @@
     "fileMoved": "L'element a bien ete deplace vers le dossier choisi.",
     "fileMoveError": "Le deplacement n'a pas pu aboutir. Veuillez reessayer.",
     "chooseFolder": "Choisir un dossier de destination",
-    "noSubFolder": "Aucun sous-dossier dans ce repertoire"
+    "noSubFolder": "Ce dossier ne contient aucun autre dossier"
   },
   "copyFile": {
     "fileCopied": "Une copie a ete creee dans le dossier choisi.",
