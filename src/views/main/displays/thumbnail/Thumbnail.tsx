@@ -174,7 +174,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
             "&:hover .select-checkbox": { opacity: 1 },
             border: dragOverFolder === file.name ? 2 : 0,
             borderColor: "primary.main", borderRadius: 2, transition: "border-color 0.15s",
-            ...(isHighlighted && { bgcolor: "action.selected", animation: "highlightFlash 2s ease-out", "@keyframes highlightFlash": { "0%": { opacity: 0.3 }, "100%": { opacity: 0 } } }),
+            ...(isHighlighted && { bgcolor: "action.selected", animation: "highlightBg 2.5s ease-out forwards", "@keyframes highlightBg": { "0%": { bgcolor: "primary.light" }, "100%": { bgcolor: "transparent" } } }),
           }}
           draggable
           onDragStart={(e) => handleDragStart(e, file.name ?? "", file._id)}
@@ -204,7 +204,12 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     return (
       <Box sx={{
           position: "relative", width: "100%", "&:hover .select-checkbox": { opacity: 1 },
-          ...(isHighlighted && { bgcolor: "action.selected", borderRadius: 2, animation: "highlightFlash 2s ease-out", "@keyframes highlightFlash": { "0%": { bgcolor: "primary.main", opacity: 0.3 }, "100%": { opacity: 0 } } }),
+          borderRadius: 2,
+          ...(isHighlighted && {
+            bgcolor: "action.selected",
+            animation: "highlightBg 2.5s ease-out forwards",
+            "@keyframes highlightBg": { "0%": { bgcolor: "primary.light" }, "100%": { bgcolor: "transparent" } },
+          }),
         }}
         draggable onDragStart={(e) => handleDragStart(e, file.name ?? "", file._id)}
       >
