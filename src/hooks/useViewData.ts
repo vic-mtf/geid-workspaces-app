@@ -48,19 +48,21 @@ export default function useViewData({ viewKey, fetchFn, mapFn }: UseViewDataOpti
       .then((raw) => {
         if (!mountedRef.current) return;
         const mapped = mapFn(raw);
+
+        // Toujours marquer comme charge dans dataStore (meme si vide)
+        (dataStore as any)[viewKey] = mapped;
+
         const oldFp = dataFingerprint(dataRef.current);
         const newFp = dataFingerprint(mapped);
 
-        if (oldFp === newFp) return;
+        if (oldFp === newFp) return; // Pas de changement → pas de re-render ni toast
 
         const hadData = dataRef.current.length > 0;
         setData(mapped);
-        // Write to in-memory dataStore for instant access on next visit
-        (dataStore as any)[viewKey] = mapped;
 
         if (silent && hadData) setShowToast(true);
       })
-      .catch(() => { if (!silent && mountedRef.current) { setData([]); (dataStore as any)[storeKey] = []; } })
+      .catch(() => { if (mountedRef.current) { setData([]); (dataStore as any)[storeKey] = []; } })
       .finally(() => { if (mountedRef.current) setLoading(false); });
   }, [fetchFn, mapFn, viewKey, dispatch]);
 
