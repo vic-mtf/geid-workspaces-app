@@ -36,8 +36,8 @@ const MoveConfirmDialog = React.memo(function MoveConfirmDialog({
       <DialogContent>
         <Typography variant="body2">
           {t("dragDrop.moveConfirmMessage", {
-            fileName: fileName.replace(/_/g, " "),
-            folderName: folderName.replace(/_/g, " "),
+            fileName,
+            folderName,
           })}
         </Typography>
       </DialogContent>

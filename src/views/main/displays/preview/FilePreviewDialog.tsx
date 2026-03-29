@@ -143,7 +143,7 @@ export default function FilePreviewDialog() {
           noWrap
           sx={{ flex: 1, mr: 1, fontSize: { xs: "0.95rem", sm: "1.25rem" } }}
         >
-          {(file?.name ?? "").replace(/_/g, " ")}
+          {file?.name ?? ""}
         </Typography>
         <IconButton onClick={handleClose} edge="end">
           <CloseRoundedIcon />
@@ -221,7 +221,7 @@ export default function FilePreviewDialog() {
           >
             <InsertDriveFileOutlinedIcon sx={{ fontSize: 64, opacity: 0.4 }} />
             <Typography variant="h6">
-              {(file?.name ?? "").replace(/_/g, " ")}
+              {file?.name ?? ""}
             </Typography>
             {file?.size != null && (
               <Typography variant="body2" color="text.secondary">

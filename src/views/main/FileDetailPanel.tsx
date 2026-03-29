@@ -77,7 +77,7 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
       {/* Header */}
       <Stack direction="row" alignItems="center" spacing={0.5} sx={{ px: 1.5, py: 1, borderBottom: 1, borderColor: "divider" }}>
         <Typography variant="body2" fontWeight="bold" noWrap sx={{ flex: 1 }}>
-          {(file.name || "").replace(/_/g, " ")}
+          {file.name || ""}
         </Typography>
         <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </Stack>

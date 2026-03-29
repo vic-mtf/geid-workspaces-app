@@ -40,7 +40,7 @@ export default function MediaLibraryForm () {
       const errors: string[] = [];
       const datas: Record<string, any> = { frozenType: typeInfos?.key };
       const where = `${file?.type}s/${file?.name}`;
-      const name = file?.name?.replace(/_/ig, ' ');
+      const name = file?.name;
       if(fieldsError.length) setFieldsError([]);
       if(typeInfos?.type === 'media')
         Object.keys(mediaFields).forEach(key => {

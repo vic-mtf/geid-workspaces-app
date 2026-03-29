@@ -60,7 +60,7 @@ function File(props: FileProps) {
             overflow: "hidden",
           }}
         >
-          {props.name?.replace(/_/gi, " ")}
+          {props.name}
         </Typography>
       )}
     </Box>

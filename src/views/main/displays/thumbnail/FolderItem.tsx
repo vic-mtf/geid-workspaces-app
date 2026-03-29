@@ -67,7 +67,7 @@ function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
             mt: -0.5,
           }}
         >
-          {(name || "").replace(/_/g, " ")}
+          {name || ""}
         </Typography>
       )}
 

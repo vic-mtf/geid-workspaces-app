@@ -171,7 +171,7 @@ function Video(props: VideoProps) {
             lineHeight: 1.3,
           }}
         >
-          {props.name?.replace(/_/gi, " ")}
+          {props.name}
         </Typography>
       )}
     </Box>

@@ -33,7 +33,7 @@ export default function DownloadItem (props: DownloadItemProps) {
         file, xhr, icon, end, aborted, loading, cancel, total, loaded, resend, remove, upload: _upload, type
     } = props;
     const [upload, setUpload] = useState({total, loaded});
-    const name = file?.name?.replace(/_/ig, ' ');
+    const name = file?.name;
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const { t } = useTranslation();
     const dispatch = useDispatch();

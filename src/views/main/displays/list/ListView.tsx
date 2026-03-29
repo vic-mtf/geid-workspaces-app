@@ -264,7 +264,7 @@ export default function ListView({
                 />
               ) : (
                 <Typography variant="body2" noWrap sx={{ fontSize, maxWidth: { xs: 150, sm: 250, md: 400, lg: 500 } }}>
-                  {(file.name ?? "").replace(/_/g, " ")}
+                  {file.name ?? ""}
                 </Typography>
               )}
             </Box>

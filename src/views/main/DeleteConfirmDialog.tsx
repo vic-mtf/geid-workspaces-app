@@ -64,7 +64,7 @@ const DeleteConfirmDialog = React.memo(function DeleteConfirmDialog({
                 {getFileExtension(name) ? <FileTypeIcon extension={getFileExtension(name) ?? "txt"} size={20} /> : <FolderRoundedIcon fontSize="small" color="warning" />}
               </ListItemIcon>
               <ListItemText
-                primary={name.replace(/_/g, " ")}
+                primary={name}
                 primaryTypographyProps={{ variant: "body2", noWrap: true }}
               />
             </ListItem>

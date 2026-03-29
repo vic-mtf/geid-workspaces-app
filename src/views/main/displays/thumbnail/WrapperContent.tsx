@@ -210,7 +210,7 @@ export default function WrapperContent({
             isDirectory
               ? t("files.folderLabel", { name: name || "" })
               : t("files.fileTitleTooltip", {
-                  name: (name || "").replace(/_/gi, " "),
+                  name: name || "",
                   type: type,
                   date: date.toLocaleDateString(undefined, optionLocalDate),
                 })

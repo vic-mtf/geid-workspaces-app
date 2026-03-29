@@ -123,7 +123,7 @@ function Doc(props: DocProps) {
             overflow: "hidden",
           }}
         >
-          {props.name?.replace(/_/gi, " ")}
+          {props.name}
         </Typography>
       )}
     </Box>
