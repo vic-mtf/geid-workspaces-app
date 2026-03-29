@@ -24,6 +24,7 @@ import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
 import MoveConfirmDialog from "@/components/MoveConfirmDialog";
 import useDragDropMove from "@/hooks/useDragDropMove";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import { FileItem, RootState } from "@/types";
 
 interface ThumbnailProps {
@@ -187,11 +188,17 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
             sx={{
               position: "absolute", top: 2, left: 2, zIndex: 2,
               opacity: isSelected ? 1 : 0, transition: "opacity 0.15s",
-              bgcolor: "rgba(255,255,255,0.7)", borderRadius: "50%",
+              color: "common.black",
+              filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))",
               width: 28, height: 28, p: 0,
-              "&.Mui-checked": { bgcolor: "rgba(255,255,255,0.9)" },
+              "&.Mui-checked": { color: "primary.main" },
             }}
           />
+          {file.isFavorite && (
+            <Box sx={{ position: "absolute", top: 2, right: 2, zIndex: 2, opacity: 0.8, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", pointerEvents: "none" }}>
+              <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
+            </Box>
+          )}
           <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
             <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} color={file.color} renderName={makeRenderName(file)} />
           </WrapperContent>
@@ -218,11 +225,17 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
           sx={{
             position: "absolute", top: 2, left: 2, zIndex: 2,
             opacity: isSelected ? 1 : 0, transition: "opacity 0.15s",
-            bgcolor: "rgba(255,255,255,0.7)", borderRadius: "50%",
+            color: "common.black",
+            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))",
             width: 28, height: 28, p: 0,
-            "&.Mui-checked": { bgcolor: "rgba(255,255,255,0.9)" },
+            "&.Mui-checked": { color: "primary.main" },
           }}
         />
+        {file.isFavorite && (
+          <Box className="fav-badge" sx={{ position: "absolute", top: 2, right: 2, zIndex: 2, opacity: 0.8, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", pointerEvents: "none" }}>
+            <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
+          </Box>
+        )}
         <WrapperContent {...infos} {...file} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
           <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} renderName={makeRenderName(file)} />
         </WrapperContent>
