@@ -14,7 +14,7 @@ import { Toolbar, Box as MuiBox, Divider, Drawer, useMediaQuery, useTheme, style
 import queryString from "query-string";
 import React, { useMemo, useEffect, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "notistack";
 import { updateData, dataStore } from "@/redux/data";
@@ -176,6 +176,25 @@ export default function Main() {
     root?.addEventListener("_open_detail_file", handler);
     return () => root?.removeEventListener("_open_detail_file", handler);
   }, []);
+
+  // Aller à l'emplacement d'un fichier/dossier
+  const navigateTo = useNavigate();
+  useEffect(() => {
+    const root = document.getElementById("root");
+    const handler = (event: any) => {
+      const file = event.detail?.file;
+      if (!file) return;
+      // currentPath = le dossier parent (ex: "Documents/sous-dossier")
+      const parentPath = file.currentPath || file.path || "";
+      if (parentPath) {
+        navigateTo(`/files?folder=${encodeURIComponent(parentPath)}`);
+      } else {
+        navigateTo("/files");
+      }
+    };
+    root?.addEventListener("_go_to_location", handler);
+    return () => root?.removeEventListener("_go_to_location", handler);
+  }, [navigateTo]);
 
   useEffect(() => { handleCloseDetail(); }, [pathname, search, handleCloseDetail]);
 

@@ -9,6 +9,7 @@ import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
+import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
 import React from 'react';
 import store from '@/redux/store';
 import removeFile from '@/views/main/displays/thumbnail/removeFile';
@@ -24,6 +25,14 @@ const actions: ActionOption[] = [
             const customEvent = new CustomEvent(name, { detail: { name, file } });
             document.getElementById('root')
             ?.dispatchEvent(customEvent);
+        }
+    },
+    {
+        label: i18n.t('common.goToLocation'),
+        icon: <FolderOpenOutlinedIcon/>,
+        onClick: (file: any) => {
+            document.getElementById('root')
+            ?.dispatchEvent(new CustomEvent('_go_to_location', { detail: { file } }));
         }
     },
     {

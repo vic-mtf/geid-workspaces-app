@@ -179,6 +179,7 @@ export default function WrapperContent({
 
   const folderActions = [
     { label: t("common.open"), icon: <FolderOpenOutlinedIcon />, onClick: () => { setContextMenu(null); if (onFolderClick && name) onFolderClick(name); } },
+    { label: t("common.goToLocation"), icon: <FolderOpenOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_go_to_location", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); } },
     { label: t("common.rename"), icon: <EditOutlinedIcon />, onClick: handleRenameFromMenu },
     { label: t("common.move") || "Deplacer", icon: <DriveFileMoveOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_move_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); } },
     { label: t("common.copy") || "Copier", icon: <ContentCopyOutlinedIcon />, onClick: () => { setContextMenu(null); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_copy_dialog", { detail: { file: { ...file, currentPath: getCurrentPath() } } })); } },
