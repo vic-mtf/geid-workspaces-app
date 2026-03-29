@@ -275,8 +275,7 @@ export default function Main() {
       return;
     }
 
-    // 2. Jamais visite ce dossier → vider Redux + skeleton
-    dispatch(updateData({ data: { [key]: [] } }));
+    // 2. Jamais visite ce dossier → skeleton
     setLoading(true);
     getFiles({ folder }).finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
