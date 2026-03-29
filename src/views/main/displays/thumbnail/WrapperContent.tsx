@@ -286,7 +286,8 @@ export default function WrapperContent({
                     if (typeof action.onClick === "function")
                       action.onClick({
                         ...file,
-                        currentPath: getCurrentPath(),
+                        currentPath: (file as any).currentPath || getCurrentPath(),
+                        folderPath: getCurrentPath(),
                         enqueueSnackbar,
                         closeSnackbar,
                         refresh,

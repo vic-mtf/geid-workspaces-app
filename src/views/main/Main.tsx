@@ -202,7 +202,7 @@ export default function Main() {
       // Stocker en module-level pour survivre au remontage
       _pendingHighlight = file.name || null;
       setHighlightFile(file.name || null);
-      setTimeout(() => { setHighlightFile(null); _pendingHighlight = null; }, 2500);
+      setTimeout(() => { setHighlightFile(null); _pendingHighlight = null; }, 3500);
       if (parentPath) {
         navigateTo(`/files?folder=${encodeURIComponent(parentPath)}`);
       } else {
