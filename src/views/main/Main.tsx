@@ -284,8 +284,13 @@ export default function Main() {
           executeDelete({ method: "delete", url: `/api/stuff/workspace/${JSON.stringify({ userId: user?.id, path, filename: fn })}` })
         ));
       }
-      enqueueSnackbar(t("files.fileDeleted"), { variant: "success" });
-    } catch { enqueueSnackbar(t("files.fileDeleteError"), { variant: "error" }); }
+      if (deleteMode.isPermanent) enqueueSnackbar(t("trash.permanentSuccess"), { variant: "success" });
+      else if (deleteMode.isDirectory) enqueueSnackbar(t("files.folderDeleted"), { variant: "success" });
+      else enqueueSnackbar(t("files.fileDeleted"), { variant: "success" });
+    } catch {
+      if (deleteMode.isDirectory) enqueueSnackbar(t("files.folderDeleteError"), { variant: "error" });
+      else enqueueSnackbar(t("files.fileDeleteError"), { variant: "error" });
+    }
     clearSelection(); setDeleteConfirmFiles([]); setDeleteMode({});
     document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
   }, [deleteConfirmFiles, deleteMode, getCurrentPath, user?.id, executeDelete, enqueueSnackbar, t, clearSelection]);

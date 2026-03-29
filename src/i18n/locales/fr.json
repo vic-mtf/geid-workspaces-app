@@ -62,12 +62,13 @@
     "renameTo": "Renommer",
     "renameFolder": "Renommer le dossier",
     "renaming": "Attribution d'un nouveau nom",
-    "fileRenamed": "Le nom du fichier a bien ete modifie.",
-    "fileRenameError": "Le renommage du fichier n'a pas pu aboutir. Veuillez reessayer.",
+    "fileRenamed": "Le nom a bien ete modifie.",
+    "fileRenameError": "Le renommage n'a pas pu aboutir. Veuillez reessayer.",
     "deleteConfirm": "Supprimer",
     "deletingFile": "Suppression en cours...",
     "fileDeleted": "Le fichier a bien ete supprime de votre espace.",
-    "fileDeleteError": "La suppression n'a pas pu aboutir. Veuillez reessayer.",
+    "folderDeleted": "Le dossier a bien ete supprime de votre espace.",
+    "fileDeleteError": "La suppression du fichier n'a pas pu aboutir. Veuillez reessayer.",
     "folderDeleteError": "Ce dossier ne peut pas etre supprime. Verifiez qu'il est bien vide avant de reessayer.",
     "deleteError": "Une erreur est survenue lors de la suppression. Veuillez reessayer.",
     "folderRenameError": "Le renommage du dossier n'a pas pu aboutir. Veuillez reessayer.",
@@ -223,8 +224,9 @@
     "termsOfUse": "Conditions d'utilisation"
   },
   "favorites": {
-    "updated": "Favori mis a jour",
-    "updateError": "Impossible de modifier le favori",
+    "updated": "L'element a bien ete ajoute a vos favoris.",
+    "removed": "L'element a ete retire de vos favoris.",
+    "updateError": "La modification des favoris n'a pas pu aboutir. Veuillez reessayer.",
     "addToFavorites": "Ajouter aux favoris",
     "noFavorites": "Aucun favori pour le moment",
     "noFavoritesHint": "Ajoutez des fichiers en favoris depuis le menu contextuel"
@@ -241,16 +243,17 @@
     "restore": "Restaurer",
     "restoreSuccess": "Le fichier a ete restaure dans son emplacement d'origine.",
     "restoreError": "La restauration n'a pas pu aboutir. Veuillez reessayer.",
-    "deletePermanently": "Supprimer definitivement"
+    "deletePermanently": "Supprimer definitivement",
+    "permanentSuccess": "L'element a ete definitivement supprime."
   },
   "move": {
-    "fileMoved": "Le fichier a bien ete deplace vers le dossier choisi.",
+    "fileMoved": "L'element a bien ete deplace vers le dossier choisi.",
     "fileMoveError": "Le deplacement n'a pas pu aboutir. Veuillez reessayer.",
     "chooseFolder": "Choisir un dossier de destination",
     "noSubFolder": "Aucun sous-dossier dans ce repertoire"
   },
   "copyFile": {
-    "fileCopied": "Une copie du fichier a ete creee dans le dossier choisi.",
+    "fileCopied": "Une copie a ete creee dans le dossier choisi.",
     "fileCopyError": "La copie n'a pas pu aboutir. Veuillez reessayer."
   },
   "cover": {
