@@ -284,7 +284,11 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
         <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
           <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
             {Array.from({ length: 12 }).map((_, i) => (
-              <Skeleton key={i} variant="rounded" height={150} sx={{ borderRadius: 2 }} />
+              <Box key={i} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, p: 1 }}>
+                <Skeleton variant="rounded" width={100} height={120} sx={{ borderRadius: 2 }} />
+                <Skeleton variant="text" width={80} height={14} />
+                <Skeleton variant="text" width={50} height={10} />
+              </Box>
             ))}
           </Box>
         </Box>
