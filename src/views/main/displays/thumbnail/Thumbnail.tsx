@@ -8,6 +8,7 @@
 import {
   Box,
   Checkbox,
+  IconButton,
   Skeleton,
   Typography,
 } from "@mui/material";
@@ -25,6 +26,7 @@ import MoveConfirmDialog from "@/components/MoveConfirmDialog";
 import useDragDropMove from "@/hooks/useDragDropMove";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
+import StarBorderRoundedIcon from "@mui/icons-material/StarBorderRounded";
 import { FileItem, RootState } from "@/types";
 
 interface ThumbnailProps {
@@ -173,6 +175,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
           sx={{
             position: "relative", width: "100%",
             "&:hover .select-checkbox": { opacity: 1 },
+            "&:hover .fav-btn": { opacity: 1 },
             border: dragOverFolder === file.name ? 2 : 0,
             borderColor: "primary.main", borderRadius: 2, transition: "border-color 0.15s",
             ...(isHighlighted && { bgcolor: "action.selected", animation: "highlightBg 2.5s ease-out forwards", "@keyframes highlightBg": { "0%": { bgcolor: "primary.light" }, "100%": { bgcolor: "transparent" } } }),
@@ -188,17 +191,27 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
             sx={{
               position: "absolute", top: 2, left: 2, zIndex: 2,
               opacity: isSelected ? 1 : 0, transition: "opacity 0.15s",
-              color: "common.black",
-              filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))",
+              color: "common.white",
+              filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.6))",
               width: 28, height: 28, p: 0,
-              "&.Mui-checked": { color: "primary.main" },
+              "&.Mui-checked": { color: "primary.main", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.4))" },
             }}
           />
-          {file.isFavorite && (
-            <Box sx={{ position: "absolute", top: 2, right: 2, zIndex: 2, opacity: 0.8, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", pointerEvents: "none" }}>
-              <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
-            </Box>
-          )}
+          <IconButton
+            className="fav-btn"
+            size="small"
+            onClick={(e: React.MouseEvent) => { e.stopPropagation(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_toggle_favorite", { detail: { file } })); }}
+            sx={{
+              position: "absolute", top: 2, right: 2, zIndex: 2,
+              opacity: file.isFavorite ? 0.9 : 0, transition: "opacity 0.15s",
+              filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))",
+              width: 26, height: 26, p: 0,
+            }}
+          >
+            {file.isFavorite
+              ? <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
+              : <StarBorderRoundedIcon sx={{ fontSize: 18, color: "common.white" }} />}
+          </IconButton>
           <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
             <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} color={file.color} renderName={makeRenderName(file)} />
           </WrapperContent>
@@ -210,7 +223,9 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
 
     return (
       <Box sx={{
-          position: "relative", width: "100%", "&:hover .select-checkbox": { opacity: 1 },
+          position: "relative", width: "100%",
+          "&:hover .select-checkbox": { opacity: 1 },
+          "&:hover .fav-btn": { opacity: 1 },
           borderRadius: 2,
           ...(isHighlighted && {
             bgcolor: "action.selected",
@@ -225,17 +240,27 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
           sx={{
             position: "absolute", top: 2, left: 2, zIndex: 2,
             opacity: isSelected ? 1 : 0, transition: "opacity 0.15s",
-            color: "common.black",
-            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))",
+            color: "common.white",
+            filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.6))",
             width: 28, height: 28, p: 0,
-            "&.Mui-checked": { color: "primary.main" },
+            "&.Mui-checked": { color: "primary.main", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.4))" },
           }}
         />
-        {file.isFavorite && (
-          <Box className="fav-badge" sx={{ position: "absolute", top: 2, right: 2, zIndex: 2, opacity: 0.8, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", pointerEvents: "none" }}>
-            <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
-          </Box>
-        )}
+        <IconButton
+          className="fav-btn"
+          size="small"
+          onClick={(e) => { e.stopPropagation(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_toggle_favorite", { detail: { file } })); }}
+          sx={{
+            position: "absolute", top: 2, right: 2, zIndex: 2,
+            opacity: file.isFavorite ? 0.9 : 0, transition: "opacity 0.15s",
+            filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))",
+            width: 26, height: 26, p: 0,
+          }}
+        >
+          {file.isFavorite
+            ? <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
+            : <StarBorderRoundedIcon sx={{ fontSize: 18, color: "common.white" }} />}
+        </IconButton>
         <WrapperContent {...infos} {...file} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
           <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} renderName={makeRenderName(file)} />
         </WrapperContent>
