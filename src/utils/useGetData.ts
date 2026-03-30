@@ -14,7 +14,6 @@ export const useGetUrlData = () => {
       url: `/api/stuff/workspace/${encodeURIComponent(stringify({ userId, ...data }))}`,
       headers: {
         Authorization: `Bearer ${token || tk}`,
-        "Cache-Control": "no-cache",
       },
     }),
     [token, userId]
