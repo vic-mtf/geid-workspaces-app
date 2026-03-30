@@ -150,14 +150,14 @@ export default function WrapperContent({
 
   const navigatingRef = React.useRef(false);
   const handleClick = useCallback((e: React.MouseEvent) => {
-    if (isDirectory && onFolderClick && name) {
+    if (isDirectory && !isTrashView && onFolderClick && name) {
       if (navigatingRef.current) return;
       navigatingRef.current = true;
       setTimeout(() => { navigatingRef.current = false; }, 500);
       onFolderClick(name, file);
       return;
     }
-    // Single clic sur fichier → ouvrir le détail (après délai pour laisser le double-clic annuler)
+    // Single clic → ouvrir le détail (après délai pour laisser le double-clic annuler)
     if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
     clickTimerRef.current = setTimeout(() => {
       clickTimerRef.current = null;
