@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Box as MuiBox, Button, Card, CardContent, CardMedia, Divider, LinearProgress, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
-import { Stack } from '@mui/system';
+import {
+  Box, Button, IconButton, LinearProgress, Typography, Tooltip,
+} from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import IconButton from '@/components/IconButton';
-import FileDownloadDoneRoundedIcon from '@mui/icons-material/FileDownloadDoneRounded';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import normaliseOctetSize from '@/utils/normaliseOctetSize';
-import { useDispatch } from 'react-redux';
-import { addData } from '@/redux/data';
+import FileTypeIcon from '@/components/FileTypeIcon';
+import getFileExtension from '@/utils/getFileExtension';
 import { useSnackbar } from 'notistack';
 import { useTranslation } from 'react-i18next';
-import textStyle from '@/styles/text.module.css';
 
 interface DownloadItemProps {
     file?: File;
@@ -28,172 +28,117 @@ interface DownloadItemProps {
     type?: string;
 }
 
-export default function DownloadItem (props: DownloadItemProps) {
-    const {
-        file, xhr, icon, end, aborted, loading, cancel, total, loaded, resend, remove, upload: _upload, type
-    } = props;
-    const [upload, setUpload] = useState({total, loaded});
+export default function DownloadItem(props: DownloadItemProps) {
+    const { file, xhr, end, aborted, loading, cancel, total, loaded, resend, remove, upload: _upload, type } = props;
+    const [upload, setUpload] = useState({ total, loaded });
     const name = file?.name;
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const ext = getFileExtension(name ?? "") ?? "txt";
+    const { enqueueSnackbar } = useSnackbar();
     const { t } = useTranslation();
-    const dispatch = useDispatch();
 
     useEffect(() => {
-        const handleGetLoadData = ({loaded, total}: {loaded: number; total: number}) => {
-            setUpload({loaded, total})
-        };
+        const handler = ({ loaded, total }: { loaded: number; total: number }) => setUpload({ loaded, total });
         if (xhr) {
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4) {
-                    closeSnackbar()
-                    enqueueSnackbar(
-                        <Typography>
-                            <Typography
-                            title={name}
-                            maxWidth={300}
-                            fontSize={15}
-                            fontWeight="bold"
-                            className={textStyle.monoCrop}
-                            sx={{ px: 1 }}
-                            >{name}</Typography>
-                            {t('downloads.uploadComplete')}
-                        </Typography>,
-                        {
-                            variant: 'success',
-                            action: () => (
-                                <Button
-                                    children={t('common.show')}
-                                    color="inherit"
-                                    onClick={() => {
-                                        const customEvent = new CustomEvent(
-                                            '_open_download_drawer',
-                                            { detail: {name: '_open_download_drawer'}}
-                                        );
-                                        document.getElementById('root')
-                                        ?.dispatchEvent(customEvent);
-                                    }}
-                                />
-                            )
-                        }
-                    );
-                const data = xhr.response;
-                if(Array.isArray(data))
-                    dispatch(addData({
-                        key: type === 'video' ? 'documents' : type + 's',
-                        data
-                    }))
+                    enqueueSnackbar(t('downloads.uploadComplete', { name: name?.substring(0, 30) }), { variant: 'success' });
+                    document.getElementById('root')?.dispatchEvent(new CustomEvent('_reload_current_dir'));
                 }
-            }
+            };
         }
-        _upload?.addEventListener('progress', handleGetLoadData as any);
-        return () => {
-            _upload?.removeEventListener('progress', handleGetLoadData as any);
-        }
-    }, [setUpload, _upload, type, xhr, closeSnackbar, dispatch, enqueueSnackbar, name]);
+        _upload?.addEventListener('progress', handler as any);
+        return () => _upload?.removeEventListener('progress', handler as any);
+    }, [_upload, xhr, enqueueSnackbar, name, t]);
+
+    const percent = Math.floor(((upload.loaded ?? 0) * 100) / (upload.total ?? 1));
+    const sizeText = upload.loaded === upload.total
+        ? normaliseOctetSize(upload.total ?? 0)
+        : `${normaliseOctetSize(upload.loaded ?? 0)} / ${normaliseOctetSize(upload.total ?? 0)}`;
+
+    // Status
+    const isDone = end === true;
+    const isFailed = aborted === true;
+    const isUploading = loading === true;
 
     return (
-        <MuiBox>
-            <Card
-                sx={{
-                    bgcolor: (theme: any) => theme.palette.background.paper +
-                    theme.customOptions.opacity,
-                    border: (theme: any) => `1px solid ${theme.palette.divider}`,
-                    backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
-                    px:1,
-                }}
+        <Box sx={{
+            display: "flex", alignItems: "center", gap: 1.5, p: 1.5,
+            borderRadius: 2, border: 1, borderColor: "divider",
+            bgcolor: isDone ? "success.main" : isFailed ? "error.main" : "transparent",
+            ...(isDone && { bgcolor: (theme: any) => theme.palette.mode === "dark" ? "rgba(46,125,50,0.08)" : "rgba(46,125,50,0.04)" }),
+            ...(isFailed && { bgcolor: (theme: any) => theme.palette.mode === "dark" ? "rgba(211,47,47,0.08)" : "rgba(211,47,47,0.04)" }),
+        }}>
+            {/* Icone fichier */}
+            <Box sx={{ flexShrink: 0, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <FileTypeIcon extension={ext} size={32} />
+            </Box>
 
-            >
-                <CardContent>
-                    <Stack divider={<Divider variant="inset"/>} >
-                        <Toolbar variant="dense" disableGutters sx={{m: 0, position: 'relative'}} >
-                            <CardMedia component="img" src={icon} sx={{height: 50, width: 50, mr: 1}} />
-                            <Stack flexGrow={1}>
-                                <Typography
-                                    color="primary"
-                                    fontWeight="bold"
-                                    sx={{
-                                        display: '-webkit-box',
-                                        maxWidth: 200,
-                                        WebkitLineClamp: 1,
-                                        WebkitBoxOrient: 'vertical',
-                                        overflow: 'hidden',
-                                    }}
-                                    title={file?.name}
-                                >{file?.name}</Typography>
-                                <Typography color="text.secondary" variant="caption" >
-                                    {
-                                        typeof upload.loaded === 'number' ?
-                                        (<>
-                                            {
-                                            Math.floor((upload.loaded ?? 0) * 100 / (upload.total ?? 1))
-                                            }%, {
-                                                upload.loaded === upload.total ?
-                                                normaliseOctetSize(upload.total ?? 0) :
-                                                `${normaliseOctetSize((upload as any).upload)} sur ${normaliseOctetSize(upload.total ?? 0)}`
-                                           }
-                                        </>) : t('downloads.preparingUpload')
+            {/* Infos */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="body2" fontWeight={600} noWrap title={name}>
+                    {name}
+                </Typography>
 
-                                    }
-                                </Typography>
-                            </Stack>
-                            {(end || aborted) &&
-                            <IconButton
-                                title={t("common.close")}
-                                sx={{position: 'absolute', top: '-5px', right: '-10px'}}
-                                onClick={() => {
-                                    remove?.();
-                                }}
-                                value=""
-                            >
-                                <CloseRoundedIcon fontSize="small" />
-                            </IconButton>}
-                        </Toolbar>
-                        <MuiBox
-                            justifyContent="end"
-                            alignItems="end"
-                            display="flex"
-                            minHeight={30}
-                        >
-                            <ListItem sx={{ flexGrow: 1, mt: 1, p:0 }}>
-                                {loading ?
-                                (<React.Fragment>
-                                    <LinearProgress
-                                        value={((upload.loaded ?? 0) * 100 / (upload.total ?? 1)) || 0}
-                                        variant={end === null ? 'determinate' : 'determinate'}
-                                        sx={{
-                                            flexGrow: 1,
-                                            mr: 1,
-                                        }}
-                                    />
-                                    <Button
-                                        children={t('common.cancel')}
-                                        onClick={cancel}
-                                    />
-                                </React.Fragment>):
-                                (<React.Fragment>
-                                    <ListItemIcon>
-                                        {end && <FileDownloadDoneRoundedIcon color="success" fontSize="small"/>}
-                                        {aborted && <CancelOutlinedIcon color="error" fontSize="small"/>}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={
-                                            <React.Fragment>
-                                                {end && t('downloads.uploadDone')}
-                                                {aborted && t('downloads.uploadFailed')}
-                                            </React.Fragment>
-                                        }
-                                        primaryTypographyProps={{
-                                            variant: 'caption',
-                                            color: ({palette}: any) => aborted ? palette.error.main : palette.success.main
-                                        }}
-                                    />
-                                    {aborted && <Button color="error" children={t('common.retry')} onClick={resend}/>}
-                                </React.Fragment>)}
-                            </ListItem>
-                        </MuiBox>
-                    </Stack>
-                </CardContent>
-            </Card>
-        </MuiBox>
-    )
+                {isUploading && (
+                    <>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+                            <LinearProgress variant="determinate" value={percent} sx={{ flex: 1, borderRadius: 1, height: 4 }} />
+                            <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0, fontSize: 11 }}>
+                                {percent}%
+                            </Typography>
+                        </Box>
+                        <Typography variant="caption" color="text.disabled" sx={{ fontSize: 10 }}>
+                            {sizeText}
+                        </Typography>
+                    </>
+                )}
+
+                {isDone && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.25 }}>
+                        <CheckCircleRoundedIcon sx={{ fontSize: 14, color: "success.main" }} />
+                        <Typography variant="caption" color="success.main" fontWeight={500}>
+                            {t('downloads.uploadDone')}
+                        </Typography>
+                        <Typography variant="caption" color="text.disabled" sx={{ ml: 0.5 }}>
+                            {normaliseOctetSize(upload.total ?? 0)}
+                        </Typography>
+                    </Box>
+                )}
+
+                {isFailed && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.25 }}>
+                        <ErrorOutlineRoundedIcon sx={{ fontSize: 14, color: "error.main" }} />
+                        <Typography variant="caption" color="error.main" fontWeight={500}>
+                            {t('downloads.uploadFailed')}
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
+
+            {/* Actions */}
+            <Box sx={{ flexShrink: 0, display: "flex", gap: 0.25 }}>
+                {isUploading && (
+                    <Tooltip title={t('common.cancel')}>
+                        <IconButton size="small" onClick={cancel} sx={{ color: "text.secondary" }}>
+                            <CloseRoundedIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                {isFailed && (
+                    <Tooltip title={t('common.retry')}>
+                        <IconButton size="small" onClick={resend} color="error">
+                            <ReplayRoundedIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                {(isDone || isFailed) && (
+                    <Tooltip title={t('common.close')}>
+                        <IconButton size="small" onClick={remove} sx={{ color: "text.disabled" }}>
+                            <CloseRoundedIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </Box>
+        </Box>
+    );
 }
