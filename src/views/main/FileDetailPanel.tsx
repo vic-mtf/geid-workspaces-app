@@ -12,7 +12,7 @@ import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined
 import FolderOpenOutlinedIcon from "@mui/icons-material/FolderOpenOutlined";
 import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
 import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
-import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
@@ -124,7 +124,7 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
               {fileType === "video" && (
                 <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                   <Box sx={{ bgcolor: "rgba(0,0,0,0.45)", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
-                    <PlayArrowRoundedIcon sx={{ color: "common.white", fontSize: 24 }} />
+                    <PlayArrowOutlinedIcon sx={{ color: "common.white", fontSize: 24 }} />
                   </Box>
                 </Box>
               )}

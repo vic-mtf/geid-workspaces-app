@@ -18,10 +18,10 @@ import {
     Divider,
 } from '@mui/material';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
-import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import useAxios from '@/utils/useAxios';
 import { RootState } from '@/types';
 
@@ -128,11 +128,11 @@ export default function FolderPickerDialog({
             <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 0.5, gap: 0.5, borderBottom: 1, borderColor: 'divider' }}>
                 {pathParts.length > 0 && (
                     <IconButton size="small" onClick={handleGoBack} sx={{ mr: 0.5 }}>
-                        <ArrowBackRoundedIcon fontSize="small" />
+                        <ArrowBackOutlinedIcon fontSize="small" />
                     </IconButton>
                 )}
                 <IconButton size="small" onClick={handleGoRoot} disabled={pathParts.length === 0}>
-                    <HomeRoundedIcon fontSize="small" />
+                    <HomeOutlinedIcon fontSize="small" />
                 </IconButton>
                 {pathParts.length > 0 && <NavigateNextIcon sx={{ fontSize: 16, color: 'text.disabled' }} />}
                 {pathParts.map((part, i) => (
@@ -205,7 +205,7 @@ export default function FolderPickerDialog({
                                             <NavigateNextIcon fontSize="small" />
                                         </IconButton>
                                     )}
-                                    {isSelected && <CheckRoundedIcon color="primary" sx={{ fontSize: 18, ml: 0.5 }} />}
+                                    {isSelected && <CheckOutlinedIcon color="primary" sx={{ fontSize: 18, ml: 0.5 }} />}
                                 </ListItemButton>
                             );
                         })}

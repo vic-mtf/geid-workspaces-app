@@ -12,7 +12,7 @@ import {
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import ErrorRoundedIcon  from '@mui/icons-material/ErrorRounded';
-import CheckRoundedIcon  from '@mui/icons-material/CheckRounded';
+import CheckOutlinedIcon  from '@mui/icons-material/CheckOutlined';
 
 const idField = parseInt(String(Math.random() * 1000000));
 
@@ -136,7 +136,7 @@ const TextFieldController = forwardRef<any, TextFieldControllerProps>((props, re
                         { checking && icon &&
                             <InputAdornment position="end">
                                 { color === 'error' ?
-                                <ErrorRoundedIcon fontSize="small" color={color as any}/> : <CheckRoundedIcon  color={color as any}/>}
+                                <ErrorRoundedIcon fontSize="small" color={color as any}/> : <CheckOutlinedIcon  color={color as any}/>}
                             </InputAdornment>
                         } {actionsIcons}
                     </React.Fragment>

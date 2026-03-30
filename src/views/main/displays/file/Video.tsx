@@ -7,7 +7,7 @@
  */
 
 import { Box, Skeleton, Typography } from "@mui/material";
-import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
 import React, { useMemo } from "react";
 import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import useVideoInfo from "@/hooks/useVideoInfo";
@@ -93,7 +93,7 @@ function Video(props: VideoProps) {
                 backdropFilter: "blur(2px)",
               }}
             >
-              <PlayArrowRoundedIcon sx={{ color: "common.white", fontSize: 20 }} />
+              <PlayArrowOutlinedIcon sx={{ color: "common.white", fontSize: 20 }} />
             </Box>
           </Box>
         )}

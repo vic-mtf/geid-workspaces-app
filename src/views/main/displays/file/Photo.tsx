@@ -1,12 +1,9 @@
 /**
  * Photo — Affichage d'une image en mode vignette.
- *
- * 1. Skeleton pendant le chargement initial
- * 2. Miniature progressive : low (flou) → medium/high (net)
- * 3. Ratio naturel de l'image preserve
+ * Taille fixe, ratio preserve via objectFit contain.
  */
 
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { Box, Skeleton, Typography } from "@mui/material";
 import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import FileTypeIcon from "@/components/FileTypeIcon";
@@ -22,35 +19,13 @@ interface PhotoProps {
 
 function Photo(props: PhotoProps) {
   const { src, loading, isBlurred } = useAdaptiveThumbnail(props.url);
-  // Ratio depuis le backend ou detecte au chargement
-  const propsRatio = props.imageWidth && props.imageHeight && props.imageHeight > 0
-    ? props.imageWidth / props.imageHeight : null;
-  const [detectedRatio, setDetectedRatio] = useState<number | null>(null);
-  const ratio = propsRatio || detectedRatio;
-
-  const onLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (propsRatio) return; // deja connu
-    const img = e.currentTarget;
-    if (img.naturalWidth && img.naturalHeight) {
-      setDetectedRatio(img.naturalWidth / img.naturalHeight);
-    }
-  }, [propsRatio]);
-
-  const maxW = 140;
-  const maxH = 120;
-  let w = 100;
-  let h = 120;
-  if (ratio) {
-    if (ratio >= 1) { w = Math.min(maxW, maxH * ratio); h = w / ratio; }
-    else { h = Math.min(maxH, maxW / ratio); w = h * ratio; }
-  }
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
       <Box
         sx={{
-          width: w,
-          height: h,
+          width: 120,
+          height: 100,
           mb: 0.5,
           borderRadius: 2,
           overflow: "hidden",
@@ -60,7 +35,6 @@ function Photo(props: PhotoProps) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          transition: "width 0.2s, height 0.2s",
         }}
       >
         {loading && !src && (
@@ -72,11 +46,10 @@ function Photo(props: PhotoProps) {
             component="img"
             src={src}
             draggable={false}
-            onLoad={onLoad}
             sx={{
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain",
               pointerEvents: "none",
               filter: isBlurred ? "blur(2px)" : "none",
               transition: "filter 0.3s ease",

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import {
   Box, Button, IconButton, LinearProgress, Typography, Tooltip,
 } from '@mui/material';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
-import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
 import normaliseOctetSize from '@/utils/normaliseOctetSize';
 import FileTypeIcon from '@/components/FileTypeIcon';
 import getFileExtension from '@/utils/getFileExtension';
@@ -120,21 +120,21 @@ export default function DownloadItem(props: DownloadItemProps) {
                 {isUploading && (
                     <Tooltip title={t('common.cancel')}>
                         <IconButton size="small" onClick={cancel} sx={{ color: "text.secondary" }}>
-                            <CloseRoundedIcon sx={{ fontSize: 18 }} />
+                            <CloseOutlinedIcon sx={{ fontSize: 18 }} />
                         </IconButton>
                     </Tooltip>
                 )}
                 {isFailed && (
                     <Tooltip title={t('common.retry')}>
                         <IconButton size="small" onClick={resend} color="error">
-                            <ReplayRoundedIcon sx={{ fontSize: 18 }} />
+                            <ReplayOutlinedIcon sx={{ fontSize: 18 }} />
                         </IconButton>
                     </Tooltip>
                 )}
                 {(isDone || isFailed) && (
                     <Tooltip title={t('common.close')}>
                         <IconButton size="small" onClick={remove} sx={{ color: "text.disabled" }}>
-                            <CloseRoundedIcon sx={{ fontSize: 16 }} />
+                            <CloseOutlinedIcon sx={{ fontSize: 16 }} />
                         </IconButton>
                     </Tooltip>
                 )}

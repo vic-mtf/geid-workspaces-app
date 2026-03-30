@@ -1,6 +1,6 @@
 import { Badge, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, Typography, alpha, useTheme } from '@mui/material'
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
-import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
+import ExpandLessOutlinedIcon from '@mui/icons-material/ExpandLessOutlined';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import listOptionMenu from '@/views/navigation/listOptionMenu';
@@ -59,7 +59,7 @@ function ListOptions () {
                         <Badge badgeContent={pendingShareCount} color="error" sx={{ ml: 1, '& .MuiBadge-badge': { fontSize: 10, minWidth: 16, height: 16 } }} />
                     )}
                     {hasChildren && (
-                        isOpen ? <ExpandLessRoundedIcon sx={{ fontSize: 18, color: 'text.secondary' }} /> : <ExpandMoreRoundedIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                        isOpen ? <ExpandLessOutlinedIcon sx={{ fontSize: 18, color: 'text.secondary' }} /> : <ExpandMoreOutlinedIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                     )}
                     {option.disabled && (
                         <Typography variant="caption" color="text.disabled" sx={{ fontSize: 9, ml: 0.5 }}>

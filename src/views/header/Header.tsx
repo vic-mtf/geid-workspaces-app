@@ -10,7 +10,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -195,7 +195,7 @@ export default function Header() {
                   ?.dispatchEvent(new CustomEvent("_toggle_nav_drawer"));
               }}
             >
-              <MenuRoundedIcon />
+              <MenuOutlinedIcon />
             </IconButton>
           )}
           <MuiBox

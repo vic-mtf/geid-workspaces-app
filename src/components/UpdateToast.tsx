@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Box, Fade, Typography } from "@mui/material";
-import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
+import SyncOutlinedIcon from "@mui/icons-material/SyncOutlined";
 import { useTranslation } from "react-i18next";
 
 interface UpdateToastProps {
@@ -40,7 +40,7 @@ function UpdateToast({ open, onClose, duration = 2500 }: UpdateToastProps) {
           opacity: 0.6,
         }}
       >
-        <SyncRoundedIcon sx={{ fontSize: 12 }} />
+        <SyncOutlinedIcon sx={{ fontSize: 12 }} />
         <Typography sx={{ fontSize: 11, fontWeight: 500, whiteSpace: "nowrap" }}>
           {t("files.dataUpdated") || "Contenu mis a jour"}
         </Typography>

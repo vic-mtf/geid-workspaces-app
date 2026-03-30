@@ -1,7 +1,7 @@
 import { Box, Drawer, IconButton, Stack, Toolbar, Tooltip, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import DownloadItem from '@/views/main/sub-header/Downloads-menu-drawer/DownloadItem';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 
 interface DownloadsMenuDrawerProps {
@@ -53,7 +53,7 @@ export default function DownloadsMenuDrawer({ open, onClose, loadingList, loadNu
                 </Box>
                 <Tooltip title={t("common.close")}>
                     <IconButton size="small" onClick={onClose}>
-                        <CloseRoundedIcon fontSize="small" />
+                        <CloseOutlinedIcon fontSize="small" />
                     </IconButton>
                 </Tooltip>
             </Box>

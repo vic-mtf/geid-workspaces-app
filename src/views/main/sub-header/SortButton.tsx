@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import SortRoundedIcon from "@mui/icons-material/SortRounded";
-import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import { Button, Divider, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -31,7 +31,7 @@ export default function SortButton() {
 
   return (
     <React.Fragment>
-      <Button endIcon={<ExpandMoreRoundedIcon />} startIcon={<SortRoundedIcon />}
+      <Button endIcon={<ExpandMoreOutlinedIcon />} startIcon={<SortRoundedIcon />}
         variant="outlined" color="inherit" ref={anchorEl} onClick={() => setOpenMenu(true)}>
         {t("sort.sort")}
       </Button>
@@ -39,14 +39,14 @@ export default function SortButton() {
         slotProps={{ paper: { sx: { bgcolor: (t: any) => t.palette.background.paper + t.customOptions.opacity, backdropFilter: (t: any) => `blur(${t.customOptions.blur})`, border: 1, borderColor: "divider", borderRadius: 2 } } }}>
         {sortTypes.map(({ label, value }) => (
           <MenuItem key={value} onClick={() => { dispatch(setSort(value)); setOpenMenu(false); }}>
-            <ListItemIcon>{value === sort ? <CheckRoundedIcon /> : null}</ListItemIcon>
+            <ListItemIcon>{value === sort ? <CheckOutlinedIcon /> : null}</ListItemIcon>
             <ListItemText primary={label} primaryTypographyProps={{ variant: "body2" }} />
           </MenuItem>
         ))}
         <Divider component="li" />
         {sortDirs.map(({ label, value }) => (
           <MenuItem key={value} onClick={() => { dispatch(setOrder(value)); setOpenMenu(false); }}>
-            <ListItemIcon>{value === order ? <CheckRoundedIcon /> : null}</ListItemIcon>
+            <ListItemIcon>{value === order ? <CheckOutlinedIcon /> : null}</ListItemIcon>
             <ListItemText primary={label} primaryTypographyProps={{ variant: "body2" }} />
           </MenuItem>
         ))}

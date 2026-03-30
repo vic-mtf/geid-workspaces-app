@@ -8,15 +8,15 @@ import { useSelector } from "react-redux";
 import {
   Box, CircularProgress, IconButton, LinearProgress, Slider, Typography, Tooltip, Menu, MenuItem,
 } from "@mui/material";
-import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
-import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
-import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
-import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
-import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
-import FullscreenExitRoundedIcon from "@mui/icons-material/FullscreenExitRounded";
-import SpeedRoundedIcon from "@mui/icons-material/SpeedRounded";
-import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
-import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
+import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
+import PauseOutlinedIcon from "@mui/icons-material/PauseOutlined";
+import VolumeUpOutlinedIcon from "@mui/icons-material/VolumeUpOutlined";
+import VolumeOffOutlinedIcon from "@mui/icons-material/VolumeOffOutlined";
+import FullscreenOutlinedIcon from "@mui/icons-material/FullscreenOutlined";
+import FullscreenExitOutlinedIcon from "@mui/icons-material/FullscreenExitOutlined";
+import SpeedOutlinedIcon from "@mui/icons-material/SpeedOutlined";
+import Forward10OutlinedIcon from "@mui/icons-material/Forward10Outlined";
+import Replay10OutlinedIcon from "@mui/icons-material/Replay10Outlined";
 import { RootState } from "@/types";
 
 interface VideoViewerProps {
@@ -228,7 +228,7 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
             bgcolor: "rgba(0,0,0,0.5)", borderRadius: "50%", width: 64, height: 64,
             display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)",
           }}>
-            <PlayArrowRoundedIcon sx={{ color: "common.white", fontSize: 40 }} />
+            <PlayArrowOutlinedIcon sx={{ color: "common.white", fontSize: 40 }} />
           </Box>
         </Box>
       )}
@@ -281,14 +281,14 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
         {/* Controls row */}
         <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.25, sm: 0.5 } }}>
           <IconButton size="small" onClick={togglePlay} sx={{ color: "rgba(255,255,255,0.9)" }}>
-            {playing ? <PauseRoundedIcon /> : <PlayArrowRoundedIcon />}
+            {playing ? <PauseOutlinedIcon /> : <PlayArrowOutlinedIcon />}
           </IconButton>
 
           <IconButton size="small" onClick={() => skip(-10)} sx={{ color: "rgba(255,255,255,0.7)" }}>
-            <Replay10RoundedIcon sx={{ fontSize: 20 }} />
+            <Replay10OutlinedIcon sx={{ fontSize: 20 }} />
           </IconButton>
           <IconButton size="small" onClick={() => skip(10)} sx={{ color: "rgba(255,255,255,0.7)" }}>
-            <Forward10RoundedIcon sx={{ fontSize: 20 }} />
+            <Forward10OutlinedIcon sx={{ fontSize: 20 }} />
           </IconButton>
 
           <Typography sx={{ color: "rgba(255,255,255,0.8)", mx: 1, fontSize: 12, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>
@@ -300,7 +300,7 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
           {/* Volume */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, "&:hover .volume-slider": { width: 70, opacity: 1 } }}>
             <IconButton size="small" onClick={toggleMute} sx={{ color: "rgba(255,255,255,0.8)" }}>
-              {muted || volume === 0 ? <VolumeOffRoundedIcon sx={{ fontSize: 20 }} /> : <VolumeUpRoundedIcon sx={{ fontSize: 20 }} />}
+              {muted || volume === 0 ? <VolumeOffOutlinedIcon sx={{ fontSize: 20 }} /> : <VolumeUpOutlinedIcon sx={{ fontSize: 20 }} />}
             </IconButton>
             <Slider
               className="volume-slider"
@@ -317,7 +317,7 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
           {/* Speed */}
           <Tooltip title={`Vitesse ${speed}x`}>
             <IconButton size="small" onClick={(e) => setSpeedAnchor(e.currentTarget)} sx={{ color: "rgba(255,255,255,0.8)", fontSize: 12, fontWeight: 700, minWidth: 0 }}>
-              {speed !== 1 ? <Typography sx={{ fontSize: 12, color: "primary.main", fontWeight: 700 }}>{speed}x</Typography> : <SpeedRoundedIcon sx={{ fontSize: 20 }} />}
+              {speed !== 1 ? <Typography sx={{ fontSize: 12, color: "primary.main", fontWeight: 700 }}>{speed}x</Typography> : <SpeedOutlinedIcon sx={{ fontSize: 20 }} />}
             </IconButton>
           </Tooltip>
           <Menu
@@ -344,7 +344,7 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
 
           {/* Fullscreen */}
           <IconButton size="small" onClick={toggleFullscreen} sx={{ color: "rgba(255,255,255,0.8)" }}>
-            {isFullscreen ? <FullscreenExitRoundedIcon sx={{ fontSize: 22 }} /> : <FullscreenRoundedIcon sx={{ fontSize: 22 }} />}
+            {isFullscreen ? <FullscreenExitOutlinedIcon sx={{ fontSize: 22 }} /> : <FullscreenOutlinedIcon sx={{ fontSize: 22 }} />}
           </IconButton>
         </Box>
       </Box>

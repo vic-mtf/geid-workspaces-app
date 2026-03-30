@@ -9,7 +9,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import FileTypeIcon from "@/components/FileTypeIcon";
@@ -91,7 +91,7 @@ export default function FormContent({ onClose, onSubmit, file }: FormContentProp
         <Button onClick={onClose} color="inherit">
           {t("common.cancel")}
         </Button>
-        <Button type="submit" variant="contained" startIcon={<SendRoundedIcon />} sx={{ textTransform: "none" }}>
+        <Button type="submit" variant="contained" startIcon={<SendOutlinedIcon />} sx={{ textTransform: "none" }}>
           {t("archives.sendArticle")}
         </Button>
       </DialogActions>

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
-import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
+import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
 import PublishRoundedIcon from "@mui/icons-material/PublishRounded";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
@@ -26,7 +26,7 @@ export default function TeleverseButton() {
     <React.Fragment>
       <Button
         startIcon={<PublishRoundedIcon />}
-        endIcon={<ExpandMoreRoundedIcon />}
+        endIcon={<ExpandMoreOutlinedIcon />}
         variant="outlined"
         color="inherit"
         ref={anchorEl}

@@ -10,7 +10,7 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import { useTranslation } from "react-i18next";
@@ -52,7 +52,7 @@ const SelectionActionBar = React.memo(function SelectionActionBar({
     >
       <Tooltip title={t("selection.deselectAll")}>
         <IconButton size="small" color="inherit" onClick={onClearSelection}>
-          <CloseRoundedIcon fontSize="small" />
+          <CloseOutlinedIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Typography variant="body2" fontWeight={600} sx={{ mr: "auto" }}>

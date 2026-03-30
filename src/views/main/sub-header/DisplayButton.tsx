@@ -1,10 +1,10 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Button, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
-import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import SegmentRoundedIcon from '@mui/icons-material/SegmentRounded';
 import ViewStreamRoundedIcon from '@mui/icons-material/ViewStreamRounded';
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { setDisplay } from "@/redux/app";
@@ -28,7 +28,7 @@ export default function DisplayButton() {
   return (
     <React.Fragment>
       <Button
-        endIcon={<ExpandMoreRoundedIcon />}
+        endIcon={<ExpandMoreOutlinedIcon />}
         startIcon={btnSelected?.icon}
         ref={anchorEl}
         variant="outlined"
@@ -44,7 +44,7 @@ export default function DisplayButton() {
       >
         {listDisplayMode.map(({ icon, label, key, value }) => (
           <MenuItem key={key} sx={{ borderRadius: 2 }} onClick={() => { dispatch(setDisplay(value)); setOpenMenu(false); }}>
-            <ListItemIcon>{key === btnSelected?.key ? <CheckRoundedIcon /> : null}</ListItemIcon>
+            <ListItemIcon>{key === btnSelected?.key ? <CheckOutlinedIcon /> : null}</ListItemIcon>
             <ListItemIcon>{icon}</ListItemIcon>
             <ListItemText primary={label} />
           </MenuItem>

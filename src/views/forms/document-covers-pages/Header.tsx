@@ -1,4 +1,4 @@
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { AppBar, Button, Toolbar, Tooltip, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,7 +33,7 @@ export default function Header ({refresh, onClose}: HeaderProps) {
                             value=""
                             onClick={onClose}
                         >
-                            <CloseRoundedIcon fontSize="small"/>
+                            <CloseOutlinedIcon fontSize="small"/>
                         </IconButton>
                     </Tooltip>
                     <Typography

@@ -8,9 +8,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Box, IconButton, Typography, Tooltip, useMediaQuery, useTheme } from "@mui/material";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
 interface ViewerTopBarProps {
   filename: string;
@@ -56,12 +56,12 @@ const ViewerTopBar = React.memo(function ViewerTopBar({
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
         <Tooltip title={t("viewer.download")}>
           <IconButton onClick={onDownload} sx={{ color: "common.white" }}>
-            <DownloadRoundedIcon />
+            <DownloadOutlinedIcon />
           </IconButton>
         </Tooltip>
         <Tooltip title={t("viewer.delete")}>
           <IconButton onClick={onDelete} sx={{ color: "common.white" }}>
-            <DeleteRoundedIcon />
+            <DeleteOutlinedIcon />
           </IconButton>
         </Tooltip>
       </Box>
@@ -85,7 +85,7 @@ const ViewerTopBar = React.memo(function ViewerTopBar({
       {/* Right — close */}
       <Tooltip title={t("common.close")}>
         <IconButton onClick={onClose} sx={{ color: "common.white" }}>
-          <CloseRoundedIcon />
+          <CloseOutlinedIcon />
         </IconButton>
       </Tooltip>
     </Box>

@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import MusicNoteRoundedIcon from "@mui/icons-material/MusicNoteRounded";
+import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import { RootState } from "@/types";
 
 interface AudioViewerProps {
@@ -55,7 +55,7 @@ const AudioViewer = React.memo(function AudioViewer({ fileUrl, filename }: Audio
         gap: 3,
       }}
     >
-      <MusicNoteRoundedIcon sx={{ fontSize: 80, color: "common.white", opacity: 0.5 }} />
+      <MusicNoteOutlinedIcon sx={{ fontSize: 80, color: "common.white", opacity: 0.5 }} />
 
       <Typography variant="h6" sx={{ color: "common.white", textAlign: "center", px: 2 }} noWrap>
         {filename}

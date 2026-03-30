@@ -8,7 +8,7 @@ import {
     Paper,
     Popper
 } from '@mui/material';
-import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
+import NavigateNextOutlinedIcon from '@mui/icons-material/NavigateNextOutlined';
 import React, { useRef, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -53,7 +53,7 @@ export default function SubMenu ({icon, label, options, file, onClose}: SubMenuP
                 {icon && <ListItemIcon>{icon}</ListItemIcon>}
                 <ListItemText primary={label} />
                 <ListItemIcon sx={{ '& *': { ml: 2 } }}>
-                    <NavigateNextRoundedIcon/>
+                    <NavigateNextOutlinedIcon/>
                 </ListItemIcon>
             </MenuItem>
             {ReactDOM.createPortal(

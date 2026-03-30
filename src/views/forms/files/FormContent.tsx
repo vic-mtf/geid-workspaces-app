@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { useTranslation } from 'react-i18next';
 import Typology from "@/views/forms/files/Typology";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
@@ -97,7 +97,7 @@ export default function FormContent({
                                     secondaryAction={!isFolder && items.length > 1 ? (
                                         <IconButton size="small" onClick={() =>
                                             setFiles((prev: File[] | null) => prev && prev.length > 1 ? prev.filter((_: File, i: number) => i !== index) : null)
-                                        }><CloseRoundedIcon sx={{ fontSize: 16 }} /></IconButton>
+                                        }><CloseOutlinedIcon sx={{ fontSize: 16 }} /></IconButton>
                                     ) : undefined}
                                 >
                                     <ListItemIcon sx={{ minWidth: 32 }}>

@@ -10,10 +10,10 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import SortButton from "@/views/main/sub-header/SortButton";
@@ -67,7 +67,7 @@ function SubHeader({
             <>
               <Tooltip title={t("selection.deselectAll")}>
                 <IconButton size="small" onClick={onClearSelection}>
-                  <CloseRoundedIcon fontSize="small" />
+                  <CloseOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
               <Typography variant="body2" fontWeight={600}>
@@ -98,8 +98,8 @@ function SubHeader({
                 ref={anchorRef}
                 variant="outlined"
                 color="inherit"
-                endIcon={<ExpandMoreRoundedIcon />}
-                startIcon={<AddRoundedIcon />}
+                endIcon={<ExpandMoreOutlinedIcon />}
+                startIcon={<AddOutlinedIcon />}
                 onClick={() => setMenuOpen(true)}
               >
                 {t("common.new")}

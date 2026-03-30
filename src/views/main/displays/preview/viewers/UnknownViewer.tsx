@@ -7,7 +7,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Box, Button, Typography } from "@mui/material";
-import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import FileTypeIcon from "@/components/FileTypeIcon";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
 
@@ -57,7 +57,7 @@ const UnknownViewer = React.memo(function UnknownViewer({
 
       <Button
         variant="outlined"
-        startIcon={<DownloadRoundedIcon />}
+        startIcon={<DownloadOutlinedIcon />}
         onClick={onDownload}
         sx={{
           mt: 1,

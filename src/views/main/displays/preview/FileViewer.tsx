@@ -17,8 +17,8 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
-import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import ChevronLeftOutlinedIcon from "@mui/icons-material/ChevronLeftOutlined";
+import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 import ViewerTopBar from "@/views/main/displays/preview/components/ViewerTopBar";
 import ImageViewer from "@/views/main/displays/preview/viewers/ImageViewer";
 import VideoViewer from "@/views/main/displays/preview/viewers/VideoViewer";
@@ -240,7 +240,7 @@ export default function FileViewer() {
                 "&:hover": { bgcolor: "rgba(0,0,0,0.6)" },
               }}
             >
-              <ChevronLeftRoundedIcon fontSize="large" />
+              <ChevronLeftOutlinedIcon fontSize="large" />
             </IconButton>
           </Tooltip>
         )}
@@ -269,7 +269,7 @@ export default function FileViewer() {
                 "&:hover": { bgcolor: "rgba(0,0,0,0.6)" },
               }}
             >
-              <ChevronRightRoundedIcon fontSize="large" />
+              <ChevronRightOutlinedIcon fontSize="large" />
             </IconButton>
           </Tooltip>
         )}
