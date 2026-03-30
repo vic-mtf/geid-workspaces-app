@@ -72,7 +72,9 @@ export default function Main() {
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const isMobile = !isDesktop;
   const dispatch = useDispatch();
-  const user = useSelector((store: RootState) => store.user);
+  const userToken = useSelector((store: RootState) => store.user?.token);
+  const userId = useSelector((store: RootState) => store.user?.id);
+  const user = { token: userToken, id: userId };
 
   // Charger le badge invitations au montage
   useEffect(() => {
@@ -99,7 +101,7 @@ export default function Main() {
 
   const FILES_LABEL = t("nav.files");
 
-  const data = useSelector((store: RootState) => store.data);
+  const filesData = useSelector((store: RootState) => (store.data as any)?.files);
   const { pathname, search } = useLocation();
 
   // ── Detail panel ───────────────────────────────────────────
@@ -317,7 +319,7 @@ export default function Main() {
   const order = useSelector((store: RootState) => (store.app as any).order ?? "ascending");
 
   const _data = useMemo(() => {
-    const filtered = [...((data as any)[key] || [])].filter((f: any) => f.name && !f.name.startsWith(".") && !SYSTEM_FILES.has(f.name));
+    const filtered = [...(filesData || [])].filter((f: any) => f.name && !f.name.startsWith(".") && !SYSTEM_FILES.has(f.name));
     const dirs = filtered.filter((f: any) => f.isDirectory);
     const files = filtered.filter((f: any) => !f.isDirectory);
     const sortFn = (a: any, b: any) => {
@@ -332,7 +334,7 @@ export default function Main() {
     files.sort(sortFn);
     if (order === "descending") { dirs.reverse(); files.reverse(); }
     return [...dirs, ...files];
-  }, [key, data, sort, order]);
+  }, [filesData, sort, order]);
 
   const allSelected = useMemo(() => _data.length > 0 && _data.every((f) => selectedFiles.has(f.name ?? "")), [_data, selectedFiles]);
   const selectAll = useCallback(() => { if (allSelected) clearSelection(); else setSelectedFiles(new Set(_data.map((f) => f.name ?? ""))); }, [allSelected, _data, clearSelection]);
