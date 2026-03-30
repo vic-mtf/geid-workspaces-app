@@ -212,6 +212,10 @@ export default function Main() {
           document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_create_folder"));
         }
       }
+      if (e.ctrlKey && e.key === "a") {
+        e.preventDefault();
+        document.getElementById("root")?.dispatchEvent(new CustomEvent("_select_all"));
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -330,6 +334,14 @@ export default function Main() {
   const allSelected = useMemo(() => _data.length > 0 && _data.every((f) => selectedFiles.has(f.name ?? "")), [_data, selectedFiles]);
   const selectAll = useCallback(() => { if (allSelected) clearSelection(); else setSelectedFiles(new Set(_data.map((f) => f.name ?? ""))); }, [allSelected, _data, clearSelection]);
   const getCurrentPath = useCallback(() => folder || "", [folder]);
+
+  // Ctrl+A listener
+  useEffect(() => {
+    const root = document.getElementById("root");
+    const handler = () => selectAll();
+    root?.addEventListener("_select_all", handler);
+    return () => root?.removeEventListener("_select_all", handler);
+  }, [selectAll]);
 
   const handleDeleteConfirm = useCallback(async (permanent: boolean) => {
     setDeleteConfirmOpen(false);
