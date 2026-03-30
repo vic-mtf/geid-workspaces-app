@@ -69,7 +69,8 @@ const ListThumbnail = React.memo(function ListThumbnail({ url }: { url?: string 
     <Avatar
       variant="rounded"
       src={src}
-      sx={{ width: 28, height: 28, mr: -0.5 }}
+      imgProps={{ draggable: false }}
+      sx={{ width: 28, height: 28, mr: -0.5, pointerEvents: "none" }}
     />
   );
 });

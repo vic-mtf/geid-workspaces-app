@@ -22,6 +22,7 @@ import TeleverseButton from "@/views/main/sub-header/TeleverseButton";
 import DisplayButton from "@/views/main/sub-header/DisplayButton";
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import CreateFolderDialog from "@/views/main/CreateFolderDialog";
 
 interface SubHeaderProps {
@@ -38,6 +39,8 @@ function SubHeader({
   onMove,
 }: SubHeaderProps) {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const isFilesView = pathname.startsWith("/files");
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
@@ -81,7 +84,7 @@ function SubHeader({
                 {t("selection.moveSelected", { count: selectedFiles.size })}
               </Button>
             </>
-          ) : (
+          ) : isFilesView ? (
             <>
               <Button
                 ref={anchorRef}
@@ -115,7 +118,7 @@ function SubHeader({
               </Menu>
               <TeleverseButton />
             </>
-          )}
+          ) : null}
         </Stack>
         <Stack direction="row" spacing={2}>
           <UploadFilesButton />
