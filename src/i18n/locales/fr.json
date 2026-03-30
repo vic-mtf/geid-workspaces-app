@@ -1,6 +1,6 @@
 {
   "common": {
-    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter pour continuer.",
+    "sessionExpired": "Votre session a expire. Veuillez vous reconnecter pour continuer.",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "delete": "Supprimer",
@@ -8,7 +8,7 @@
     "rename": "Renommer",
     "open": "Ouvrir",
     "optional": "optionnel",
-    "goToLocation": "Aller a l'emplacement",
+    "goToLocation": "Ouvrir l'emplacement",
     "download": "Telecharger",
     "share": "Partager",
     "copy": "Copier dans",
@@ -21,7 +21,7 @@
     "add": "Ajouter",
     "send": "Envoyer",
     "create": "Creer",
-    "retry": "reessayer",
+    "retry": "Reessayer",
     "show": "Afficher",
     "more": "Plus",
     "new": "Nouveau"
@@ -35,7 +35,7 @@
     "favorites": "Favoris",
     "recent": "Recents",
     "trash": "Corbeille",
-    "shared": "Espace partagé",
+    "shared": "Espace partage",
     "cloud": "Espace cloud"
   },
   "header": {
@@ -48,51 +48,51 @@
   },
   "files": {
     "emptySpace": "Cet espace est vide",
-    "emptySpaceHint": "Utilisez le bouton Televerser pour ajouter des fichiers",
+    "emptySpaceHint": "Utilisez le bouton Televerser pour ajouter des elements.",
     "upload": "Televerser",
-    "uploadFiles": "Televerser les fichiers",
-    "uploadFileItem": "Fichier(s)",
+    "uploadFiles": "Televerser des fichiers",
+    "uploadFileItem": "Fichiers",
     "uploadFolder": "Dossier",
     "newFolder": "Nouveau dossier",
     "newFolderMenu": "Nouveau dossier",
     "folderName": "Nom du dossier",
-    "folderNameEmpty": "Le nom ne peut pas etre vide.",
-    "folderNameInvalid": "Nom invalide (caracteres interdits).",
-    "folderNameExists": "Un dossier avec ce nom existe deja.",
-    "folderCreateError": "Erreur lors de la creation du dossier.",
-    "connectionError": "Erreur de connexion.",
+    "folderNameEmpty": "Le nom du dossier ne peut pas etre vide.",
+    "folderNameInvalid": "Le nom du dossier contient des caracteres non autorises.",
+    "folderNameExists": "Un dossier avec ce nom existe deja. Veuillez choisir un autre nom.",
+    "folderCreateError": "La creation du dossier n'a pas pu aboutir. Veuillez reessayer.",
+    "connectionError": "La connexion au serveur a echoue. Veuillez verifier votre connexion reseau.",
     "renameTo": "Renommer",
     "renameFolder": "Renommer le dossier",
-    "renaming": "Attribution d'un nouveau nom",
+    "renaming": "Changement du nom en cours...",
     "fileRenamed": "Le nom a bien ete modifie.",
     "fileRenameError": "Le renommage n'a pas pu aboutir. Veuillez reessayer.",
     "deleteConfirm": "Supprimer",
     "deletingFile": "Suppression en cours...",
-    "fileDeleted": "Le fichier a bien ete supprime de votre espace.",
-    "folderDeleted": "Le dossier a bien ete supprime de votre espace.",
-    "fileDeleteError": "La suppression du fichier n'a pas pu aboutir. Veuillez reessayer.",
+    "fileDeleted": "L'element a bien ete supprime de votre espace.",
+    "folderDeleted": "Le dossier et tout son contenu ont ete supprimes de votre espace.",
+    "fileDeleteError": "La suppression n'a pas pu aboutir. Veuillez reessayer.",
     "folderDeleteError": "Ce dossier ne peut pas etre supprime. Verifiez qu'il est bien vide avant de reessayer.",
     "deleteError": "Une erreur est survenue lors de la suppression. Veuillez reessayer.",
     "folderRenameError": "Le renommage du dossier n'a pas pu aboutir. Veuillez reessayer.",
     "renameError": "Le renommage n'a pas pu aboutir. Veuillez reessayer.",
-    "openFileError": "Ce fichier ne peut pas etre ouvert pour le moment. Veuillez reessayer.",
-    "dataUpdated": "Vos fichiers ont ete mis a jour",
+    "openFileError": "Cet element ne peut pas etre ouvert pour le moment. Veuillez reessayer.",
+    "dataUpdated": "Le contenu a ete mis a jour.",
     "folderLabel": "Dossier : {{name}}",
     "fileTitleTooltip": "Nom: {{name}}\nType: {{type}}\nDate: {{date}}",
     "dropFilesHere": "Deposez vos fichiers ici",
-    "loadingElements": "Chargement de {{count}} element",
-    "loadingElements_other": "Chargement de {{count}} elements"
+    "loadingElements": "Chargement d'un element en cours...",
+    "loadingElements_other": "Chargement de {{count}} elements en cours..."
   },
   "preview": {
     "size": "Taille : {{size}}",
     "type": "Type : {{type}}",
-    "noPreview": "L'apercu n'est pas disponible pour ce type de fichier",
+    "noPreview": "L'apercu n'est pas disponible pour ce type d'element.",
     "file": "fichier"
   },
   "share": {
     "shareTitle": "Partager",
     "shareLink": "Lien de partage",
-    "generateLink": "Generer un lien",
+    "generateLink": "Generer un lien de partage",
     "linkGenerated": "Le lien de partage a ete genere avec succes.",
     "linkGenerateError": "La generation du lien n'a pas pu aboutir. Veuillez reessayer.",
     "linkCopied": "Le lien a ete copie dans votre presse-papier.",
@@ -100,18 +100,18 @@
     "userIdPlaceholder": "Adresse e-mail de l'utilisateur",
     "permissionRead": "Lecture seule",
     "permissionWrite": "Lecture et modification",
-    "fileShared": "Le fichier a bien ete partage avec l'utilisateur choisi.",
+    "fileShared": "L'element a bien ete partage avec l'utilisateur choisi.",
     "fileShareError": "Le partage n'a pas pu aboutir. Verifiez que l'utilisateur existe dans la plateforme.",
     "currentShares": "Partages en cours",
-    "shareRevoked": "L'acces au fichier partage a ete revoque.",
+    "shareRevoked": "L'acces a l'element partage a ete revoque.",
     "shareRevokeError": "La revocation du partage n'a pas pu aboutir. Veuillez reessayer.",
     "messagePlaceholder": "Ajouter un message (optionnel)",
     "sendInvitation": "Envoyer l'invitation"
   },
   "tags": {
-    "title": "Tags",
-    "noTags": "Aucun tag pour le moment",
-    "newTag": "Nouveau tag",
+    "title": "Mots-cles",
+    "noTags": "Aucun mot-cle pour le moment",
+    "newTag": "Ajouter un mot-cle",
     "tagsUpdated": "Les mots-cles ont ete mis a jour avec succes.",
     "tagsUpdateError": "La modification des mots-cles n'a pas pu aboutir. Veuillez reessayer."
   },
@@ -120,56 +120,56 @@
     "sendToMediaLibrary": "La mediatheque",
     "submitTitle": "Soumettre cet article au service d'archivage",
     "docTitle": "Titre du document",
-    "docTitleRequired": "Veuillez donner un titre a votre document",
-    "docTitleMinLength": "Le titre doit contenir au moins 2 caracteres",
+    "docTitleRequired": "Veuillez donner un titre a votre document.",
+    "docTitleMinLength": "Le titre doit contenir au moins 2 caracteres.",
     "refNumber": "N\u00b0 de reference",
     "refNumberPlaceholder": "Reference interne du document",
-    "refNumberHelper": "Facultatif \u2014 numero ou code de reference interne",
+    "refNumberHelper": "Facultatif — numero ou code de reference interne",
     "description": "Description",
     "descriptionPlaceholder": "Decrivez brievement le contenu du document...",
-    "descriptionRequired": "Veuillez ajouter une description du document",
-    "descriptionMinLength": "La description doit contenir au moins 5 caracteres",
+    "descriptionRequired": "Veuillez ajouter une description du document.",
+    "descriptionMinLength": "La description doit contenir au moins 5 caracteres.",
     "keywords": "Mots-cles (facultatif)",
     "keywordsPlaceholder": "Ex : budget 2024, rapport, finance...",
-    "keywordsHelper": "Separez les mots-cles par des espaces pour faciliter la recherche",
-    "sendArticle": "Envoyer l'article",
-    "sentSuccess": "Le fichier a ete envoye au service d'archivage",
-    "sentError": "Impossible de soumettre ce fichier !",
-    "sending": "Transfert du fichier au service d'archivage en cours...",
-    "cannotArchiveDirectly": "Ce fichier ne peut pas etre archive directement. Veuillez d'abord le televerser dans votre espace personnel.",
+    "keywordsHelper": "Separez les mots-cles par des espaces pour faciliter la recherche.",
+    "sendArticle": "Envoyer au service d'archivage",
+    "sentSuccess": "L'element a bien ete envoye au service d'archivage.",
+    "sentError": "L'envoi au service d'archivage n'a pas pu aboutir. Veuillez reessayer.",
+    "sending": "Transfert de l'element au service d'archivage en cours...",
+    "cannotArchiveDirectly": "Cet element ne peut pas etre archive directement. Veuillez d'abord le televerser dans votre espace personnel.",
     "type": "Type",
-    "subType": "Sous type",
-    "chooseType": "Choisir un type",
-    "noTypeFound": "Aucun type trouve",
-    "noSubTypeFound": "Aucun sous type trouve",
-    "selectElement": "S'il vous plait selectionner un element."
+    "subType": "Sous-type",
+    "chooseType": "Veuillez choisir un type de document.",
+    "noTypeFound": "Aucun type trouve.",
+    "noSubTypeFound": "Aucun sous-type trouve.",
+    "selectElement": "Veuillez selectionner un element."
   },
   "medialibrary": {
     "submitTitle": "Soumettre cet article a la mediatheque",
     "sectionNotice": "En raison de ce type de fichier, cet element sera soumis a la section {{section}}.",
-    "sentSuccess": "Le fichier a ete envoye a la mediatheque avec succes",
-    "sentError": "Impossible de soumettre ce fichier a la Mediatheque",
-    "sending": "L'envoi du fichier a la mediatheque en cours...",
+    "sentSuccess": "L'element a bien ete envoye a la mediatheque.",
+    "sentError": "L'envoi a la mediatheque n'a pas pu aboutir. Veuillez reessayer.",
+    "sending": "Envoi de l'element a la mediatheque en cours...",
     "title": "Titre",
     "author": "Auteur",
     "chooseCover": "Choisir la couverture",
-    "invalidTitle": "Intitule non valide ou trop court.",
+    "invalidTitle": "Le titre est invalide ou trop court.",
     "noElement": "Aucun element",
     "loadingText": "Chargement...",
-    "networkError": "Impossible de recuperer des informations, Verifier le reseau."
+    "networkError": "Impossible de recuperer les informations. Veuillez verifier votre connexion reseau."
   },
   "filesForm": {
-    "uploadTitle": "Televerser les fichiers",
+    "uploadTitle": "Televerser des fichiers",
     "designation": "Designation",
-    "keyword": "Mot cle",
+    "keyword": "Mot-cle",
     "description": "Description",
-    "invalidTitle": "Intitule non valide ou trop court."
+    "invalidTitle": "Le titre est invalide ou trop court."
   },
   "coverPages": {
     "title": "Couvertures des documents",
-    "addCover": "Ajouter une image de couverture depuis votre appareil ...",
-    "coverName": "Nom du couverture",
-    "noCoverAvailable": "Aucune couverture disponible"
+    "addCover": "Ajouter une image de couverture depuis votre appareil...",
+    "coverName": "Nom de la couverture",
+    "noCoverAvailable": "Aucune couverture disponible."
   },
   "detail": {
     "title": "Details",
@@ -181,18 +181,18 @@
     "modified": "Modification",
     "path": "Emplacement",
     "elements": "Elements",
-    "noSelection": "Selectionnez un element pour voir ses details",
+    "noSelection": "Selectionnez un element pour voir ses details.",
     "preview": "Apercu",
     "actions": "Actions",
-    "tags": "Etiquettes",
-    "noTags": "Aucune etiquette"
+    "tags": "Mots-cles",
+    "noTags": "Aucun mot-cle"
   },
   "sort": {
     "sort": "Trier",
     "name": "Nom",
     "date": "Date",
-    "ascending": "Croissante",
-    "descending": "Decroissante",
+    "ascending": "Croissant",
+    "descending": "Decroissant",
     "size": "Taille",
     "modified": "Modification",
     "type": "Type"
@@ -210,19 +210,19 @@
   },
   "downloads": {
     "title": "Telechargements",
-    "noDownloads": "Aucun element telecharge",
-    "uploadComplete": "Telechargement du fichier termine",
-    "uploadDone": "Telechargement termine",
-    "uploadFailed": "Echec de telechargement",
-    "preparingUpload": "Preparation de chargement...",
+    "noDownloads": "Aucun telechargement en cours.",
+    "uploadComplete": "Le telechargement de l'element est termine.",
+    "uploadDone": "Termine",
+    "uploadFailed": "Le telechargement a echoue.",
+    "preparingUpload": "Preparation du chargement...",
     "ofTotal": "{{loaded}} sur {{total}}"
   },
   "profile": {
     "disconnect": "Se deconnecter",
-    "disconnectTitle": "Souhaitez-vous deconnecter le compte ?",
-    "disconnectBody": "Lorsque vous vous deconnectez, vos donnees seront conservees sur cet appareil afin qu'il se souvienne de vous lors de la prochaine tentative de connexion jusqu'a la fin de votre session. vous pouvez le supprimer en cochant la boite avant de vous deconnecter.",
-    "deleteAllData": "Supprimer toutes vos donnees",
-    "disconnectButton": "Deconnexion",
+    "disconnectTitle": "Souhaitez-vous vous deconnecter ?",
+    "disconnectBody": "Lorsque vous vous deconnectez, vos donnees seront conservees sur cet appareil pour faciliter votre prochaine connexion. Vous pouvez supprimer ces donnees en cochant la case ci-dessous avant de vous deconnecter.",
+    "deleteAllData": "Supprimer toutes mes donnees de cet appareil",
+    "disconnectButton": "Se deconnecter",
     "privacyPolicy": "Politique de confidentialite",
     "termsOfUse": "Conditions d'utilisation"
   },
@@ -232,19 +232,19 @@
     "updateError": "La modification des favoris n'a pas pu aboutir. Veuillez reessayer.",
     "addToFavorites": "Ajouter aux favoris",
     "noFavorites": "Aucun favori pour le moment",
-    "noFavoritesHint": "Ajoutez des fichiers en favoris depuis le menu contextuel"
+    "noFavoritesHint": "Ajoutez des elements en favoris depuis le menu contextuel."
   },
   "recent": {
     "all": "Tout",
-    "noRecent": "Aucun fichier consulte recemment",
-    "noRecentHint": "Les fichiers que vous ouvrez apparaitront ici"
+    "noRecent": "Aucun element consulte recemment",
+    "noRecentHint": "Les elements que vous ouvrez ou consultez apparaitront ici."
   },
   "trash": {
     "emptyTrash": "Vider la corbeille",
     "trashEmpty": "La corbeille est vide",
-    "trashEmptyHint": "Les fichiers supprimes apparaitront ici",
+    "trashEmptyHint": "Les elements supprimes apparaitront ici.",
     "restore": "Restaurer",
-    "restoreSuccess": "Le fichier a ete restaure dans son emplacement d'origine.",
+    "restoreSuccess": "L'element a ete restaure a son emplacement d'origine.",
     "restoreError": "La restauration n'a pas pu aboutir. Veuillez reessayer.",
     "deletePermanently": "Supprimer definitivement",
     "permanentSuccess": "L'element a ete definitivement supprime.",
@@ -256,7 +256,7 @@
     "fileMoved": "L'element a bien ete deplace vers le dossier choisi.",
     "fileMoveError": "Le deplacement n'a pas pu aboutir. Veuillez reessayer.",
     "chooseFolder": "Choisir un dossier de destination",
-    "noSubFolder": "Ce dossier ne contient aucun autre dossier"
+    "noSubFolder": "Ce dossier ne contient aucun autre dossier."
   },
   "copyFile": {
     "fileCopied": "Une copie a ete creee dans le dossier choisi.",
@@ -264,7 +264,7 @@
   },
   "cover": {
     "personalSpace": "Espace personnel",
-    "copyright": "Direction Archives et Nouvelles Technologie de l'Information et de la Communication \u00a92022"
+    "copyright": "Direction Archives et Nouvelles Technologies de l'Information et de la Communication \u00a92022"
   },
   "quota": {
     "usedOf": "{{used}} utilises sur {{total}}"
@@ -282,25 +282,25 @@
   },
   "deleteConfirm": {
     "title": "Confirmer la suppression",
-    "messageSingle": "Voulez-vous vraiment supprimer ce fichier ?",
+    "messageSingle": "Voulez-vous vraiment supprimer cet element ?",
     "messageMultiple": "Voulez-vous vraiment supprimer ces {{count}} elements ?",
     "folderSingle": "Voulez-vous vraiment supprimer ce dossier et tout son contenu ?",
     "folderMultiple": "Voulez-vous vraiment supprimer ces {{count}} dossiers et tout leur contenu ?",
     "permanentOption": "Supprimer definitivement (sans passer par la corbeille)",
     "moveToTrash": "Mettre a la corbeille",
     "deletePermanent": "Supprimer definitivement",
-    "movedToTrash": "L'element a ete deplace vers la corbeille. Vous pouvez le restaurer depuis la corbeille.",
+    "movedToTrash": "L'element a ete deplace vers la corbeille. Vous pouvez le restaurer a tout moment.",
     "andMore": "+ {{count}} autre element",
     "andMore_other": "+ {{count}} autres elements"
   },
   "dragDrop": {
-    "moveConfirmTitle": "Deplacer le fichier",
-    "moveConfirmMessage": "Deplacer « {{fileName}} » vers le dossier « {{folderName}} » ?",
-    "moveSuccess": "Le fichier a bien ete deplace dans le dossier.",
+    "moveConfirmTitle": "Deplacer l'element",
+    "moveConfirmMessage": "Deplacer « {{fileName}} » vers « {{folderName}} » ?",
+    "moveSuccess": "L'element a bien ete deplace.",
     "moveError": "Le deplacement n'a pas pu aboutir. Veuillez reessayer."
   },
   "rename": {
-    "inlineError": "Impossible de renommer le fichier"
+    "inlineError": "Le renommage n'a pas pu aboutir. Veuillez reessayer."
   },
   "colors": {
     "title": "Couleur du dossier",
@@ -316,17 +316,17 @@
   },
   "shared": {
     "title": "Espace partage",
-    "received": "Fichiers recus",
-    "sent": "Envoyes",
+    "received": "Elements recus",
+    "sent": "Elements envoyes",
     "invitations": "Invitations",
-    "noReceived": "Aucun fichier partage avec vous",
-    "noReceivedHint": "Les fichiers que d'autres utilisateurs partagent avec vous apparaitront ici",
-    "noSent": "Vous n'avez partage aucun fichier",
-    "noInvitations": "Aucune invitation en attente",
-    "invitationAccepted": "L'invitation a ete acceptee. Le fichier est maintenant accessible dans votre espace partage.",
+    "noReceived": "Aucun element partage avec vous pour le moment.",
+    "noReceivedHint": "Les elements que d'autres utilisateurs partagent avec vous apparaitront ici.",
+    "noSent": "Vous n'avez partage aucun element.",
+    "noInvitations": "Aucune invitation en attente.",
+    "invitationAccepted": "L'invitation a ete acceptee. L'element est maintenant accessible dans votre espace partage.",
     "invitationRejected": "L'invitation a ete refusee.",
     "invitationError": "Le traitement de cette invitation n'a pas pu aboutir. Veuillez reessayer.",
-    "maintenance": "Cette fonctionnalite est en cours de maintenance",
+    "maintenance": "Cette fonctionnalite est en cours de maintenance.",
     "maintenanceHint": "L'espace partage sera bientot disponible avec une nouvelle experience amelioree."
   }
 }
