@@ -20,10 +20,9 @@ function extractFilePath(fileUrl: string): string {
   // fileUrl = https://geidbudget.com/api/stuff/workspace/file/userId/path/name.ext
   const marker = "/api/stuff/workspace/file/";
   const idx = fileUrl.indexOf(marker);
-  if (idx >= 0) return fileUrl.substring(idx + marker.length);
-  // Fallback: try relative URL
-  if (fileUrl.startsWith(marker)) return fileUrl.substring(marker.length);
-  return fileUrl;
+  if (idx >= 0) return decodeURIComponent(fileUrl.substring(idx + marker.length));
+  if (fileUrl.startsWith(marker)) return decodeURIComponent(fileUrl.substring(marker.length));
+  return decodeURIComponent(fileUrl);
 }
 
 const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: VideoViewerProps) {
@@ -59,7 +58,8 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
       .then((data) => {
         if (!cancelled) {
           const streamToken = data.token || data.streamToken;
-          setStreamUrl(`/api/stuff/workspace/file/${filePath}?token=${streamToken}`);
+          const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
+          setStreamUrl(`/api/stuff/workspace/file/${encodedPath}?token=${streamToken}`);
           setLoading(false);
         }
       })

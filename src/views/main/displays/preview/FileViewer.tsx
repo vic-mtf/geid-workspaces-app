@@ -186,12 +186,11 @@ export default function FileViewer() {
       fullScreen
       PaperProps={{
         sx: {
-          bgcolor: "rgba(0,0,0,0.95)",
+          bgcolor: (theme: any) => theme.palette.background.paper + theme.customOptions.opacity,
+          backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
           backgroundImage: "none",
         },
       }}
-      // Prevent Dialog from stealing focus from keyboard nav
-      disableEscapeKeyDown
     >
       {/* Top bar */}
       <ViewerTopBar
