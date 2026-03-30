@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo, useEffect } from 'react';
-import Box from "@/components/Box";
+import React, { useCallback, useEffect } from 'react';
 import _workspace_logo from '@/assets/5a3636b951df37.87798883151350239.webp';
-import { Box as MuiBox, CardMedia, CircularProgress, Divider, Stack, Typography } from "@mui/material";
+import { Box, CardMedia, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import { useTranslation } from 'react-i18next';
-import 'animate.css/source/attention_seekers/swing.css';
 import _logo_geid from '@/assets/geid_logo_blue_without_title.webp';
+import BoxGradient from "@/components/BoxGradient";
 import SwingAnimation from "@/components/SwingAnimation";
 import { useDispatch, useSelector } from 'react-redux';
 import openSignIn from "@/views/cover/openSignIn";
@@ -18,7 +17,7 @@ interface CoverProps {
     setOpened: (val: boolean) => void;
 }
 
-export default function Cover ({ setOpened }: CoverProps) {
+export default function Cover({ setOpened }: CoverProps) {
     const { t } = useTranslation();
     const connected = useSelector((store: RootState) => store.user.connected);
     const dispatch = useDispatch();
@@ -26,18 +25,17 @@ export default function Cover ({ setOpened }: CoverProps) {
 
     const getData = useCallback(async (data?: any) => {
         await getFiles(data);
-        setOpened(true)
+        setOpened(true);
     }, [getFiles, setOpened]);
 
     const handleFinish = useCallback(() => {
-        if(connected) getData();
+        if (connected) getData();
         else openSignIn();
-    },[getData, connected]);
-
+    }, [getData, connected]);
 
     useEffect(() => {
         const handleLogin = (event: any) => {
-            if(event.origin === window.location.origin && event.data) {
+            if (event.origin === window.location.origin && event.data) {
                 const data = {
                     connected: true,
                     ...decrypt(event.data),
@@ -49,99 +47,96 @@ export default function Cover ({ setOpened }: CoverProps) {
                         userId: data.id,
                     }
                 });
-
             }
         };
         SIGN_IN_CHANNEL.addEventListener("message", handleLogin);
         return () => {
             SIGN_IN_CHANNEL.removeEventListener("message", handleLogin);
-        }
+        };
     }, [dispatch, getData]);
 
     return (
-        <Box
+        <BoxGradient
             sx={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                userSelect: 'none',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
+                position: "fixed",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                userSelect: "none",
+                overflow: "hidden",
             }}
         >
-           <Stack
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            flex={1}
-            spacing={1}
-           >
-            <SwingAnimation
-                delay={2}
-                onFinish={handleFinish}
-            >
-                <CardMedia
+            {/* Contenu central — logo + titre */}
+            <Stack alignItems="center" spacing={{ xs: 1.5, sm: 2 }}>
+                <SwingAnimation delay={2} onFinish={handleFinish}>
+                    <CardMedia
                         component="img"
                         src={_workspace_logo}
                         draggable={false}
-                        sx={{ height: 100, width: 100 }}
-                />
-            </SwingAnimation>
-            <MuiBox
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                flexDirection="column"
-                position="relative"
-            >
+                        sx={{
+                            height: { xs: 64, sm: 80, md: 100 },
+                            width: { xs: 64, sm: 80, md: 100 },
+                        }}
+                    />
+                </SwingAnimation>
                 <Stack
-                    spacing={1}
-                    direction="row"
-                    width={{ xs: "90%", sm: 400, md: 500 }}
-                    my={1}
+                    spacing={{ xs: 0.5, sm: 1 }}
+                    direction={{ xs: "column", sm: "row" }}
                     divider={
                         <Divider
                             flexItem
                             orientation="vertical"
                             sx={{
-                                bgcolor: 'text.primary',
+                                bgcolor: "text.primary",
                                 borderRightWidth: 2,
                                 display: { xs: "none", sm: "block" },
                             }}
                         />
                     }
-                    display="flex"
+                    alignItems="center"
                     justifyContent="center"
                 >
                     <CardMedia
                         component="img"
                         src={_logo_geid}
-                        sx={{width: 120}}
+                        sx={{ width: { xs: 60, sm: 90, md: 120 } }}
                     />
                     <Typography
                         noWrap
-                        variant="h4"
                         color="text.primary"
-                    >{t('cover.personalSpace')}</Typography>
+                        sx={{
+                            fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2.125rem" },
+                            fontWeight: 400,
+                        }}
+                    >
+                        {t('cover.personalSpace')}
+                    </Typography>
                 </Stack>
-                {loading &&
-                <CircularProgress
-                    size={15}
-                    sx={{
-                        position: 'absolute',
-                        top: '150%',
-                        color: 'text.primary'
-                    }}
-                />}
-            </MuiBox>
-           </Stack>
-           <Typography variant="caption" paragraph color="text.primary">
-                {t('cover.copyright')}
-            </Typography>
-        </Box>
-    )
+                {loading && (
+                    <CircularProgress size={18} sx={{ color: 'text.primary', mt: 2 }} />
+                )}
+            </Stack>
+
+            {/* Footer — toujours visible en bas */}
+            <Box
+                sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    textAlign: "center",
+                    py: { xs: 1.5, sm: 2 },
+                    px: 2,
+                }}
+            >
+                <Typography variant="caption" color="text.primary">
+                    {t('cover.copyright')}
+                </Typography>
+            </Box>
+        </BoxGradient>
+    );
 }
 
 const SIGN_IN_CHANNEL = new BroadcastChannel(channels.signIn);
