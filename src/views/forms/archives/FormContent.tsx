@@ -39,10 +39,12 @@ export default function FormContent({ onClose, onSubmit, file }: FormContentProp
     formState: { errors },
   } = useForm({
     defaultValues: {
-      designation: nameWithoutExt,
-      description: "",
+      designation: file?.designation || nameWithoutExt,
+      description: file?.description || "",
       refNumber: "",
       tags: (file?.tags || []).join(" "),
+      type: file?.docType || "",
+      subType: file?.docSubType || "",
     },
   });
 
