@@ -1,9 +1,9 @@
 /**
  * Photo — Affichage d'une image en mode vignette.
- * Taille fixe, ratio preserve via objectFit contain.
+ * Le container s'adapte au ratio de l'image (backend ou detecte).
  */
 
-import React from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Box, Skeleton, Typography } from "@mui/material";
 import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import FileTypeIcon from "@/components/FileTypeIcon";
@@ -13,6 +13,8 @@ interface PhotoProps {
   url?: string;
   name?: string;
   icon?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   renderName?: React.ReactNode;
   [key: string]: any;
 }
@@ -20,12 +22,43 @@ interface PhotoProps {
 function Photo(props: PhotoProps) {
   const { src, loading, isBlurred } = useAdaptiveThumbnail(props.url);
 
+  // Ratio depuis le backend ou detecte au chargement
+  const propsRatio = props.imageWidth && props.imageHeight && props.imageHeight > 0
+    ? props.imageWidth / props.imageHeight : null;
+  const [detectedRatio, setDetectedRatio] = useState<number | null>(null);
+  const ratio = propsRatio || detectedRatio;
+
+  const onLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (propsRatio) return;
+    const img = e.currentTarget;
+    if (img.naturalWidth && img.naturalHeight) {
+      setDetectedRatio(img.naturalWidth / img.naturalHeight);
+    }
+  }, [propsRatio]);
+
+  // Container adapte au ratio — max 160px large, max 130px haut
+  const size = useMemo(() => {
+    const maxW = 160;
+    const maxH = 130;
+    if (!ratio) return { width: 120, height: 100 }; // defaut avant detection
+    if (ratio >= 1) {
+      // Paysage
+      const w = maxW;
+      const h = Math.round(w / ratio);
+      return { width: w, height: Math.min(h, maxH) };
+    }
+    // Portrait
+    const h = maxH;
+    const w = Math.round(h * ratio);
+    return { width: Math.min(w, maxW), height: h };
+  }, [ratio]);
+
   return (
     <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
       <Box
         sx={{
-          width: 120,
-          height: 100,
+          width: size.width,
+          height: size.height,
           mb: 0.5,
           borderRadius: 2,
           overflow: "hidden",
@@ -46,10 +79,11 @@ function Photo(props: PhotoProps) {
             component="img"
             src={src}
             draggable={false}
+            onLoad={onLoad}
             sx={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "cover",
               pointerEvents: "none",
               filter: isBlurred ? "blur(2px)" : "none",
               transition: "filter 0.3s ease",
@@ -67,7 +101,7 @@ function Photo(props: PhotoProps) {
           variant="caption"
           align="center"
           sx={{
-            maxWidth: 120,
+            maxWidth: 160,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
