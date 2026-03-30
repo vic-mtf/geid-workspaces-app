@@ -7,11 +7,15 @@ export default function FilesForm() {
     const tags = useRef<string | null>(null);
     const designation = useRef<string | null>(null);
     const description = useRef<string | null>(null);
+    const type = useRef<string | null>(null);
+    const subType = useRef<string | null>(null);
 
     const getFieldDocs = useCallback(() => ({
         designation,
         description,
         tags,
+        type,
+        subType,
     }), []);
 
     const handleSendFile = useCallback((_file: any) => (event: React.FormEvent) => {
@@ -21,6 +25,8 @@ export default function FilesForm() {
         if (tags.current) doc.tags = tags.current;
         if (description.current) doc.description = description.current;
         if (designation.current) doc.designation = designation.current;
+        if (type.current) doc.type = type.current;
+        if (subType.current) doc.subType = subType.current;
 
         document.getElementById('root')?.dispatchEvent(
             new CustomEvent('_upload_files', { detail: { files, name: '_upload_files', doc } })

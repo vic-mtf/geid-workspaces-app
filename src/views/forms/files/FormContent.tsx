@@ -7,6 +7,7 @@ import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useTranslation } from 'react-i18next';
+import Typology from "@/views/forms/files/Typology";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
 import FileTypeIcon from "@/components/FileTypeIcon";
 import getFileExtension from "@/utils/getFileExtension";
@@ -139,8 +140,11 @@ export default function FormContent({
                         sx={{ mb: 1.5 }}
                     />
 
+                    {/* Type + Sous-type */}
+                    <Typology type={docFields.type} subType={docFields.subType} />
+
                     {/* Tags */}
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, mt: 1, display: "block" }}>
                         {t("filesForm.keyword")} ({t("common.optional") || "optionnel"})
                     </Typography>
                     <Box sx={{ display: "flex", gap: 0.5, mb: 0.5 }}>
