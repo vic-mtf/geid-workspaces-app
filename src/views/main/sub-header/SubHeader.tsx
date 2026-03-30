@@ -49,6 +49,14 @@ function SubHeader({
     document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
   };
 
+  // Écouter le raccourci Ctrl+Shift+N
+  React.useEffect(() => {
+    const root = document.getElementById("root");
+    const handler = () => setFolderDialogOpen(true);
+    root?.addEventListener("_open_create_folder", handler);
+    return () => root?.removeEventListener("_open_create_folder", handler);
+  }, []);
+
   const selectionActive = selectedFiles && selectedFiles.size > 0;
 
   return (

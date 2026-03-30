@@ -203,6 +203,20 @@ export default function Main() {
     }
   }, []);
 
+  // Raccourci clavier Ctrl+Shift+N → nouveau dossier (Mes fichiers uniquement)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "N") {
+        e.preventDefault();
+        if (pathname.startsWith("/files")) {
+          document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_create_folder"));
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pathname]);
+
   useEffect(() => {
     const root = document.getElementById("root");
     const handler = (event: any) => {
