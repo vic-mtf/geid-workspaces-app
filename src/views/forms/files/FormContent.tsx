@@ -130,6 +130,9 @@ export default function FormContent({
                         sx={{ mb: 1.5 }}
                     />
 
+                    {/* Type + Sous-type */}
+                    <Typology type={docFields.type} subType={docFields.subType} />
+
                     {/* Description */}
                     <TextField
                         fullWidth size="small" multiline minRows={2} maxRows={3}
@@ -138,9 +141,6 @@ export default function FormContent({
                         onChange={(e) => { if (docFields.description) docFields.description.current = e.target.value; }}
                         sx={{ mb: 1.5 }}
                     />
-
-                    {/* Type + Sous-type */}
-                    <Typology type={docFields.type} subType={docFields.subType} />
 
                     {/* Tags */}
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, mt: 1, display: "block" }}>
