@@ -43,10 +43,12 @@ export default function TrashView({ selectedFiles = new Set(), onToggleSelect }:
                 _id: f._id,
                 name: f.name,
                 url: f.contentUrl ? `/api/stuff/workspace/file/${f.contentUrl.replace('workspace/', '')}` : null,
-                createdAt: f.updatedAt || f.createdAt,
+                createdAt: f.trashedAt || f.updatedAt || f.createdAt,
                 size: f.size || 0,
                 isDirectory: f.isDirectory || false,
                 count: f.count,
+                currentPath: f.path || '',
+                color: f.color || null,
             }));
     }, []);
 
