@@ -213,7 +213,7 @@ export default function Header() {
             <Divider
               orientation="vertical"
               flexItem
-              sx={{ borderColor: "#fff", borderRightWidth: 2, my: 0.5 }}
+              sx={{ borderColor: "common.white", borderRightWidth: 2, my: 0.5 }}
             />
             <Typography
               noWrap
