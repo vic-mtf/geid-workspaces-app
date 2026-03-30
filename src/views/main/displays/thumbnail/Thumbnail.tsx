@@ -46,6 +46,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   const [findName, setFindName] = useState("");
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
+  const isTrashView = pathname.startsWith("/trash");
   const user = useSelector((store: RootState) => store.user);
 
   // Inline rename
@@ -197,21 +198,23 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
               "&.Mui-checked": { color: "primary.main", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.4))" },
             }}
           />
-          <IconButton
-            className="fav-btn"
-            size="small"
-            onClick={(e: React.MouseEvent) => { e.stopPropagation(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_toggle_favorite", { detail: { file } })); }}
-            sx={{
-              position: "absolute", top: 2, right: 2, zIndex: 2,
-              opacity: file.isFavorite ? 0.9 : 0, transition: "opacity 0.15s",
-              filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))",
-              width: 26, height: 26, p: 0,
-            }}
-          >
-            {file.isFavorite
-              ? <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
-              : <StarBorderRoundedIcon sx={{ fontSize: 18, color: "common.white" }} />}
-          </IconButton>
+          {!isTrashView && (
+            <IconButton
+              className="fav-btn"
+              size="small"
+              onClick={(e: React.MouseEvent) => { e.stopPropagation(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_toggle_favorite", { detail: { file } })); }}
+              sx={{
+                position: "absolute", top: 2, right: 2, zIndex: 2,
+                opacity: file.isFavorite ? 0.9 : 0, transition: "opacity 0.15s",
+                filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))",
+                width: 26, height: 26, p: 0,
+              }}
+            >
+              {file.isFavorite
+                ? <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
+                : <StarBorderRoundedIcon sx={{ fontSize: 18, color: "common.white" }} />}
+            </IconButton>
+          )}
           <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
             <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} color={file.color} renderName={makeRenderName(file)} />
           </WrapperContent>
@@ -246,10 +249,10 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
             "&.Mui-checked": { color: "primary.main", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.4))" },
           }}
         />
-        <IconButton
+        {!isTrashView && <IconButton
           className="fav-btn"
           size="small"
-          onClick={(e) => { e.stopPropagation(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_toggle_favorite", { detail: { file } })); }}
+          onClick={(e: React.MouseEvent) => { e.stopPropagation(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_toggle_favorite", { detail: { file } })); }}
           sx={{
             position: "absolute", top: 2, right: 2, zIndex: 2,
             opacity: file.isFavorite ? 0.9 : 0, transition: "opacity 0.15s",
@@ -260,7 +263,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
           {file.isFavorite
             ? <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
             : <StarBorderRoundedIcon sx={{ fontSize: 18, color: "common.white" }} />}
-        </IconButton>
+        </IconButton>}
         <WrapperContent {...infos} {...file} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
           <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} renderName={makeRenderName(file)} />
         </WrapperContent>

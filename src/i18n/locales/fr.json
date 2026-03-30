@@ -324,6 +324,8 @@
     "noInvitations": "Aucune invitation en attente",
     "invitationAccepted": "L'invitation a ete acceptee. Le fichier est maintenant accessible dans votre espace partage.",
     "invitationRejected": "L'invitation a ete refusee.",
-    "invitationError": "Le traitement de cette invitation n'a pas pu aboutir. Veuillez reessayer."
+    "invitationError": "Le traitement de cette invitation n'a pas pu aboutir. Veuillez reessayer.",
+    "maintenance": "Cette fonctionnalite est en cours de maintenance",
+    "maintenanceHint": "L'espace partage sera bientot disponible avec une nouvelle experience amelioree."
   }
 }
