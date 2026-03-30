@@ -325,6 +325,20 @@
     "folder": "Dossier",
     "file": "Fichier"
   },
+  "viewer": {
+    "pageOf": "Page {{current}} sur {{total}}",
+    "noPreview": "Impossible d'afficher un apercu de ce fichier.",
+    "download": "Telecharger",
+    "delete": "Supprimer",
+    "zoomIn": "Agrandir",
+    "zoomOut": "Reduire",
+    "fitToScreen": "Ajuster a l'ecran",
+    "previousFile": "Fichier precedent",
+    "nextFile": "Fichier suivant",
+    "loading": "Chargement en cours...",
+    "converting": "Conversion du document en cours...",
+    "audioPlaying": "Lecture audio"
+  },
   "shared": {
     "title": "Espace partage",
     "received": "Elements recus",

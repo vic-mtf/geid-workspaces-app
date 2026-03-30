@@ -23,7 +23,7 @@ import ArchivesForm from "@/views/forms/archives/ArchivesForm";
 import MediaLibraryForm from "@/views/forms/medialibrary/MediaLibraryForm";
 import Thumbnail from "@/views/main/displays/thumbnail/Thumbnail";
 import ListView from "@/views/main/displays/list/ListView";
-import FilePreviewDialog from "@/views/main/displays/preview/FilePreviewDialog";
+import FileViewer from "@/views/main/displays/preview/FileViewer";
 import DropZone from "@/views/main/DropZone";
 import SubHeader from "@/views/main/sub-header/SubHeader";
 import FilesForm from "@/views/forms/files/FilesForm";
@@ -480,7 +480,7 @@ export default function Main() {
       <MediaLibraryForm />
       <ArchivesForm />
       <FilesForm />
-      <FilePreviewDialog />
+      <FileViewer />
       <FavoriteHandler />
       <MoveFileHandler />
       <CopyFileHandler />
