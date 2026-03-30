@@ -192,26 +192,29 @@ export default function FileViewer() {
         },
       }}
     >
-      {/* Top bar */}
-      <ViewerTopBar
-        filename={currentFile?.name || ""}
-        onDownload={handleDownload}
-        onDelete={handleDelete}
-        onClose={handleClose}
-        hovered={hovered}
-      />
-
-      {/* Main content area with hover detection */}
+      {/* Wrapper relatif pour positionner top bar + contenu */}
       <Box
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          height: "100%",
-          pt: 7, // space for top bar
+        sx={{ position: "relative", width: "100%", height: "100%", overflow: "hidden" }}
+      >
+        {/* Top bar */}
+        <ViewerTopBar
+          filename={currentFile?.name || ""}
+          onDownload={handleDownload}
+          onDelete={handleDelete}
+          onClose={handleClose}
+          hovered={hovered}
+        />
+
+        {/* Main content area */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: "100%",
           pb: 2,
           px: { xs: 1, sm: 2, md: 6 },
           position: "relative",
@@ -270,6 +273,7 @@ export default function FileViewer() {
             </IconButton>
           </Tooltip>
         )}
+      </Box>
       </Box>
     </Dialog>
   );

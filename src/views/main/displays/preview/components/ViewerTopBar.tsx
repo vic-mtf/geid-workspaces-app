@@ -36,18 +36,17 @@ const ViewerTopBar = React.memo(function ViewerTopBar({
   return (
     <Box
       sx={{
-        position: "fixed",
+        position: "absolute",
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 1600,
+        zIndex: 10,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         px: { xs: 1, sm: 2 },
         py: 1,
-        bgcolor: "rgba(0,0,0,0.5)",
-        backdropFilter: "blur(8px)",
+        background: "linear-gradient(rgba(0,0,0,0.7), transparent)",
         opacity: visible ? 1 : 0,
         transition: "opacity 0.3s ease",
         pointerEvents: visible ? "auto" : "none",
