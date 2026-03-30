@@ -26,6 +26,7 @@ import { useSnackbar } from "notistack";
 import { Virtuoso } from "react-virtuoso";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import getFileExtension from "@/utils/getFileExtension";
 import normaliseOctetSize from "@/utils/normaliseOctetSize";
 import optionLocalDate from "@/utils/optionLocalDate";
@@ -238,13 +239,19 @@ export default function ListView({
             {/* Icon */}
             <Box width={36} height={28} flexShrink={0} display="flex" alignItems="center" justifyContent="center">
               {file.isDirectory ? (
-                <FolderRoundedIcon color="warning" fontSize="small" />
+                <FolderRoundedIcon sx={{ color: file.color || "warning.main", fontSize: 22 }} />
               ) : isImage ? (
                 <ListThumbnail url={file.url} />
               ) : (
                 <FileTypeIcon extension={ext || "txt"} size={22} />
               )}
             </Box>
+            {/* Favori */}
+            {file.isFavorite && (
+              <Box sx={{ flexShrink: 0, mr: 0.5 }}>
+                <StarRoundedIcon sx={{ fontSize: 14, color: "warning.main" }} />
+              </Box>
+            )}
             {/* Name */}
             <Box flex={1} minWidth={0} pl={0.5}>
               {isRenaming ? (
