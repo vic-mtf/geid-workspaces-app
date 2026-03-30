@@ -1,67 +1,61 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import FormContent from "@/views/forms/files/FormContent";
 
-export default function FilesForm () {
+export default function FilesForm() {
     const [files, setFiles] = useState<File[] | null>(null);
-    const [fieldsError, setFieldsError] = useState<string[]>([]);
-    const findError = (field: string) => !!~fieldsError?.indexOf(field);
+    const [isFolder, setIsFolder] = useState(false);
+    const tags = useRef<string | null>(null);
     const designation = useRef<string | null>(null);
     const description = useRef<string | null>(null);
-    const tags = useRef<string | null>(null);
 
     const getFieldDocs = useCallback(() => ({
-      designation,
-      description,
-      tags,
+        designation,
+        description,
+        tags,
     }), []);
 
-    const handleSendFile = useCallback((file: any) => (event: React.FormEvent) => {
-      event.preventDefault();
-      const errors: string[] = [];
-      const doc: Record<string, any> = {};
-      const docFields = getFieldDocs();
-      if(docFields.tags.current)
-        (docFields.tags as any).current = docFields.tags.current?.split(/\s/) || [];
-      if(fieldsError.length) setFieldsError([]);
-      Object.keys(docFields).forEach(key => {
-        if(!(docFields as any)[key]?.current) errors.push(key);
-        else doc[key] = (docFields as any)[key]?.current;
-      });
-      if(errors.length) setFieldsError(errors);
-      else {
-        const name = '_upload_files';
-        if(files) {
-            const customEvent = new CustomEvent(name, {
-                detail: { files, name, doc }
-            });
-            document.getElementById('root')
-            ?.dispatchEvent(customEvent);
-        }
+    const handleSendFile = useCallback((_file: any) => (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!files) return;
+        const doc: Record<string, any> = {};
+        if (tags.current) doc.tags = tags.current;
+        if (description.current) doc.description = description.current;
+        if (designation.current) doc.designation = designation.current;
+
+        document.getElementById('root')?.dispatchEvent(
+            new CustomEvent('_upload_files', { detail: { files, name: '_upload_files', doc } })
+        );
         setFiles(null);
-      }
-    }, [fieldsError, files, getFieldDocs]);
+        tags.current = null;
+        designation.current = null;
+        description.current = null;
+    }, [files]);
 
     useEffect(() => {
-      const rootEl = document.getElementById('root');
-      const name = '_open_files_form';
-      const handleOpenMediaForm = (event: any) => setFiles([...event.detail.files]);
-      rootEl?.addEventListener(name, handleOpenMediaForm);
-      return () => {
-        rootEl?.removeEventListener(name, handleOpenMediaForm);
-      }
+        const rootEl = document.getElementById('root');
+        const handler = (event: any) => {
+            const fileList = [...event.detail.files];
+            setFiles(fileList);
+            // Detecter si c'est un upload de dossier
+            const hasFolder = fileList.some((f: any) => f.webkitRelativePath && f.webkitRelativePath.includes("/"));
+            setIsFolder(hasFolder);
+        };
+        rootEl?.addEventListener('_open_files_form', handler);
+        return () => rootEl?.removeEventListener('_open_files_form', handler);
     }, []);
 
     return (
-      <FormContent
-        files={files}
-        findError={findError}
-        handleSendFile={handleSendFile}
-        docFields={getFieldDocs()}
-        setFiles={setFiles}
-        onClose={(event: React.MouseEvent) => {
-          event.preventDefault();
-          setFiles(null);
-        }}
-      />
+        <FormContent
+            files={files}
+            isFolder={isFolder}
+            findError={() => false}
+            handleSendFile={handleSendFile}
+            docFields={getFieldDocs()}
+            setFiles={setFiles}
+            onClose={(event: React.MouseEvent) => {
+                event.preventDefault();
+                setFiles(null);
+            }}
+        />
     );
 }
