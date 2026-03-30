@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  CircularProgress,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, CircularProgress, Box, Typography,
 } from "@mui/material";
-import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
+import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -26,7 +21,7 @@ function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProp
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const token = useSelector((store: RootState) => store.user.token);
-  const { pathname, search } = useLocation();
+  const { search } = useLocation();
 
   const currentPath = new URLSearchParams(search).get("folder") || "";
 
@@ -44,10 +39,7 @@ function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProp
     try {
       const res = await fetch("/api/stuff/workspace/folder", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ path: currentPath, folderName: trimmed }),
       });
       if (res.status === 409) { setError(t("files.folderNameExists")); return; }
@@ -75,9 +67,18 @@ function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProp
       }}
       PaperProps={{ sx: { border: 1, borderColor: "divider" } }}
     >
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <FolderOutlinedIcon color="primary" />
-        {t("files.newFolder")}
+      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1, pb: 0.5 }}>
+        <CreateNewFolderOutlinedIcon color="primary" />
+        <Box>
+          <Typography variant="h6" fontWeight="bold" fontSize={16}>
+            {t("files.newFolder")}
+          </Typography>
+          {currentPath && (
+            <Typography variant="caption" color="text.secondary">
+              {t("detail.path")}: {currentPath}
+            </Typography>
+          )}
+        </Box>
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -90,10 +91,10 @@ function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProp
           error={!!error}
           helperText={error}
           size="small"
-          sx={{ mt: 1 }}
+          sx={{ mt: 1, "& .MuiOutlinedInput-root": { "& fieldset": { borderColor: "divider" } } }}
         />
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ px: 2, py: 1 }}>
         <Button onClick={onClose} color="inherit" disabled={loading}>
           {t("common.cancel")}
         </Button>
@@ -101,7 +102,8 @@ function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProp
           onClick={handleCreate}
           variant="contained"
           disabled={loading || !name.trim()}
-          startIcon={loading ? <CircularProgress size={14} color="inherit" /> : undefined}
+          startIcon={loading ? <CircularProgress size={14} color="inherit" /> : <CreateNewFolderOutlinedIcon />}
+          sx={{ textTransform: "none" }}
         >
           {t("common.create")}
         </Button>
