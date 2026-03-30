@@ -233,13 +233,13 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
         </Box>
       )}
 
-      {/* Controls overlay — gradient bottom */}
+      {/* Controls overlay — full width bottom */}
       <Box
         onClick={(e) => e.stopPropagation()}
         sx={{
-          position: "absolute", bottom: 0, left: 0, right: 0,
+          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 10,
           background: "linear-gradient(transparent, rgba(0,0,0,0.85))",
-          px: { xs: 1, sm: 2 }, pt: 6, pb: 1,
+          px: { xs: 1, sm: 2 }, pt: 6, pb: { xs: 1, sm: 1.5 },
           opacity: showControls ? 1 : 0, transition: "opacity 0.3s",
           display: "flex", flexDirection: "column",
         }}
