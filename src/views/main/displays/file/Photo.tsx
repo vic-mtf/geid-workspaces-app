@@ -3,10 +3,10 @@
  *
  * 1. Skeleton pendant le chargement initial
  * 2. Miniature progressive : low (flou) → medium/high (net)
- * 3. Badge extension en bas gauche
+ * 3. Ratio naturel de l'image preserve
  */
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { Box, Skeleton, Typography } from "@mui/material";
 import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import FileTypeIcon from "@/components/FileTypeIcon";
@@ -22,13 +22,38 @@ interface PhotoProps {
 
 function Photo(props: PhotoProps) {
   const { src, loading, isBlurred } = useAdaptiveThumbnail(props.url);
+  const [ratio, setRatio] = useState<number | null>(null);
+
+  const onLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (img.naturalWidth && img.naturalHeight) {
+      setRatio(img.naturalWidth / img.naturalHeight);
+    }
+  }, []);
+
+  // Dimensions adaptees au ratio
+  const maxW = 140;
+  const maxH = 120;
+  let w = 100;
+  let h = 120;
+  if (ratio) {
+    if (ratio >= 1) {
+      // Paysage
+      w = Math.min(maxW, maxH * ratio);
+      h = w / ratio;
+    } else {
+      // Portrait
+      h = Math.min(maxH, maxW / ratio);
+      w = h * ratio;
+    }
+  }
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
       <Box
         sx={{
-          width: 100,
-          height: 120,
+          width: w,
+          height: h,
           mb: 0.5,
           borderRadius: 2,
           overflow: "hidden",
@@ -38,19 +63,19 @@ function Photo(props: PhotoProps) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          transition: "width 0.2s, height 0.2s",
         }}
       >
-        {/* Skeleton pendant le premier chargement */}
         {loading && !src && (
           <Skeleton variant="rectangular" width="100%" height="100%" sx={{ position: "absolute", inset: 0 }} />
         )}
 
-        {/* Miniature avec transition blur → net */}
         {src && (
           <Box
             component="img"
             src={src}
             draggable={false}
+            onLoad={onLoad}
             sx={{
               width: "100%",
               height: "100%",
@@ -62,7 +87,6 @@ function Photo(props: PhotoProps) {
           />
         )}
 
-        {/* Pas de miniature → icône */}
         {!src && !loading && (
           <FileTypeIcon extension={getFileExtension(props.name ?? "") ?? "jpg"} size={48} />
         )}
