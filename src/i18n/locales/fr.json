@@ -24,7 +24,8 @@
     "retry": "Reessayer",
     "show": "Afficher",
     "more": "Plus",
-    "new": "Nouveau"
+    "new": "Nouveau",
+    "refresh": "Actualiser"
   },
   "nav": {
     "files": "Mes fichiers",

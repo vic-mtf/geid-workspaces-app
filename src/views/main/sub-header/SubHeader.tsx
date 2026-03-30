@@ -15,6 +15,8 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import RestoreOutlinedIcon from "@mui/icons-material/RestoreOutlined";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import SortButton from "@/views/main/sub-header/SortButton";
 import UploadFilesButton from "@/views/main/sub-header/UploadFilesButton";
@@ -30,6 +32,7 @@ interface SubHeaderProps {
   onClearSelection?: () => void;
   onDelete?: () => void;
   onMove?: () => void;
+  trashCount?: number;
 }
 
 function SubHeader({
@@ -37,10 +40,12 @@ function SubHeader({
   onClearSelection,
   onDelete,
   onMove,
+  trashCount = 0,
 }: SubHeaderProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const isFilesView = pathname.startsWith("/files");
+  const isTrashView = pathname.startsWith("/trash");
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
@@ -73,24 +78,51 @@ function SubHeader({
               <Typography variant="body2" fontWeight={600}>
                 {t("selection.count", { count: selectedFiles.size })}
               </Typography>
-              <Button
-                size="small"
-                color="error"
-                startIcon={<DeleteOutlinedIcon />}
-                onClick={onDelete}
-                sx={{ textTransform: "none" }}
-              >
-                {t("selection.deleteSelected", { count: selectedFiles.size })}
-              </Button>
-              <Button
-                size="small"
-                color="inherit"
-                startIcon={<DriveFileMoveOutlinedIcon />}
-                onClick={onMove}
-                sx={{ textTransform: "none" }}
-              >
-                {t("selection.moveSelected", { count: selectedFiles.size })}
-              </Button>
+              {isTrashView ? (
+                <>
+                  <Button
+                    size="small"
+                    color="primary"
+                    startIcon={<RestoreOutlinedIcon />}
+                    onClick={() => document.getElementById("root")?.dispatchEvent(new CustomEvent("_restore_selection"))}
+                    sx={{ textTransform: "none" }}
+                  >
+                    {t("trash.restore")}
+                  </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={<DeleteForeverOutlinedIcon />}
+                    onClick={() => document.getElementById("root")?.dispatchEvent(new CustomEvent("_permanent_delete_selection"))}
+                    sx={{ textTransform: "none" }}
+                  >
+                    {t("deleteConfirm.deletePermanent")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={<DeleteOutlinedIcon />}
+                    onClick={onDelete}
+                    sx={{ textTransform: "none" }}
+                  >
+                    {t("selection.deleteSelected", { count: selectedFiles.size })}
+                  </Button>
+                  {isFilesView && (
+                    <Button
+                      size="small"
+                      color="inherit"
+                      startIcon={<DriveFileMoveOutlinedIcon />}
+                      onClick={onMove}
+                      sx={{ textTransform: "none" }}
+                    >
+                      {t("selection.moveSelected", { count: selectedFiles.size })}
+                    </Button>
+                  )}
+                </>
+              )}
             </>
           ) : isFilesView ? (
             <>
@@ -128,7 +160,20 @@ function SubHeader({
             </>
           ) : null}
         </Stack>
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1} alignItems="center">
+          {isTrashView && (
+            <Button
+              size="small"
+              color="error"
+              variant="outlined"
+              disabled={trashCount === 0}
+              startIcon={<DeleteForeverOutlinedIcon />}
+              onClick={() => document.getElementById("root")?.dispatchEvent(new CustomEvent("_confirm_empty_trash"))}
+              sx={{ textTransform: "none", mr: 1 }}
+            >
+              {t("trash.emptyTrash")}
+            </Button>
+          )}
           <UploadFilesButton />
           <SortButton />
           <DisplayButton />

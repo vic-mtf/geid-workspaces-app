@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Box, Chip, Typography } from '@mui/material';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
@@ -15,9 +15,10 @@ import { RootState } from '@/types';
 interface RecentViewProps {
     selectedFiles?: Set<string>;
     onToggleSelect?: (name: string) => void;
+    busyFiles?: Set<string>;
 }
 
-export default function RecentView({ selectedFiles = new Set(), onToggleSelect }: RecentViewProps) {
+export default function RecentView({ selectedFiles = new Set(), onToggleSelect, busyFiles }: RecentViewProps) {
     const { t } = useTranslation();
     const token = useSelector((store: RootState) => store.user.token);
     const display = useSelector((store: RootState) => (store.app as any).display ?? 'thumbnail');
@@ -46,13 +47,15 @@ export default function RecentView({ selectedFiles = new Set(), onToggleSelect }
                 _id: f._id,
                 name: f.name,
                 url: f.url || (f.contentUrl ? `/api/stuff/workspace/file/${f.contentUrl.replace('workspace/', '')}` : null),
-                createdAt: f.updatedAt || f.createdAt,
+                createdAt: f.lastAccessedAt || f.createdAt,
                 size: f.size || 0,
                 isDirectory: f.isDirectory || false,
                 tags: f.tags || [],
                 duration: f.duration || null,
                 videoWidth: f.videoWidth || null,
                 videoHeight: f.videoHeight || null,
+                imageWidth: f.imageWidth || null,
+                imageHeight: f.imageHeight || null,
                 currentPath: f.currentPath || f.path || '',
             }));
     }, []);
@@ -75,6 +78,22 @@ export default function RecentView({ selectedFiles = new Set(), onToggleSelect }
         return [...dirs, ...files];
     }, [data, selectedTag, sort, order]);
 
+    // Ctrl+A — sélectionner/désélectionner tous les éléments
+    useEffect(() => {
+        const root = document.getElementById("root");
+        const handler = () => {
+            if (!onToggleSelect) return;
+            const allNames = filtered.map((f) => f.name).filter(Boolean) as string[];
+            const allSelected = allNames.length > 0 && allNames.every((n) => selectedFiles.has(n));
+            if (allSelected) {
+                allNames.forEach((n) => onToggleSelect(n));
+            } else {
+                allNames.filter((n) => !selectedFiles.has(n)).forEach((n) => onToggleSelect(n));
+            }
+        };
+        root?.addEventListener("_select_all", handler);
+        return () => root?.removeEventListener("_select_all", handler);
+    }, [filtered, selectedFiles, onToggleSelect]);
 
     if (loading) return <AdaptiveSkeleton />;
 
@@ -113,9 +132,9 @@ export default function RecentView({ selectedFiles = new Set(), onToggleSelect }
                 ))}
             </Box>
             {display === 'list' || display === 'compact' ? (
-                <ListView data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} compact={display === 'compact'} />
+                <ListView data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} compact={display === 'compact'} busyFiles={busyFiles} />
             ) : (
-                <Thumbnail data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} />
+                <Thumbnail data={filtered} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} busyFiles={busyFiles} />
             )}
             <UpdateToast open={showToast} onClose={hideToast} />
         </Box>

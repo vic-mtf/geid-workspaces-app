@@ -13,7 +13,6 @@ import {
   Box,
   Checkbox,
   CircularProgress,
-  Skeleton,
   TextField,
   Typography,
   useMediaQuery,
@@ -34,6 +33,7 @@ import optionLocalDate from "@/utils/optionLocalDate";
 import fileExtensionBase from "@/utils/fileExtensionBase";
 import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
 import MoveConfirmDialog from "@/components/MoveConfirmDialog";
+import AdaptiveSkeleton from "@/components/AdaptiveSkeleton";
 import useDragDropMove from "@/hooks/useDragDropMove";
 import FileTypeIcon from "@/components/FileTypeIcon";
 import { FileItem, RootState } from "@/types";
@@ -305,32 +305,7 @@ export default function ListView({
     );
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", px: 0.5 }}>
-          {/* Header skeleton */}
-          <Box display="flex" alignItems="center" px={1} sx={{ height: rowHeight, borderBottom: 1, borderColor: "divider" }}>
-            <Skeleton variant="circular" width={20} height={20} sx={{ mr: 1.5 }} />
-            <Skeleton variant="text" width={60} height={14} sx={{ flex: 0 }} />
-            <Box flex={1} />
-            <Skeleton variant="text" width={100} height={12} sx={{ display: { xs: "none", sm: "block" } }} />
-            <Skeleton variant="text" width={60} height={12} sx={{ ml: 2, display: { xs: "none", md: "block" } }} />
-          </Box>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Box key={i} display="flex" alignItems="center" px={1} sx={{ height: rowHeight, borderBottom: 1, borderColor: "divider" }}>
-              <Skeleton variant="circular" width={18} height={18} sx={{ mr: 1, flexShrink: 0 }} />
-              <Skeleton variant="rounded" width={28} height={28} sx={{ mr: 1, borderRadius: 0.5, flexShrink: 0 }} />
-              <Skeleton variant="text" width={`${30 + Math.random() * 40}%`} height={14} />
-              <Box flex={1} />
-              <Skeleton variant="text" width={90} height={12} sx={{ display: { xs: "none", sm: "block" } }} />
-              <Skeleton variant="text" width={50} height={12} sx={{ ml: 2, display: { xs: "none", md: "block" } }} />
-            </Box>
-          ))}
-        </Box>
-      </Box>
-    );
-  }
+  if (loading) return <AdaptiveSkeleton />;
 
   if (!data || data.length === 0) {
     return (

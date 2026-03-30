@@ -8,6 +8,7 @@ import { Box, Skeleton, Typography } from "@mui/material";
 import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import FileTypeIcon from "@/components/FileTypeIcon";
 import getFileExtension from "@/utils/getFileExtension";
+import timeAgo from "@/utils/timeAgo";
 
 interface PhotoProps {
   url?: string;
@@ -15,6 +16,7 @@ interface PhotoProps {
   icon?: string;
   imageWidth?: number;
   imageHeight?: number;
+  date?: string;
   renderName?: React.ReactNode;
   [key: string]: any;
 }
@@ -98,20 +100,22 @@ function Photo(props: PhotoProps) {
 
       {props.renderName ?? (
         <Typography
-          variant="caption"
-          align="center"
+          variant="body2"
+          noWrap
           sx={{
             maxWidth: 160,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
             textOverflow: "ellipsis",
             overflow: "hidden",
-            fontSize: 11,
+            fontSize: 13,
             lineHeight: 1.3,
           }}
         >
           {props.name}
+        </Typography>
+      )}
+      {props.date && (
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10, lineHeight: 1.2 }}>
+          {timeAgo(props.date)}
         </Typography>
       )}
     </Box>

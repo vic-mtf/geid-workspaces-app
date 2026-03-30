@@ -13,6 +13,7 @@ import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import useVideoInfo from "@/hooks/useVideoInfo";
 import FileTypeIcon from "@/components/FileTypeIcon";
 import getFileExtension from "@/utils/getFileExtension";
+import timeAgo from "@/utils/timeAgo";
 
 interface VideoProps {
   url?: string;
@@ -124,20 +125,16 @@ function Video(props: VideoProps) {
 
       {props.renderName ?? (
         <Typography
-          variant="caption"
-          align="center"
-          sx={{
-            maxWidth: 120,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-            fontSize: 11,
-            lineHeight: 1.3,
-          }}
+          variant="body2"
+          noWrap
+          sx={{ maxWidth: 140, textOverflow: "ellipsis", overflow: "hidden", fontSize: 13, lineHeight: 1.3 }}
         >
           {props.name}
+        </Typography>
+      )}
+      {props.date && (
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10, lineHeight: 1.2 }}>
+          {timeAgo(props.date)}
         </Typography>
       )}
     </Box>

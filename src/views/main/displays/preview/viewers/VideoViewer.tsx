@@ -1,8 +1,14 @@
 /**
- * VideoViewer — Lecteur video personnalise avec streaming.
+ * VideoViewer — Lecteur video avance avec streaming, PiP, gestes tactiles.
+ *
+ * - Barre de progression inherit, epaissie au hover, preview thumbnail
+ * - Double-clic fullscreen, PiP
+ * - Poster/couverture floue tant que la video n'est pas chargee
+ * - Gestes tactiles : swipe horizontal pour avancer/reculer
+ * - Raccourcis clavier : espace, f, m, fleches, PiP (p)
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import {
@@ -12,11 +18,14 @@ import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
 import PauseOutlinedIcon from "@mui/icons-material/PauseOutlined";
 import VolumeUpOutlinedIcon from "@mui/icons-material/VolumeUpOutlined";
 import VolumeOffOutlinedIcon from "@mui/icons-material/VolumeOffOutlined";
+import VolumeDownOutlinedIcon from "@mui/icons-material/VolumeDownOutlined";
 import FullscreenOutlinedIcon from "@mui/icons-material/FullscreenOutlined";
 import FullscreenExitOutlinedIcon from "@mui/icons-material/FullscreenExitOutlined";
 import SpeedOutlinedIcon from "@mui/icons-material/SpeedOutlined";
+import PictureInPictureAltOutlinedIcon from "@mui/icons-material/PictureInPictureAltOutlined";
 import Forward10OutlinedIcon from "@mui/icons-material/Forward10Outlined";
 import Replay10OutlinedIcon from "@mui/icons-material/Replay10Outlined";
+import useAdaptiveThumbnail from "@/hooks/useAdaptiveThumbnail";
 import { RootState } from "@/types";
 
 interface VideoViewerProps {
@@ -43,15 +52,35 @@ function formatTime(s: number): string {
 
 const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
+// ── Cache module-level : blob URLs persistent entre ouvertures ──
+const videoCache = new Map<string, string>(); // fileUrl → blobURL
+const pendingDownloads = new Set<string>();   // eviter les doublons
+const MAX_CACHE = 20;
+
+function evictOldest() {
+  if (videoCache.size <= MAX_CACHE) return;
+  const first = videoCache.keys().next().value;
+  if (first) {
+    URL.revokeObjectURL(videoCache.get(first)!);
+    videoCache.delete(first);
+  }
+}
+
 const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: VideoViewerProps) {
   const { t } = useTranslation();
   const token = useSelector((store: RootState) => store.user.token);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  // Poster/couverture via thumbnail
+  const { src: posterSrc, isBlurred: posterBlurred } = useAdaptiveThumbnail(fileUrl);
 
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [cached, setCached] = useState(false);
 
   // Player state
   const [playing, setPlaying] = useState(false);
@@ -64,15 +93,34 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [speedAnchor, setSpeedAnchor] = useState<null | HTMLElement>(null);
+  const [hoverTime, setHoverTime] = useState<number | null>(null);
+  const [hoverX, setHoverX] = useState(0);
+  const [progressHovered, setProgressHovered] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Get stream token
+  // Touch gesture
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  // Charger la video : cache local d'abord, sinon stream token
   useEffect(() => {
     if (!fileUrl || !token) return;
     let cancelled = false;
-    setLoading(true);
     setError(false);
+    setVideoReady(false);
+
+    // 1. Cache local → lecture instantanee
+    const cachedBlob = videoCache.get(fileUrl);
+    if (cachedBlob) {
+      setStreamUrl(cachedBlob);
+      setCached(true);
+      setLoading(false);
+      return;
+    }
+
+    // 2. Pas en cache → stream token + telechargement blob en arriere-plan
+    setLoading(true);
     setStreamUrl(null);
+    setCached(false);
 
     const filePath = extractFilePath(fileUrl);
     fetch("/api/stuff/workspace/stream-token", {
@@ -85,8 +133,25 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
         if (cancelled) return;
         const streamToken = data.token;
         const encodedPath = filePath.split("/").map(encodeURIComponent).join("/");
-        setStreamUrl(`/api/stuff/workspace/file/${encodedPath}?token=${streamToken}`);
+        const url = `/api/stuff/workspace/file/${encodedPath}?token=${streamToken}`;
+        setStreamUrl(url);
         setLoading(false);
+
+        // Telecharger le blob complet en arriere-plan pour le cache
+        if (!pendingDownloads.has(fileUrl)) {
+          pendingDownloads.add(fileUrl);
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => {
+              if (!cancelled && blob.size > 0) {
+                evictOldest();
+                const blobUrl = URL.createObjectURL(blob);
+                videoCache.set(fileUrl, blobUrl);
+              }
+            })
+            .catch(() => {})
+            .finally(() => pendingDownloads.delete(fileUrl));
+        }
       })
       .catch(() => { if (!cancelled) { setError(true); setLoading(false); } });
     return () => { cancelled = true; };
@@ -94,8 +159,12 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
 
   // Video events
   const onLoadedMetadata = useCallback(() => {
-    if (videoRef.current) setDuration(videoRef.current.duration);
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration);
+      setVideoReady(true);
+    }
   }, []);
+  const onCanPlay = useCallback(() => setVideoReady(true), []);
   const onTimeUpdate = useCallback(() => {
     if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
   }, []);
@@ -154,6 +223,14 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
     else { containerRef.current.requestFullscreen().catch(() => {}); setIsFullscreen(true); }
   }, []);
 
+  const togglePiP = useCallback(async () => {
+    if (!videoRef.current) return;
+    try {
+      if (document.pictureInPictureElement) await document.exitPictureInPicture();
+      else await videoRef.current.requestPictureInPicture();
+    } catch { /* PiP non supporte */ }
+  }, []);
+
   // Auto-hide controls
   const resetHideTimer = useCallback(() => {
     setShowControls(true);
@@ -162,6 +239,13 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
   }, [playing]);
 
   useEffect(() => { resetHideTimer(); }, [playing, resetHideTimer]);
+
+  // Fullscreen change listener
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
 
   // Autoplay
   useEffect(() => {
@@ -174,15 +258,79 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
       if (e.key === " ") { e.preventDefault(); togglePlay(); }
       else if (e.key === "f") toggleFullscreen();
       else if (e.key === "m") toggleMute();
+      else if (e.key === "p") togglePiP();
+      else if (e.key === "ArrowLeft") { e.preventDefault(); skip(-5); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); skip(5); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); changeVolume(null, Math.min(1, volume + 0.1)); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); changeVolume(null, Math.max(0, volume - 0.1)); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [togglePlay, toggleFullscreen, toggleMute]);
+  }, [togglePlay, toggleFullscreen, toggleMute, togglePiP, skip, changeVolume, volume]);
+
+  // Double-click → fullscreen
+  const clickCount = useRef(0);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleVideoClick = useCallback((e: React.MouseEvent) => {
+    clickCount.current++;
+    if (clickCount.current === 1) {
+      clickTimer.current = setTimeout(() => {
+        if (clickCount.current === 1) togglePlay();
+        clickCount.current = 0;
+      }, 250);
+    } else if (clickCount.current === 2) {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+      clickCount.current = 0;
+      toggleFullscreen();
+    }
+  }, [togglePlay, toggleFullscreen]);
+
+  // Touch gestures
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    const dt = Date.now() - touchStartRef.current.time;
+    touchStartRef.current = null;
+    // Swipe horizontal (> 60px, < 300ms, plus horizontal que vertical)
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2 && dt < 300) {
+      skip(dx > 0 ? 10 : -10);
+    }
+  }, [skip]);
+
+  // Progress bar hover → show time preview
+  const handleProgressHover = useCallback((e: React.MouseEvent) => {
+    if (!progressRef.current || !duration) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1, x / rect.width));
+    setHoverTime(ratio * duration);
+    setHoverX(e.clientX);
+  }, [duration]);
+
+  const volumeIcon = useMemo(() => {
+    if (muted || volume === 0) return <VolumeOffOutlinedIcon sx={{ fontSize: 20 }} />;
+    if (volume < 0.5) return <VolumeDownOutlinedIcon sx={{ fontSize: 20 }} />;
+    return <VolumeUpOutlinedIcon sx={{ fontSize: 20 }} />;
+  }, [muted, volume]);
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
-        <CircularProgress sx={{ color: "common.white" }} />
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%", position: "relative" }}>
+        {/* Poster en arriere-plan pendant le chargement */}
+        {posterSrc && (
+          <Box component="img" src={posterSrc} sx={{
+            position: "absolute", inset: 0, width: "100%", height: "100%",
+            objectFit: "contain", filter: posterBlurred ? "blur(8px)" : "blur(2px)", opacity: 0.5,
+          }} />
+        )}
+        <CircularProgress sx={{ color: "common.white", zIndex: 1 }} />
       </Box>
     );
   }
@@ -201,35 +349,59 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
     <Box
       ref={containerRef}
       onMouseMove={resetHideTimer}
-      onClick={togglePlay}
-      sx={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      sx={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "common.black" }}
     >
+      {/* Poster floue en arriere-plan tant que la video n'est pas prete */}
+      {posterSrc && !videoReady && (
+        <Box component="img" src={posterSrc} sx={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: "contain", filter: posterBlurred ? "blur(12px)" : "blur(4px)", opacity: 0.6,
+          transition: "opacity 0.5s",
+        }} />
+      )}
+
       {/* Video element */}
       <Box
         component="video"
         ref={videoRef}
         src={streamUrl}
         onLoadedMetadata={onLoadedMetadata}
+        onCanPlay={onCanPlay}
         onTimeUpdate={onTimeUpdate}
         onPlay={onPlay}
         onPause={onPause}
         onEnded={onEnded}
         onProgress={onProgress}
-        sx={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 1, outline: "none" }}
+        onClick={handleVideoClick}
+        sx={{
+          maxWidth: "100%", maxHeight: "100%", borderRadius: 0, outline: "none",
+          cursor: "pointer", zIndex: 1,
+        }}
       />
 
       {/* Big play button center */}
-      {!playing && (
-        <Box sx={{
+      {!playing && videoReady && (
+        <Box onClick={handleVideoClick} sx={{
           position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          pointerEvents: "none",
+          zIndex: 2, cursor: "pointer",
         }}>
           <Box sx={{
-            bgcolor: "rgba(0,0,0,0.5)", borderRadius: "50%", width: 64, height: 64,
-            display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)",
+            bgcolor: "rgba(0,0,0,0.45)", borderRadius: "50%", width: 72, height: 72,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            backdropFilter: "blur(8px)", transition: "transform 0.15s",
+            "&:hover": { transform: "scale(1.1)" },
           }}>
-            <PlayArrowOutlinedIcon sx={{ color: "common.white", fontSize: 40 }} />
+            <PlayArrowOutlinedIcon sx={{ color: "common.white", fontSize: 44 }} />
           </Box>
+        </Box>
+      )}
+
+      {/* Loading spinner overlay */}
+      {!videoReady && !loading && (
+        <Box sx={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
+          <CircularProgress sx={{ color: "common.white" }} />
         </Box>
       )}
 
@@ -238,26 +410,48 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
         onClick={(e) => e.stopPropagation()}
         sx={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 10,
-          background: "linear-gradient(transparent, rgba(0,0,0,0.85))",
-          px: { xs: 1, sm: 2 }, pt: 6, pb: { xs: 1, sm: 1.5 },
+          background: "linear-gradient(transparent, rgba(0,0,0,0.9))",
+          px: { xs: 1, sm: 2 }, pt: 8, pb: { xs: 1, sm: 1.5 },
           opacity: showControls ? 1 : 0, transition: "opacity 0.3s",
           display: "flex", flexDirection: "column",
         }}
       >
-        {/* Progress bar — buffer + seek */}
-        <Box sx={{ position: "relative", height: 16, display: "flex", alignItems: "center", cursor: "pointer", mb: 0.5 }}>
-          {/* Buffer background */}
+        {/* Progress bar */}
+        <Box
+          ref={progressRef}
+          onMouseEnter={() => setProgressHovered(true)}
+          onMouseLeave={() => { setProgressHovered(false); setHoverTime(null); }}
+          onMouseMove={handleProgressHover}
+          sx={{ position: "relative", height: 20, display: "flex", alignItems: "center", cursor: "pointer", mb: 0.5 }}
+        >
+          {/* Hover time tooltip */}
+          {hoverTime !== null && progressHovered && (
+            <Box sx={{
+              position: "fixed", left: hoverX, bottom: 68,
+              transform: "translateX(-50%)",
+              bgcolor: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
+              color: "common.white", px: 1, py: 0.25, borderRadius: 1,
+              fontSize: 12, fontWeight: 600, fontVariantNumeric: "tabular-nums",
+              pointerEvents: "none", zIndex: 20,
+            }}>
+              {formatTime(hoverTime)}
+            </Box>
+          )}
+
+          {/* Buffer bar */}
           <LinearProgress
             variant="determinate"
             value={buffered}
             color="inherit"
             sx={{
-              position: "absolute", left: 0, right: 0, height: 3, borderRadius: 2,
+              position: "absolute", left: 0, right: 0,
+              height: progressHovered ? 6 : 3, borderRadius: 2,
+              transition: "height 0.15s",
               bgcolor: "rgba(255,255,255,0.15)",
               "& .MuiLinearProgress-bar": { bgcolor: "rgba(255,255,255,0.3)", borderRadius: 2 },
             }}
           />
-          {/* Seek slider on top */}
+          {/* Seek slider */}
           <Slider
             value={currentTime}
             min={0}
@@ -266,13 +460,15 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
             size="small"
             sx={{
               position: "absolute", left: 0, right: 0, p: 0,
-              color: "primary.main", height: 3,
+              color: "inherit", height: progressHovered ? 6 : 3,
+              transition: "height 0.15s",
               "& .MuiSlider-rail": { bgcolor: "transparent" },
               "& .MuiSlider-track": { borderRadius: 2 },
               "& .MuiSlider-thumb": {
-                width: 14, height: 14, transition: "0.15s",
-                boxShadow: "0 0 6px rgba(0,0,0,0.5)",
-                "&:hover": { width: 18, height: 18 },
+                width: progressHovered ? 16 : 0, height: progressHovered ? 16 : 0,
+                transition: "0.15s",
+                boxShadow: "0 0 8px rgba(0,0,0,0.6)",
+                bgcolor: "common.white",
               },
             }}
           />
@@ -300,7 +496,7 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
           {/* Volume */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, "&:hover .volume-slider": { width: 70, opacity: 1 } }}>
             <IconButton size="small" onClick={toggleMute} sx={{ color: "rgba(255,255,255,0.8)" }}>
-              {muted || volume === 0 ? <VolumeOffOutlinedIcon sx={{ fontSize: 20 }} /> : <VolumeUpOutlinedIcon sx={{ fontSize: 20 }} />}
+              {volumeIcon}
             </IconButton>
             <Slider
               className="volume-slider"
@@ -315,8 +511,8 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
           </Box>
 
           {/* Speed */}
-          <Tooltip title={`Vitesse ${speed}x`}>
-            <IconButton size="small" onClick={(e) => setSpeedAnchor(e.currentTarget)} sx={{ color: "rgba(255,255,255,0.8)", fontSize: 12, fontWeight: 700, minWidth: 0 }}>
+          <Tooltip title={`${speed}x`}>
+            <IconButton size="small" onClick={(e) => setSpeedAnchor(e.currentTarget)} sx={{ color: "rgba(255,255,255,0.8)" }}>
               {speed !== 1 ? <Typography sx={{ fontSize: 12, color: "primary.main", fontWeight: 700 }}>{speed}x</Typography> : <SpeedOutlinedIcon sx={{ fontSize: 20 }} />}
             </IconButton>
           </Tooltip>
@@ -341,6 +537,13 @@ const VideoViewer = React.memo(function VideoViewer({ fileUrl, filename }: Video
               </MenuItem>
             ))}
           </Menu>
+
+          {/* PiP */}
+          <Tooltip title="Picture-in-Picture">
+            <IconButton size="small" onClick={togglePiP} sx={{ color: "rgba(255,255,255,0.8)" }}>
+              <PictureInPictureAltOutlinedIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+          </Tooltip>
 
           {/* Fullscreen */}
           <IconButton size="small" onClick={toggleFullscreen} sx={{ color: "rgba(255,255,255,0.8)" }}>

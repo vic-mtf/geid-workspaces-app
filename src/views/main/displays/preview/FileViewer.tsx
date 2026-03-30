@@ -160,7 +160,7 @@ export default function FileViewer() {
 
     switch (category) {
       case "image":
-        return <ImageViewer fileUrl={url} filename={name} />;
+        return <ImageViewer fileUrl={url} filename={name} imageWidth={currentFile?.imageWidth} imageHeight={currentFile?.imageHeight} />;
       case "video":
         return <VideoViewer fileUrl={url} filename={name} />;
       case "document":

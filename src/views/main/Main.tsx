@@ -163,9 +163,13 @@ export default function Main() {
       case "goToLocation": root?.dispatchEvent(new CustomEvent("_go_to_location", { detail: { file } })); break;
       case "restore": {
         const id = file._id;
-        if (id) fetch(`/api/stuff/workspace/restore/${id}`, { method: "PATCH", headers: { Authorization: `Bearer ${user?.token}` } })
-          .then((r) => { if (!r.ok) throw new Error(); enqueueSnackbar(t("trash.restoreSuccess"), { variant: "success" }); root?.dispatchEvent(new CustomEvent("_reload_current_dir")); })
-          .catch(() => enqueueSnackbar(t("trash.restoreError"), { variant: "error" }));
+        if (id) {
+          root?.dispatchEvent(new CustomEvent("_set_busy", { detail: { name: file.name } }));
+          fetch(`/api/stuff/workspace/restore/${id}`, { method: "PATCH", headers: { Authorization: `Bearer ${user?.token}` } })
+            .then((r) => { if (!r.ok) throw new Error(); enqueueSnackbar(t("trash.restoreSuccess"), { variant: "success" }); root?.dispatchEvent(new CustomEvent("_reload_current_dir")); })
+            .catch(() => enqueueSnackbar(t("trash.restoreError"), { variant: "error" }))
+            .finally(() => root?.dispatchEvent(new CustomEvent("_clear_busy", { detail: { name: file.name } })));
+        }
         break;
       }
       case "permanentDelete": root?.dispatchEvent(new CustomEvent("_confirm_delete", { detail: { fileNames: [file.name], isPermanent: true, fileId: file._id } })); break;
@@ -205,23 +209,6 @@ export default function Main() {
     }
   }, []);
 
-  // Raccourci clavier Ctrl+Shift+N → nouveau dossier (Mes fichiers uniquement)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === "N") {
-        e.preventDefault();
-        if (pathname.startsWith("/files")) {
-          document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_create_folder"));
-        }
-      }
-      if (e.ctrlKey && e.key === "a") {
-        e.preventDefault();
-        document.getElementById("root")?.dispatchEvent(new CustomEvent("_select_all"));
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [pathname]);
 
   useEffect(() => {
     const root = document.getElementById("root");
@@ -255,10 +242,35 @@ export default function Main() {
   // ── Fichiers en cours d'opération (bloqués visuellement) ──
   const [busyFiles, setBusyFiles] = useState<Set<string>>(new Set());
 
+  // Écouter _set_busy / _clear_busy depuis les vues enfants (ex: restauration corbeille)
+  useEffect(() => {
+    const root = document.getElementById("root");
+    const onSet = (e: any) => {
+      const name = e.detail?.name;
+      if (name) setBusyFiles((prev) => { const next = new Set(prev); next.add(name); return next; });
+    };
+    const onClear = (e: any) => {
+      const name = e.detail?.name;
+      if (name) setBusyFiles((prev) => { const next = new Set(prev); next.delete(name); return next; });
+    };
+    root?.addEventListener("_set_busy", onSet);
+    root?.addEventListener("_clear_busy", onClear);
+    return () => { root?.removeEventListener("_set_busy", onSet); root?.removeEventListener("_clear_busy", onClear); };
+  }, []);
+
+  // ── Trash count (pour désactiver "Vider la corbeille" si vide) ──
+  const [trashCount, setTrashCount] = useState(0);
+  useEffect(() => {
+    const root = document.getElementById("root");
+    const handler = (e: any) => setTrashCount(e.detail?.count ?? 0);
+    root?.addEventListener("_trash_count", handler);
+    return () => root?.removeEventListener("_trash_count", handler);
+  }, []);
+
   // ── Delete ─────────────────────────────────────────────────
   const [deleteConfirmFiles, setDeleteConfirmFiles] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [deleteMode, setDeleteMode] = useState<{ isDirectory?: boolean; isPermanent?: boolean; fileId?: string }>({});
+  const [deleteMode, setDeleteMode] = useState<{ isDirectory?: boolean; isPermanent?: boolean; fileId?: string; fileIds?: string[] }>({});
   const [, executeDelete] = useAxios({ headers: { Authorization: `Bearer ${user?.token}` } }, { manual: true });
 
   // ── Data fetching ──────────────────────────────────────────
@@ -307,12 +319,14 @@ export default function Main() {
   useEffect(() => {
     const root = document.getElementById("root");
     const handler = () => {
-      // Just refetch — do NOT clear the dataStore cache
+      // Refetch + nettoyer sélection et détail
+      clearSelection();
+      handleCloseDetail();
       getFiles({ folder });
     };
     root?.addEventListener("_reload_current_dir", handler);
     return () => root?.removeEventListener("_reload_current_dir", handler);
-  }, [folder, getFiles]);
+  }, [folder, getFiles, clearSelection, handleCloseDetail]);
 
   const display = useSelector((store: RootState) => (store.app as any).display ?? "thumbnail");
   const sort = useSelector((store: RootState) => (store.app as any).sort ?? "name");
@@ -337,7 +351,11 @@ export default function Main() {
   }, [filesData, sort, order]);
 
   const allSelected = useMemo(() => _data.length > 0 && _data.every((f) => selectedFiles.has(f.name ?? "")), [_data, selectedFiles]);
-  const selectAll = useCallback(() => { if (allSelected) clearSelection(); else setSelectedFiles(new Set(_data.map((f) => f.name ?? ""))); }, [allSelected, _data, clearSelection]);
+  const selectAll = useCallback(() => {
+    // Ne pas interférer avec les vues spéciales (elles gèrent leur propre _select_all)
+    if (isSpecialView) return;
+    if (allSelected) clearSelection(); else setSelectedFiles(new Set(_data.map((f) => f.name ?? "")));
+  }, [allSelected, _data, clearSelection, isSpecialView]);
   const getCurrentPath = useCallback(() => folder || "", [folder]);
 
   // Ctrl+A listener
@@ -354,9 +372,12 @@ export default function Main() {
     // Marquer les fichiers comme occupés
     setBusyFiles((prev) => { const next = new Set(prev); deleteConfirmFiles.forEach((fn) => next.add(fn)); return next; });
     try {
-      if (deleteMode.isPermanent && deleteMode.fileId) {
-        // Suppression permanente depuis la corbeille (un seul element)
-        await executeDelete({ method: "delete", url: `/api/stuff/workspace/trash/${deleteMode.fileId}` });
+      if (deleteMode.isPermanent && (deleteMode.fileId || deleteMode.fileIds)) {
+        // Suppression permanente depuis la corbeille
+        const ids = deleteMode.fileIds || (deleteMode.fileId ? [deleteMode.fileId] : []);
+        await Promise.all(ids.map((id) =>
+          executeDelete({ method: "delete", url: `/api/stuff/workspace/trash/${id}` })
+        ));
       } else if (permanent) {
         // Suppression definitive directe — gere fichiers ET dossiers en meme temps
         const items = _data.filter((f) => deleteConfirmFiles.includes(f.name ?? ""));
@@ -390,7 +411,7 @@ export default function Main() {
       const fns: string[] = event.detail?.fileNames || [];
       if (fns.length > 0) {
         setDeleteConfirmFiles(fns);
-        setDeleteMode({ isDirectory: event.detail?.isDirectory, isPermanent: event.detail?.isPermanent, fileId: event.detail?.fileId });
+        setDeleteMode({ isDirectory: event.detail?.isDirectory, isPermanent: event.detail?.isPermanent, fileId: event.detail?.fileId, fileIds: event.detail?.fileIds });
         setDeleteConfirmOpen(true);
       }
     };
@@ -403,6 +424,73 @@ export default function Main() {
     const root = document.getElementById("root");
     Array.from(selectedFiles).forEach((name) => root?.dispatchEvent(new CustomEvent("_open_move_dialog", { detail: { file: { name, currentPath: getCurrentPath() } } })));
   }, [selectedFiles, getCurrentPath]);
+
+  // ── Raccourcis clavier ────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      const isEditing = tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable;
+
+      if (isEditing) {
+        // En mode édition, seul Ctrl+A natif est permis
+        return;
+      }
+
+      // Alt+N → Nouveau dossier (Mes fichiers uniquement)
+      if (e.altKey && e.key === "n") {
+        e.preventDefault();
+        if (pathname.startsWith("/files")) {
+          document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_create_folder"));
+        }
+        return;
+      }
+
+      // Ctrl+A → Tout sélectionner
+      if (e.ctrlKey && e.key === "a") {
+        e.preventDefault();
+        document.getElementById("root")?.dispatchEvent(new CustomEvent("_select_all"));
+        return;
+      }
+
+      // Delete → Supprimer la sélection
+      if (e.key === "Delete" && selectedFiles.size > 0) {
+        e.preventDefault();
+        if (isSpecialView === "trash") {
+          document.getElementById("root")?.dispatchEvent(new CustomEvent("_permanent_delete_selection"));
+        } else {
+          handleSelectionDelete();
+        }
+        return;
+      }
+
+      // Escape → Désélectionner, puis fermer le détail
+      if (e.key === "Escape") {
+        if (selectedFiles.size > 0) {
+          clearSelection();
+        } else if (detailOpen) {
+          handleCloseDetail();
+        }
+        return;
+      }
+
+      // F2 → Renommer (1 seul élément sélectionné, Mes fichiers uniquement)
+      if (e.key === "F2" && selectedFiles.size === 1 && pathname.startsWith("/files")) {
+        e.preventDefault();
+        const fileName = Array.from(selectedFiles)[0];
+        document.getElementById("root")?.dispatchEvent(new CustomEvent("_trigger_inline_rename", { detail: { fileName } }));
+        return;
+      }
+
+      // F5 → Actualiser
+      if (e.key === "F5") {
+        e.preventDefault();
+        document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
+        return;
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pathname, selectedFiles, isSpecialView, detailOpen, handleSelectionDelete, clearSelection, handleCloseDetail]);
 
   const showDetail = detailOpen && focusedFile && isDesktop;
 
@@ -419,7 +507,7 @@ export default function Main() {
       {/* ── Main styled comme archives Content ─────────────── */}
       <StyledMain>
         <Toolbar variant="dense" />
-        <SubHeader selectedFiles={selectedFiles} onClearSelection={clearSelection} onDelete={handleSelectionDelete} onMove={handleSelectionMove} />
+        <SubHeader selectedFiles={selectedFiles} onClearSelection={clearSelection} onDelete={handleSelectionDelete} onMove={handleSelectionMove} trashCount={trashCount} />
         <Divider />
 
         {!isSpecialView && <FolderBreadcrumb categoryLabel={FILES_LABEL} />}
@@ -427,10 +515,10 @@ export default function Main() {
         {isSpecialView ? (
           <MuiBox sx={{ display: "grid", flex: 1, minHeight: 0, overflow: "hidden", gridTemplateColumns: showDetail ? `1fr 1px ${detailWidth}px` : "1fr" }}>
             <MuiBox sx={{ minWidth: 0, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-              {isSpecialView === "favorites" && <FavoritesView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} />}
-              {isSpecialView === "recent" && <RecentView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} />}
+              {isSpecialView === "favorites" && <FavoritesView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} busyFiles={busyFiles} />}
+              {isSpecialView === "recent" && <RecentView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} busyFiles={busyFiles} />}
               {isSpecialView === "shared" && <SharedView />}
-              {isSpecialView === "trash" && <TrashView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} />}
+              {isSpecialView === "trash" && <TrashView selectedFiles={selectedFiles} onToggleSelect={toggleSelect} busyFiles={busyFiles} />}
             </MuiBox>
             {showDetail && <DetailResizeDivider onResize={setDetailWidth} minWidth={200} maxWidth={450} />}
             {showDetail && (

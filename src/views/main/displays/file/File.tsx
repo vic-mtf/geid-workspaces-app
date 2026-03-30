@@ -11,6 +11,7 @@ import Photo from "@/views/main/displays/file/Photo";
 import Video from "@/views/main/displays/file/Video";
 import FileTypeIcon from "@/components/FileTypeIcon";
 import getFileExtension from "@/utils/getFileExtension";
+import timeAgo from "@/utils/timeAgo";
 import style from "@/styles/paper.module.css";
 
 interface FileProps {
@@ -49,18 +50,22 @@ function File(props: FileProps) {
       </Box>
       {props.renderName ?? (
         <Typography
-          width={120}
-          align="center"
+          variant="body2"
+          noWrap
           sx={{
-            display: "-webkit-box",
-            maxWidth: 200,
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
+            maxWidth: 140,
             textOverflow: "ellipsis",
             overflow: "hidden",
+            fontSize: 13,
+            lineHeight: 1.3,
           }}
         >
           {props.name}
+        </Typography>
+      )}
+      {props.date && (
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10, lineHeight: 1.2 }}>
+          {timeAgo(props.date)}
         </Typography>
       )}
     </Box>

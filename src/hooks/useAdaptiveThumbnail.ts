@@ -21,7 +21,10 @@ const thumbCache = new Map<string, CacheEntry>();
 const MAX_CACHE = 500;
 const pendingFetches = new Map<string, Promise<string | null>>();
 
-const CACHE_NAME = "geid-thumbnails-v1";
+const CACHE_NAME = "geid-thumbnails-v2";
+
+// Nettoyer l'ancien cache
+caches.delete("geid-thumbnails-v1").catch(() => {});
 
 function cacheKey(fileUrl: string, q: Quality) { return `${fileUrl}::${q}`; }
 

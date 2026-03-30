@@ -10,7 +10,10 @@ import {
   Checkbox,
   CircularProgress,
   IconButton,
-  Skeleton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -24,10 +27,19 @@ import File from "@/views/main/displays/file/File";
 import FolderItem from "@/views/main/displays/thumbnail/FolderItem";
 import WrapperContent from "@/views/main/displays/thumbnail/WrapperContent";
 import MoveConfirmDialog from "@/components/MoveConfirmDialog";
+import AdaptiveSkeleton from "@/components/AdaptiveSkeleton";
 import useDragDropMove from "@/hooks/useDragDropMove";
 import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import StarBorderRoundedIcon from "@mui/icons-material/StarBorderRounded";
+import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+import SelectAllOutlinedIcon from "@mui/icons-material/SelectAllOutlined";
+import DeselectOutlinedIcon from "@mui/icons-material/DeselectOutlined";
+import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import RestoreOutlinedIcon from "@mui/icons-material/RestoreOutlined";
+import getFile from "@/utils/getFile";
 import { FileItem, RootState } from "@/types";
 
 interface ThumbnailProps {
@@ -49,7 +61,19 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const isTrashView = pathname.startsWith("/trash");
+  const isFilesView = pathname.startsWith("/files");
   const user = useSelector((store: RootState) => store.user);
+
+  // Context menu sur l'espace vide
+  const [emptyCtx, setEmptyCtx] = useState<{ mouseX: number; mouseY: number } | null>(null);
+  const handleEmptyContextMenu = useCallback((e: React.MouseEvent) => {
+    // Ne pas ouvrir si le clic est sur un item (un enfant du grid)
+    if ((e.target as HTMLElement).closest("[data-filename]")) return;
+    e.preventDefault();
+    setEmptyCtx({ mouseX: e.clientX + 2, mouseY: e.clientY - 6 });
+  }, []);
+  const closeEmptyCtx = useCallback(() => setEmptyCtx(null), []);
+
 
   // Inline rename
   const [renamingFile, setRenamingFile] = useState<string | null>(null);
@@ -92,6 +116,8 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   });
 
   const isSpecialView = !pathname.startsWith("/files");
+  const hasSelection = selectedFiles.size > 0;
+  const allItemsSelected = data.length > 0 && data.every((f) => selectedFiles.has(f.name ?? ""));
 
   const handleFolderClick = useCallback((folderName: string, file?: any) => {
     if (isSpecialView && file) {
@@ -162,13 +188,14 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
           if (e.key === "Escape") setRenamingFile(null);
         }}
         onClick={(e) => e.stopPropagation()}
-        variant="caption"
-        align="center"
+        variant="body2"
         sx={{
-          maxWidth: 120, fontSize: 11, lineHeight: 1.3, fontWeight: 600,
+          maxWidth: 140, width: 140, fontSize: 13, lineHeight: 1.3, fontWeight: 600,
           outline: "none", borderRadius: 0.5, px: 0.5,
           bgcolor: "action.selected", cursor: "text",
-          display: "inline-block", minWidth: 30, wordBreak: "break-word",
+          display: "block",
+          whiteSpace: "nowrap", overflow: "auto",
+          "&::-webkit-scrollbar": { display: "none" },
         }}
       >
         {nameWithoutExt}
@@ -188,7 +215,8 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
       return (
         <Box
           sx={{
-            position: "relative", width: "100%",
+            position: "relative", width: "100%", height: "100%",
+            display: "flex", flexDirection: "column", justifyContent: "flex-end",
             "&:hover .select-checkbox": { opacity: 1 },
             "&:hover .fav-btn": { opacity: 1 },
             "&:hover": { bgcolor: "action.hover" },
@@ -243,7 +271,8 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
 
     return (
       <Box sx={{
-          position: "relative", width: "100%",
+          position: "relative", width: "100%", height: "100%",
+          display: "flex", flexDirection: "column", justifyContent: "flex-end",
           "&:hover .select-checkbox": { opacity: 1 },
           "&:hover .fav-btn": { opacity: 1 },
           "&:hover": { bgcolor: "action.hover" },
@@ -301,23 +330,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     return () => clearTimeout(timer);
   }, [highlightFile, data]);
 
-  if (loading) {
-    return (
-      <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
-          <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <Box key={i} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, p: 1 }}>
-                <Skeleton variant="rounded" width={100} height={120} sx={{ borderRadius: 2 }} />
-                <Skeleton variant="text" width={80} height={14} />
-                <Skeleton variant="text" width={50} height={10} />
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      </Box>
-    );
-  }
+  if (loading) return <AdaptiveSkeleton />;
 
   if (data.length === 0) {
     return (
@@ -334,16 +347,78 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   return (
     <>
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
+        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }} onContextMenu={handleEmptyContextMenu}>
           <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
             {data.map((_, i) => (
-              <Box key={data[i]?._id || `${i}_${data[i]?.name}`} data-filename={data[i]?.name} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+              <Box key={data[i]?._id || `${i}_${data[i]?.name}`} data-filename={data[i]?.name} sx={{ display: "flex", justifyContent: "center", alignItems: "stretch" }}>
                 {renderItem(i)}
               </Box>
             ))}
           </Box>
         </Box>
       </Box>
+
+      {/* Menu contextuel espace vide */}
+      <Menu
+        open={emptyCtx !== null}
+        onClose={closeEmptyCtx}
+        anchorReference="anchorPosition"
+        anchorPosition={emptyCtx ? { top: emptyCtx.mouseY, left: emptyCtx.mouseX } : undefined}
+        MenuListProps={{ dense: true, sx: { px: 0.5 } }}
+        PaperProps={{
+          sx: {
+            bgcolor: (theme: any) => theme.palette.background.paper + theme.customOptions.opacity,
+            border: (theme: any) => `1px solid ${theme.palette.divider}`,
+            backdropFilter: (theme: any) => `blur(${theme.customOptions.blur})`,
+          },
+        }}
+      >
+        {isFilesView && (
+          <MenuItem sx={{ borderRadius: 2 }} onClick={() => { closeEmptyCtx(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_create_folder")); }}>
+            <ListItemIcon><CreateNewFolderOutlinedIcon fontSize="small" /></ListItemIcon>
+            <ListItemText primary={t("files.newFolder")} />
+          </MenuItem>
+        )}
+        {isFilesView && (
+          <MenuItem sx={{ borderRadius: 2 }} onClick={async () => {
+            closeEmptyCtx();
+            const files = await getFile({ multiple: true, accept: "*.*" });
+            if (files) {
+              const fileArray = Array.from(files as FileList);
+              if (fileArray.length > 0) {
+                document.getElementById("root")?.dispatchEvent(
+                  new CustomEvent("_open_files_form", { detail: { files: fileArray, name: "_open_files_form" } })
+                );
+              }
+            }
+          }}>
+            <ListItemIcon><UploadFileOutlinedIcon fontSize="small" /></ListItemIcon>
+            <ListItemText primary={t("files.upload")} />
+          </MenuItem>
+        )}
+        {isTrashView && hasSelection && (
+          <MenuItem sx={{ borderRadius: 2 }} onClick={() => { closeEmptyCtx(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_restore_selection")); }}>
+            <ListItemIcon><RestoreOutlinedIcon fontSize="small" /></ListItemIcon>
+            <ListItemText primary={t("trash.restore")} />
+          </MenuItem>
+        )}
+        {isTrashView && (
+          <MenuItem sx={{ borderRadius: 2 }} onClick={() => { closeEmptyCtx(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_confirm_empty_trash")); }}>
+            <ListItemIcon><DeleteForeverOutlinedIcon fontSize="small" color="error" /></ListItemIcon>
+            <ListItemText primary={t("trash.emptyTrash")} primaryTypographyProps={{ color: "error" }} />
+          </MenuItem>
+        )}
+        {data.length > 0 && (
+          <MenuItem sx={{ borderRadius: 2 }} onClick={() => { closeEmptyCtx(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_select_all")); }}>
+            <ListItemIcon>{allItemsSelected ? <DeselectOutlinedIcon fontSize="small" /> : <SelectAllOutlinedIcon fontSize="small" />}</ListItemIcon>
+            <ListItemText primary={allItemsSelected ? t("selection.deselectAll") : t("selection.selectAll")} />
+          </MenuItem>
+        )}
+        <MenuItem sx={{ borderRadius: 2 }} onClick={() => { closeEmptyCtx(); document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir")); }}>
+          <ListItemIcon><RefreshOutlinedIcon fontSize="small" /></ListItemIcon>
+          <ListItemText primary={t("common.refresh") || "Actualiser"} />
+        </MenuItem>
+      </Menu>
 
       <MoveConfirmDialog
         open={!!moveConfirm}

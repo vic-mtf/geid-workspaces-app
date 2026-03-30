@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
 import { useSelector } from 'react-redux';
@@ -14,9 +14,10 @@ import { RootState } from '@/types';
 interface FavoritesViewProps {
     selectedFiles?: Set<string>;
     onToggleSelect?: (name: string) => void;
+    busyFiles?: Set<string>;
 }
 
-export default function FavoritesView({ selectedFiles = new Set(), onToggleSelect }: FavoritesViewProps) {
+export default function FavoritesView({ selectedFiles = new Set(), onToggleSelect, busyFiles }: FavoritesViewProps) {
     const { t } = useTranslation();
     const token = useSelector((store: RootState) => store.user.token);
     const display = useSelector((store: RootState) => (store.app as any).display ?? 'thumbnail');
@@ -39,13 +40,15 @@ export default function FavoritesView({ selectedFiles = new Set(), onToggleSelec
                 _id: f._id,
                 name: f.name,
                 url: f.contentUrl ? `/api/stuff/workspace/file/${f.contentUrl.replace('workspace/', '')}` : null,
-                createdAt: f.updatedAt || f.createdAt,
+                createdAt: f.createdAt,
                 size: f.size || 0,
                 isDirectory: f.isDirectory || false,
                 tags: f.tags || [],
                 duration: f.duration || null,
                 videoWidth: f.videoWidth || null,
                 videoHeight: f.videoHeight || null,
+                imageWidth: f.imageWidth || null,
+                imageHeight: f.imageHeight || null,
                 currentPath: f.path || '',
             }));
     }, []);
@@ -66,6 +69,22 @@ export default function FavoritesView({ selectedFiles = new Set(), onToggleSelec
         return [...dirs, ...files];
     }, [data, sort, order]);
 
+    // Ctrl+A — sélectionner/désélectionner tous les éléments
+    useEffect(() => {
+        const root = document.getElementById("root");
+        const handler = () => {
+            if (!onToggleSelect) return;
+            const allNames = sorted.map((f) => f.name).filter(Boolean) as string[];
+            const allSelected = allNames.length > 0 && allNames.every((n) => selectedFiles.has(n));
+            if (allSelected) {
+                allNames.forEach((n) => onToggleSelect(n));
+            } else {
+                allNames.filter((n) => !selectedFiles.has(n)).forEach((n) => onToggleSelect(n));
+            }
+        };
+        root?.addEventListener("_select_all", handler);
+        return () => root?.removeEventListener("_select_all", handler);
+    }, [sorted, selectedFiles, onToggleSelect]);
 
     if (loading) return <AdaptiveSkeleton />;
 
@@ -82,9 +101,9 @@ export default function FavoritesView({ selectedFiles = new Set(), onToggleSelec
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
             {display === 'list' || display === 'compact' ? (
-                <ListView data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} compact={display === 'compact'} />
+                <ListView data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} compact={display === 'compact'} busyFiles={busyFiles} />
             ) : (
-                <Thumbnail data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} />
+                <Thumbnail data={sorted} selectedFiles={selectedFiles} onToggleSelect={onToggleSelect || (() => {})} busyFiles={busyFiles} />
             )}
             <UpdateToast open={showToast} onClose={hideToast} />
         </Box>

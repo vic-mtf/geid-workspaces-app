@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/types";
 import FileTypeIcon from "@/components/FileTypeIcon";
 import getFileExtension from "@/utils/getFileExtension";
+import timeAgo from "@/utils/timeAgo";
 import style from "@/styles/paper.module.css";
 
 interface DocProps {
@@ -114,18 +115,16 @@ function Doc(props: DocProps) {
 
       {props.renderName ?? (
         <Typography
-          width={120}
-          align="center"
-          sx={{
-            display: "-webkit-box",
-            maxWidth: 200,
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-          }}
+          variant="body2"
+          noWrap
+          sx={{ maxWidth: 140, textOverflow: "ellipsis", overflow: "hidden", fontSize: 13, lineHeight: 1.3 }}
         >
           {props.name}
+        </Typography>
+      )}
+      {props.date && (
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10, lineHeight: 1.2 }}>
+          {timeAgo(props.date)}
         </Typography>
       )}
     </Box>

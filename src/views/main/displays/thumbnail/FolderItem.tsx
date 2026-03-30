@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
+import timeAgo from "@/utils/timeAgo";
 
 interface FolderItemProps {
   name?: string;
@@ -14,9 +15,6 @@ function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
   const theme = useTheme();
   const folderColor = color || theme.palette.warning.main;
   const badgeColor = color || theme.palette.warning.dark;
-  const formattedDate = date
-    ? new Date(date).toLocaleDateString("fr-FR")
-    : undefined;
 
   return (
     <Box
@@ -25,7 +23,6 @@ function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
       alignItems="center"
       sx={{ userSelect: "none", width: "100%", gap: 0 }}
     >
-      {/* Icône avec badge — pas de container intermédiaire à hauteur fixe */}
       <Box sx={{ position: "relative", display: "inline-flex", lineHeight: 0 }}>
         <FolderRoundedIcon sx={{ fontSize: 110, color: folderColor }} />
         {count != null && count > 0 && (
@@ -48,20 +45,15 @@ function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
         )}
       </Box>
 
-      {/* Nom — directement collé sous l'icône */}
       {renderName ?? (
         <Typography
-          variant="caption"
-          align="center"
+          variant="body2"
+          noWrap
           sx={{
-            maxWidth: 120,
+            maxWidth: 140,
             overflow: "hidden",
             textOverflow: "ellipsis",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            wordBreak: "break-word",
-            fontSize: 11,
+            fontSize: 13,
             lineHeight: 1.3,
             fontWeight: 600,
             mt: -0.5,
@@ -71,14 +63,13 @@ function FolderItem({ name, date, count, color, renderName }: FolderItemProps) {
         </Typography>
       )}
 
-      {/* Date — collée sous le nom */}
-      {formattedDate && (
+      {date && (
         <Typography
           variant="caption"
           color="text.secondary"
           sx={{ fontSize: 10, lineHeight: 1.2 }}
         >
-          {formattedDate}
+          {timeAgo(date)}
         </Typography>
       )}
     </Box>

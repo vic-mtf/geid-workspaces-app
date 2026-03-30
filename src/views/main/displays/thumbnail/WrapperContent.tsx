@@ -113,12 +113,15 @@ export default function WrapperContent({
     setContextMenu(null);
     const id = (file as any)._id;
     if (!id) return;
+    // Marquer comme busy
+    document.getElementById("root")?.dispatchEvent(new CustomEvent("_set_busy", { detail: { name } }));
     try {
       const res = await fetch(`/api/stuff/workspace/restore/${id}`, { method: "PATCH", headers: { Authorization: `Bearer ${user?.token}` } });
       if (!res.ok) throw new Error();
       enqueueSnackbar(t("trash.restoreSuccess") || "Le fichier a ete restaure dans son emplacement d'origine.", { variant: "success" });
       document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
     } catch { enqueueSnackbar(t("trash.restoreError") || "La restauration n'a pas pu aboutir.", { variant: "error" }); }
+    document.getElementById("root")?.dispatchEvent(new CustomEvent("_clear_busy", { detail: { name } }));
   };
 
   const handleTrashDelete = () => {
@@ -157,11 +160,11 @@ export default function WrapperContent({
       onFolderClick(name, file);
       return;
     }
-    // Single clic → ouvrir le détail (après délai pour laisser le double-clic annuler)
+    // Single clic → ouvrir le fichier dans le viewer interne
     if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
     clickTimerRef.current = setTimeout(() => {
       clickTimerRef.current = null;
-      document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_detail_file", { detail: { file } }));
+      document.getElementById("root")?.dispatchEvent(new CustomEvent("_open_file_preview", { detail: { file } }));
     }, 250);
   }, [isDirectory, onFolderClick, name, file]);
 
@@ -205,7 +208,7 @@ export default function WrapperContent({
           selected={false}
           sx={{
             display: "flex", flex: 1, borderRadius: 1, position: "relative",
-            justifyContent: "center", alignItems: "center",
+            justifyContent: "center", alignItems: "flex-end",
             p: 0,
             "&.Mui-focusVisible": { bgcolor: "transparent" },
             "&.Mui-selected": { bgcolor: "transparent" },
