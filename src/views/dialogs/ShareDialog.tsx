@@ -205,14 +205,8 @@ export default function ShareDialog() {
                     {t('share.sendInvitation') || 'Envoyer l\'invitation'}
                 </Button>
 
-                <Divider sx={{ my: 1 }} />
-
-                {/* Lien de partage */}
-                <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <LinkOutlinedIcon sx={{ fontSize: 16 }} />
-                    {t('share.shareLink')}
-                </Typography>
-                {shareLink ? (
+                {/* Lien de partage desactive pour le moment */}
+                {false && shareLink ? (
                     <TextField
                         fullWidth
                         size="small"
@@ -229,15 +223,7 @@ export default function ShareDialog() {
                         }}
                     />
                 ) : (
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<LinkOutlinedIcon />}
-                        onClick={handleGenerateLink}
-                        sx={{ textTransform: 'none' }}
-                    >
-                        {t('share.generateLink')}
-                    </Button>
+                    null
                 )}
             </DialogContent>
 
