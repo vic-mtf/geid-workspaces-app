@@ -33,7 +33,6 @@ export default function FormContent({
     const items = useMemo(() => files ? [...files] : [], [files]);
     const [tagInput, setTagInput] = useState("");
 
-    // Pour les dossiers, extraire le nom racine et compter les sous-dossiers
     const folderInfo = useMemo(() => {
         if (!isFolder || !items.length) return null;
         const firstPath = (items[0] as any)?.webkitRelativePath || "";
@@ -58,15 +57,11 @@ export default function FormContent({
 
     const totalSize = useMemo(() => items.reduce((acc, f) => acc + f.size, 0), [items]);
 
-    // Auto-fill designation/description
-    if (docFields.designation) docFields.designation.current = isFolder ? folderInfo?.rootName : (items[0]?.name || "fichier");
-    if (docFields.description) docFields.description.current = isFolder ? "Televerser un dossier" : "Televerser depuis l'espace personnel";
-
     return (
         <Dialog
             open={!!files}
             fullWidth
-            maxWidth="xs"
+            maxWidth="sm"
             PaperProps={{ sx: { border: 1, borderColor: 'divider' } }}
             BackdropProps={{
                 sx: {
@@ -83,7 +78,7 @@ export default function FormContent({
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                         {isFolder
-                            ? `${folderInfo?.rootName} — ${folderInfo?.fileCount} fichier${(folderInfo?.fileCount || 0) > 1 ? "s" : ""}${folderInfo?.subFolderCount ? `, ${folderInfo.subFolderCount} sous-dossier${folderInfo.subFolderCount > 1 ? "s" : ""}` : ""}`
+                            ? `${folderInfo?.rootName} — ${folderInfo?.fileCount} fichier${(folderInfo?.fileCount || 0) > 1 ? "s" : ""}${folderInfo?.subFolderCount ? `, ${folderInfo.subFolderCount} dossier${folderInfo.subFolderCount > 1 ? "s" : ""}` : ""}`
                             : `${items.length} fichier${items.length > 1 ? "s" : ""} — ${normaliseOctetSize(totalSize)}`
                         }
                     </Typography>
@@ -91,29 +86,19 @@ export default function FormContent({
             </DialogTitle>
 
             <form onSubmit={handleSendFile(files)}>
-                <DialogContent sx={{ maxHeight: '55vh', pt: 1 }}>
+                <DialogContent sx={{ maxHeight: '60vh', pt: 1 }}>
                     {/* Liste des fichiers */}
-                    <List dense disablePadding sx={{ mb: 1 }}>
-                        {items.slice(0, 20).map((file, index) => {
+                    <List dense disablePadding sx={{ mb: 1, maxHeight: 180, overflow: "auto" }}>
+                        {items.slice(0, 30).map((file, index) => {
                             const ext = getFileExtension(file.name) ?? "txt";
                             const relPath = isFolder ? (file as any).webkitRelativePath : null;
                             return (
-                                <ListItem
-                                    key={index}
-                                    disableGutters
-                                    secondaryAction={
-                                        !isFolder && items.length > 1 ? (
-                                            <IconButton size="small" onClick={() =>
-                                                setFiles((prev: File[] | null) => prev && prev.length > 1
-                                                    ? prev.filter((_: File, i: number) => i !== index)
-                                                    : null
-                                                )
-                                            }>
-                                                <CloseRoundedIcon sx={{ fontSize: 16 }} />
-                                            </IconButton>
-                                        ) : undefined
-                                    }
-                                    sx={{ py: 0.25 }}
+                                <ListItem key={index} disableGutters sx={{ py: 0.25 }}
+                                    secondaryAction={!isFolder && items.length > 1 ? (
+                                        <IconButton size="small" onClick={() =>
+                                            setFiles((prev: File[] | null) => prev && prev.length > 1 ? prev.filter((_: File, i: number) => i !== index) : null)
+                                        }><CloseRoundedIcon sx={{ fontSize: 16 }} /></IconButton>
+                                    ) : undefined}
                                 >
                                     <ListItemIcon sx={{ minWidth: 32 }}>
                                         <FileTypeIcon extension={ext} size={22} />
@@ -127,20 +112,38 @@ export default function FormContent({
                                 </ListItem>
                             );
                         })}
-                        {items.length > 20 && (
+                        {items.length > 30 && (
                             <Typography variant="caption" color="text.disabled" sx={{ pl: 4 }}>
-                                + {items.length - 20} autre{items.length - 20 > 1 ? "s" : ""} fichier{items.length - 20 > 1 ? "s" : ""}
+                                + {items.length - 30} autre{items.length - 30 > 1 ? "s" : ""}
                             </Typography>
                         )}
                     </List>
 
-                    <Divider sx={{ mb: 1 }} />
+                    <Divider sx={{ mb: 1.5 }} />
 
-                    {/* Tags optionnels */}
+                    {/* Designation */}
+                    <TextField
+                        fullWidth size="small" label={t("filesForm.designation")}
+                        defaultValue={isFolder ? folderInfo?.rootName : items[0]?.name || ""}
+                        inputRef={(el: HTMLInputElement | null) => { if (el && docFields.designation) docFields.designation.current = el.value; }}
+                        onChange={(e) => { if (docFields.designation) docFields.designation.current = e.target.value; }}
+                        sx={{ mb: 1.5 }}
+                    />
+
+                    {/* Description */}
+                    <TextField
+                        fullWidth size="small" multiline minRows={2} maxRows={3}
+                        label={t("filesForm.description")}
+                        inputRef={(el: HTMLInputElement | null) => { if (el && docFields.description) docFields.description.current = el.value; }}
+                        onChange={(e) => { if (docFields.description) docFields.description.current = e.target.value; }}
+                        sx={{ mb: 1.5 }}
+                    />
+
+                    {/* Tags */}
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
                         {t("filesForm.keyword")} ({t("common.optional") || "optionnel"})
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 0.5, mb: 1 }}>
+                    <Box sx={{ display: "flex", gap: 0.5, mb: 0.5 }}>
                         <TextField
                             size="small"
                             placeholder={t("tags.newTag") || "Ajouter un mot-cle"}
@@ -150,9 +153,7 @@ export default function FormContent({
                             sx={{ flex: 1 }}
                             InputProps={{ sx: { fontSize: 13 } }}
                         />
-                        <Button size="small" variant="outlined" onClick={handleAddTag} disabled={!tagInput.trim()}>
-                            +
-                        </Button>
+                        <Button size="small" variant="outlined" onClick={handleAddTag} disabled={!tagInput.trim()}>+</Button>
                     </Box>
                     {docFields.tags?.current && (
                         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
