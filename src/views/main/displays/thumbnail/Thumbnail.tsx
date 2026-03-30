@@ -8,6 +8,7 @@
 import {
   Box,
   Checkbox,
+  CircularProgress,
   IconButton,
   Skeleton,
   Typography,
@@ -35,12 +36,13 @@ interface ThumbnailProps {
   selectedFiles?: Set<string>;
   onToggleSelect?: (name: string) => void;
   highlightFile?: string | null;
+  busyFiles?: Set<string>;
 }
 
 const EMPTY_SET = new Set<string>();
 const GRID_COLS = "repeat(auto-fill, minmax(160px, 1fr))";
 
-export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_SET, onToggleSelect, highlightFile }: ThumbnailProps) {
+export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_SET, onToggleSelect, highlightFile, busyFiles = EMPTY_SET }: ThumbnailProps) {
   const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
   const [findName, setFindName] = useState("");
@@ -180,6 +182,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     if (!file) return null;
     const isHighlighted = highlightFile === file.name;
     const isSelected = selectedFiles.has(file.name ?? "");
+    const isBusy = busyFiles.has(file.name ?? "");
 
     if (file.isDirectory) {
       return (
@@ -228,7 +231,8 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
                 : <StarBorderRoundedIcon sx={{ fontSize: 18, color: "common.white" }} />}
             </IconButton>
           )}
-          <WrapperContent {...file} isDirectory onFolderClick={handleFolderClick} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
+          {isBusy && <Box sx={{ position: "absolute", inset: 0, zIndex: 5, bgcolor: "rgba(0,0,0,0.25)", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}><CircularProgress size={20} sx={{ color: "common.white" }} /></Box>}
+          <WrapperContent {...file} isDirectory onFolderClick={!isBusy ? handleFolderClick : undefined} onDoubleClickName={!isBusy ? () => setRenamingFile(file.name ?? "") : undefined}>
             <FolderItem name={file.name} date={file.createdAt} count={file.count ?? file.children} color={file.color} renderName={makeRenderName(file)} />
           </WrapperContent>
         </Box>
@@ -279,12 +283,13 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
             ? <StarRoundedIcon sx={{ fontSize: 18, color: "warning.main" }} />
             : <StarBorderRoundedIcon sx={{ fontSize: 18, color: "common.white" }} />}
         </IconButton>}
-        <WrapperContent {...infos} {...file} onDoubleClickName={() => setRenamingFile(file.name ?? "")}>
+        {isBusy && <Box sx={{ position: "absolute", inset: 0, zIndex: 5, bgcolor: "rgba(0,0,0,0.25)", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}><CircularProgress size={20} sx={{ color: "common.white" }} /></Box>}
+        <WrapperContent {...infos} {...file} onDoubleClickName={!isBusy ? () => setRenamingFile(file.name ?? "") : undefined}>
           <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} renderName={makeRenderName(file)} />
         </WrapperContent>
       </Box>
     );
-  }, [data, selectedFiles, dragOverFolder, highlightFile, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleFolderClick, onToggleSelect, makeRenderName]);
+  }, [data, selectedFiles, busyFiles, dragOverFolder, highlightFile, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleFolderClick, onToggleSelect, makeRenderName]);
 
   // Scroll vers le fichier highlighté quand les données arrivent
   useEffect(() => {

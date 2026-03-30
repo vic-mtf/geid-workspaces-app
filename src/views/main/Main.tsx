@@ -250,6 +250,9 @@ export default function Main() {
   }, []);
   const clearSelection = useCallback(() => setSelectedFiles(new Set()), []);
 
+  // ── Fichiers en cours d'opération (bloqués visuellement) ──
+  const [busyFiles, setBusyFiles] = useState<Set<string>>(new Set());
+
   // ── Delete ─────────────────────────────────────────────────
   const [deleteConfirmFiles, setDeleteConfirmFiles] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -346,6 +349,8 @@ export default function Main() {
   const handleDeleteConfirm = useCallback(async (permanent: boolean) => {
     setDeleteConfirmOpen(false);
     const path = getCurrentPath();
+    // Marquer les fichiers comme occupés
+    setBusyFiles((prev) => { const next = new Set(prev); deleteConfirmFiles.forEach((fn) => next.add(fn)); return next; });
     try {
       if (deleteMode.isPermanent && deleteMode.fileId) {
         // Suppression permanente depuis la corbeille
@@ -375,8 +380,9 @@ export default function Main() {
       else enqueueSnackbar(t("files.fileDeleteError"), { variant: "error" });
     }
     clearSelection(); setDeleteConfirmFiles([]); setDeleteMode({});
+    setBusyFiles((prev) => { const next = new Set(prev); deleteConfirmFiles.forEach((fn) => next.delete(fn)); return next; });
     document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_current_dir"));
-  }, [deleteConfirmFiles, deleteMode, getCurrentPath, user?.id, executeDelete, enqueueSnackbar, t, clearSelection]);
+  }, [deleteConfirmFiles, deleteMode, getCurrentPath, user?.id, executeDelete, enqueueSnackbar, t, clearSelection, _data]);
 
   useEffect(() => {
     const root = document.getElementById("root");
@@ -402,7 +408,7 @@ export default function Main() {
 
   // ── Render content view ────────────────────────────────────
   const renderContent = () => {
-    const viewProps = { data: _data, loading, selectedFiles, onToggleSelect: toggleSelect, allSelected, onSelectAll: selectAll, highlightFile };
+    const viewProps = { data: _data, loading, selectedFiles, onToggleSelect: toggleSelect, allSelected, onSelectAll: selectAll, highlightFile, busyFiles };
     if (!display || display === "thumbnail") return <Thumbnail {...viewProps} />;
     if (display === "compact") return <ListView {...viewProps} compact />;
     return <ListView {...viewProps} />;

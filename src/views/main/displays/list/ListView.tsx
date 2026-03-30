@@ -12,6 +12,7 @@ import {
   Avatar,
   Box,
   Checkbox,
+  CircularProgress,
   Skeleton,
   TextField,
   Typography,
@@ -45,6 +46,7 @@ interface ListViewProps {
   allSelected?: boolean;
   onSelectAll?: () => void;
   compact?: boolean;
+  busyFiles?: Set<string>;
 }
 
 // Miniature en mode liste pour les images
@@ -84,6 +86,7 @@ export default function ListView({
   allSelected = false,
   onSelectAll,
   compact = false,
+  busyFiles = new Set<string>(),
 }: ListViewProps) {
   const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
@@ -186,6 +189,7 @@ export default function ListView({
     const infos = file.isDirectory ? undefined : fileExtensionBase.find(({ exts }) => exts.includes(ext));
     const isImage = infos?.type === "image";
     const isSelected = selectedFiles.has(file.name ?? "");
+    const isBusy = busyFiles.has(file.name ?? "");
     const isDragOverThis = file.isDirectory && dragOverFolder === file.name;
     const isRenaming = renamingFile === file.name;
 
@@ -197,26 +201,33 @@ export default function ListView({
 
     return (
       <Box
-        draggable
-        onDragStart={(e: React.DragEvent) => handleDragStart(e, file.name ?? "", (file as any)._id)}
-        onDragOver={file.isDirectory ? (e: React.DragEvent) => handleDragOver(e, file.name ?? "") : undefined}
-        onDragLeave={file.isDirectory ? handleDragLeave : undefined}
-        onDrop={file.isDirectory ? (e: React.DragEvent) => handleDrop(e, file.name ?? "") : undefined}
+        draggable={!isBusy}
+        onDragStart={!isBusy ? (e: React.DragEvent) => handleDragStart(e, file.name ?? "", (file as any)._id) : undefined}
+        onDragOver={file.isDirectory && !isBusy ? (e: React.DragEvent) => handleDragOver(e, file.name ?? "") : undefined}
+        onDragLeave={file.isDirectory && !isBusy ? handleDragLeave : undefined}
+        onDrop={file.isDirectory && !isBusy ? (e: React.DragEvent) => handleDrop(e, file.name ?? "") : undefined}
         sx={{
+          position: "relative",
           border: isDragOverThis ? 2 : 0,
           borderColor: "primary.main",
           borderRadius: 1,
           transition: "all 0.15s",
           ...(isSelected && { bgcolor: "action.selected" }),
+          ...(isBusy && { opacity: 0.5, pointerEvents: "none" }),
           "&:hover": { bgcolor: isSelected ? "action.selected" : "action.hover" },
         }}
       >
+        {isBusy && (
+          <Box sx={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", zIndex: 3 }}>
+            <CircularProgress size={16} />
+          </Box>
+        )}
         <WrapperContent
           {...(infos || {})}
           {...file}
           isDirectory={file.isDirectory}
-          onFolderClick={handleFolderClick}
-          onDoubleClickName={() => setRenamingFile(file.name ?? "")}
+          onFolderClick={!isBusy ? handleFolderClick : undefined}
+          onDoubleClickName={!isBusy ? () => setRenamingFile(file.name ?? "") : undefined}
         >
           <Box
             display="flex"
