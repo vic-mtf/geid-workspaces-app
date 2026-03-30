@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo } from "react";
+import scrollBarSx from "@/utils/scrollBarSx";
 import {
   Box,
   Typography,
@@ -231,6 +232,7 @@ const SearchResultsDropdown = React.memo(function SearchResultsDropdown({
         mt: 0.5,
         maxHeight: 420,
         overflowY: "auto",
+        ...scrollBarSx,
         bgcolor: alpha(theme.palette.background.paper, 0.92),
         backdropFilter: "blur(16px)",
         borderRadius: 2,

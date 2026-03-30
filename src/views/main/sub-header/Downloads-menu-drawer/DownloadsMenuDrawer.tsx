@@ -1,4 +1,5 @@
 import { Box, Drawer, IconButton, Stack, Toolbar, Tooltip, Typography } from '@mui/material';
+import scrollBarSx from "@/utils/scrollBarSx";
 import { useTranslation } from 'react-i18next';
 import DownloadItem from '@/views/main/sub-header/Downloads-menu-drawer/DownloadItem';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
@@ -59,7 +60,7 @@ export default function DownloadsMenuDrawer({ open, onClose, loadingList, loadNu
             </Box>
 
             {/* Liste */}
-            <Stack spacing={1} sx={{ flex: 1, overflow: "auto", p: 1.5 }}>
+            <Stack spacing={1} sx={{ flex: 1, overflow: "auto", p: 1.5, ...scrollBarSx }}>
                 {items.map((item) => (
                     <DownloadItem key={item?._id} {...item} />
                 ))}

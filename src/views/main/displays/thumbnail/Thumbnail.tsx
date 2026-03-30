@@ -5,6 +5,7 @@
  * Pattern : parent relatif → enfant absolu inset 0.
  */
 
+import scrollBarSx from "@/utils/scrollBarSx";
 import {
   Box,
   Checkbox,
@@ -347,7 +348,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
   return (
     <>
       <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }} onContextMenu={handleEmptyContextMenu}>
+        <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1, ...scrollBarSx }} onContextMenu={handleEmptyContextMenu}>
           <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
             {data.map((_, i) => (
               <Box key={data[i]?._id || `${i}_${data[i]?.name}`} data-filename={data[i]?.name} sx={{ display: "flex", justifyContent: "center", alignItems: "stretch" }}>

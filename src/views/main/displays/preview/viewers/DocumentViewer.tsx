@@ -9,6 +9,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import scrollBarSx from "@/utils/scrollBarSx";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import {
@@ -214,7 +215,7 @@ const DocumentViewer = React.memo(function DocumentViewer({ fileUrl, filename, e
         sx={{
           flex: 1, overflowY: "auto", overflowX: "auto",
           display: "flex", flexDirection: "column", alignItems: "center",
-          gap: 1, py: 2, px: 1,
+          gap: 1, py: 2, px: 1, ...scrollBarSx,
         }}
       >
         {(docInfo.pages || []).map((pageData) => (

@@ -1,4 +1,5 @@
 import { Avatar, Drawer, Toolbar, Box as MuiBox, Typography, useTheme, useMediaQuery } from "@mui/material";
+import scrollBarSx from "@/utils/scrollBarSx";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import ListOptions from "@/views/navigation/ListOptions";
@@ -43,7 +44,7 @@ export default function Navigation() {
     >
       <Toolbar />
       <UserProfile />
-      <MuiBox sx={{ overflow: "auto", flex: 1 }}>
+      <MuiBox sx={{ overflow: "auto", flex: 1, ...scrollBarSx }}>
         <ListOptions />
       </MuiBox>
       <QuotaDisplay />

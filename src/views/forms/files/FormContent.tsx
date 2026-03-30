@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import scrollBarSx from "@/utils/scrollBarSx";
 import {
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
   Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, TextField, Typography,
@@ -88,7 +89,7 @@ export default function FormContent({
             <form onSubmit={handleSendFile(files)}>
                 <DialogContent sx={{ maxHeight: '60vh', pt: 1 }}>
                     {/* Liste des fichiers */}
-                    <List dense disablePadding sx={{ mb: 1, maxHeight: 180, overflow: "auto" }}>
+                    <List dense disablePadding sx={{ mb: 1, maxHeight: 180, overflow: "auto", ...scrollBarSx }}>
                         {items.slice(0, 30).map((file, index) => {
                             const ext = getFileExtension(file.name) ?? "txt";
                             const relPath = isFolder ? (file as any).webkitRelativePath : null;

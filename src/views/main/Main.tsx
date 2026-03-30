@@ -11,6 +11,7 @@
  */
 
 import { Toolbar, Box as MuiBox, Divider, Drawer, useMediaQuery, useTheme, styled } from "@mui/material";
+import scrollBarSx from "@/utils/scrollBarSx";
 import queryString from "query-string";
 import React, { useMemo, useEffect, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -522,7 +523,7 @@ export default function Main() {
             </MuiBox>
             {showDetail && <DetailResizeDivider onResize={setDetailWidth} minWidth={200} maxWidth={450} />}
             {showDetail && (
-              <MuiBox sx={{ borderLeft: 1, borderColor: "divider", overflow: "auto" }}>
+              <MuiBox sx={{ borderLeft: 1, borderColor: "divider", overflow: "auto", ...scrollBarSx }}>
                 <FileDetailPanel file={focusedFile} onClose={handleCloseDetail} onAction={handleDetailAction} />
               </MuiBox>
             )}
@@ -545,7 +546,7 @@ export default function Main() {
               {showDetail && <DetailResizeDivider onResize={setDetailWidth} minWidth={200} maxWidth={450} />}
 
               {showDetail && (
-                <MuiBox sx={{ borderLeft: 1, borderColor: "divider", overflow: "auto" }}>
+                <MuiBox sx={{ borderLeft: 1, borderColor: "divider", overflow: "auto", ...scrollBarSx }}>
                   <FileDetailPanel file={focusedFile} onClose={handleCloseDetail} onAction={handleDetailAction} />
                 </MuiBox>
               )}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import scrollBarSx from "@/utils/scrollBarSx";
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
@@ -162,7 +163,7 @@ export default function FolderPickerDialog({
                 ))}
             </Box>
 
-            <DialogContent sx={{ p: 0, flex: 1, overflow: 'auto' }}>
+            <DialogContent sx={{ p: 0, flex: 1, overflow: 'auto', ...scrollBarSx }}>
                 {loading ? (
                     <Box display="flex" justifyContent="center" alignItems="center" py={4}>
                         <CircularProgress size={28} />

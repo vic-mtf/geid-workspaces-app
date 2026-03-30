@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
+import scrollBarSx from "@/utils/scrollBarSx";
 import { Box, Typography, IconButton, Stack, Skeleton, Tooltip, Chip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
@@ -93,7 +94,7 @@ const FileDetailPanel = React.memo(function FileDetailPanel({ file, onClose, onA
   const visibleActions = allActions.filter((a) => a.show);
 
   return (
-    <Box sx={{ height: "100%", overflow: "auto", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100%", overflow: "auto", display: "flex", flexDirection: "column", ...scrollBarSx }}>
       {/* Header */}
       <Stack direction="row" alignItems="center" spacing={0.5} sx={{ px: 1.5, py: 1, borderBottom: 1, borderColor: "divider" }}>
         <Typography variant="body2" fontWeight="bold" noWrap sx={{ flex: 1 }}>
