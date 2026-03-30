@@ -67,8 +67,7 @@ function CreateFolderDialog({ open, onClose, onCreated }: CreateFolderDialogProp
       }}
       PaperProps={{ sx: { border: 1, borderColor: "divider" } }}
     >
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1, pb: 0.5 }}>
-        <CreateNewFolderOutlinedIcon color="primary" />
+      <DialogTitle sx={{ pb: 0.5 }}>
         <Box>
           <Typography variant="h6" fontWeight="bold" fontSize={16}>
             {t("files.newFolder")}

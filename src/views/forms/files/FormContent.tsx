@@ -71,9 +71,8 @@ export default function FormContent({
                 }
             }}
         >
-            <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1, pb: 0.5 }}>
-                {isFolder ? <FolderOutlinedIcon color="warning" /> : <PublishRoundedIcon color="primary" />}
-                <Box flex={1}>
+            <DialogTitle sx={{ pb: 0.5 }}>
+                <Box>
                     <Typography variant="h6" fontWeight="bold" fontSize={16}>
                         {isFolder ? (t('files.uploadFolder') || "Televerser un dossier") : t('files.uploadFiles')}
                     </Typography>

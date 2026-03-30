@@ -122,8 +122,7 @@ export default function ShareDialog() {
             }}
             PaperProps={{ sx: { border: 1, borderColor: "divider" } }}
         >
-            <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <PersonAddOutlinedIcon color="primary" />
+            <DialogTitle>
                 <Box>
                     <Typography variant="h6" fontSize={16} fontWeight="bold">
                         {t('share.shareTitle')}
