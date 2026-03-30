@@ -206,7 +206,9 @@ export default function ListView({
           border: isDragOverThis ? 2 : 0,
           borderColor: "primary.main",
           borderRadius: 1,
-          transition: "border-color 0.15s",
+          transition: "all 0.15s",
+          ...(isSelected && { bgcolor: "action.selected" }),
+          "&:hover": { bgcolor: isSelected ? "action.selected" : "action.hover" },
         }}
       >
         <WrapperContent

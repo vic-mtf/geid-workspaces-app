@@ -187,8 +187,10 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
             position: "relative", width: "100%",
             "&:hover .select-checkbox": { opacity: 1 },
             "&:hover .fav-btn": { opacity: 1 },
+            "&:hover": { bgcolor: "action.hover" },
             border: dragOverFolder === file.name ? 2 : 0,
-            borderColor: "primary.main", borderRadius: 2, transition: "border-color 0.15s",
+            borderColor: "primary.main", borderRadius: 2, transition: "all 0.15s",
+            ...(isSelected && { bgcolor: "action.selected" }),
             ...(isHighlighted && { bgcolor: "action.selected", animation: "highlightBg 2.5s ease-out forwards", "@keyframes highlightBg": { "0%": { bgcolor: "primary.light" }, "100%": { bgcolor: "transparent" } } }),
           }}
           draggable
@@ -239,7 +241,9 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
           position: "relative", width: "100%",
           "&:hover .select-checkbox": { opacity: 1 },
           "&:hover .fav-btn": { opacity: 1 },
-          borderRadius: 2,
+          "&:hover": { bgcolor: "action.hover" },
+          borderRadius: 2, transition: "all 0.15s",
+          ...(isSelected && { bgcolor: "action.selected" }),
           ...(isHighlighted && {
             bgcolor: "action.selected",
             animation: "highlightBg 2.5s ease-out forwards",
