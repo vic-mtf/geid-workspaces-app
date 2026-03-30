@@ -314,6 +314,17 @@
     "pink": "Rose",
     "colorError": "La couleur du dossier n'a pas pu etre modifiee. Veuillez reessayer."
   },
+  "search": {
+    "placeholder": "Rechercher un fichier ou dossier...",
+    "inThisView": "Dans cette vue",
+    "allFiles": "Tous les fichiers",
+    "noResults": "Aucun resultat",
+    "noResultsHint": "Essayez avec un autre terme de recherche.",
+    "searching": "Recherche en cours...",
+    "trash": "Corbeille",
+    "folder": "Dossier",
+    "file": "Fichier"
+  },
   "shared": {
     "title": "Espace partage",
     "received": "Elements recus",

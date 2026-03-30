@@ -69,14 +69,15 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     () =>
       _data?.filter((item) => {
         if (findName?.trim() === "") return true;
-        const words = findName.split(/\s/).filter((w: string) => w?.trim());
-        return words.some((word: string) => {
-          const _word = word.toLowerCase().trim();
-          return (
-            (_word.length > 2 && (item?.name?.toLowerCase() ?? "").includes(_word)) ||
-            (item?.name?.replace(/_/gi, " ").toLowerCase() ?? "").includes(findName?.toLowerCase()?.trim() ?? "")
-          );
-        });
+        const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const normalizedSearch = norm(findName.trim());
+        const normalizedName = norm(item?.name ?? "");
+        const normalizedNameSpaced = norm((item?.name ?? "").replace(/_/g, " "));
+        // Match partial words
+        const words = normalizedSearch.split(/\s/).filter((w) => w.length > 0);
+        return words.some((word) =>
+          normalizedName.includes(word) || normalizedNameSpaced.includes(word)
+        );
       }) ?? [],
     [findName, _data]
   );
