@@ -64,7 +64,6 @@ function UserProfile() {
       </Avatar>
       <MuiBox minWidth={0}>
         <Typography variant="body2" fontWeight={600} noWrap>{fullName}</Typography>
-        <Typography variant="caption" color="text.secondary" noWrap>{user.email}</Typography>
       </MuiBox>
     </MuiBox>
   );
