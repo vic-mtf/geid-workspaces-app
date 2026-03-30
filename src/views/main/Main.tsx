@@ -355,21 +355,19 @@ export default function Main() {
     setBusyFiles((prev) => { const next = new Set(prev); deleteConfirmFiles.forEach((fn) => next.add(fn)); return next; });
     try {
       if (deleteMode.isPermanent && deleteMode.fileId) {
-        // Suppression permanente depuis la corbeille
+        // Suppression permanente depuis la corbeille (un seul element)
         await executeDelete({ method: "delete", url: `/api/stuff/workspace/trash/${deleteMode.fileId}` });
       } else if (permanent) {
-        // Suppression définitive directe (sans passer par la corbeille)
-        if (deleteMode.isDirectory) {
-          await Promise.all(deleteConfirmFiles.map((fn) =>
-            executeDelete({ method: "delete", url: `/api/stuff/workspace/folder/${encodeURIComponent(JSON.stringify({ path, folderName: fn }))}` })
-          ));
-        } else {
-          await Promise.all(deleteConfirmFiles.map((fn) =>
-            executeDelete({ method: "delete", url: `/api/stuff/workspace/${JSON.stringify({ userId: user?.id, path, filename: fn })}` })
-          ));
-        }
+        // Suppression definitive directe — gere fichiers ET dossiers en meme temps
+        const items = _data.filter((f) => deleteConfirmFiles.includes(f.name ?? ""));
+        await Promise.all(items.map((item) => {
+          if (item.isDirectory) {
+            return executeDelete({ method: "delete", url: `/api/stuff/workspace/folder/${encodeURIComponent(JSON.stringify({ path, folderName: item.name }))}` });
+          }
+          return executeDelete({ method: "delete", url: `/api/stuff/workspace/${JSON.stringify({ userId: user?.id, path, filename: item.name })}` });
+        }));
       } else {
-        // Déplacer vers la corbeille
+        // Deplacer vers la corbeille — fichiers ET dossiers via leur _id
         const ids = _data.filter((f) => deleteConfirmFiles.includes(f.name ?? "")).map((f) => f._id).filter(Boolean);
         await Promise.all(ids.map((id) =>
           executeDelete({ method: "patch", url: `/api/stuff/workspace/trash/${id}` })

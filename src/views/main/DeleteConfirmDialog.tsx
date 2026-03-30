@@ -51,9 +51,9 @@ function DeleteConfirmDialog({
   const shown = fileNames.slice(0, MAX_SHOWN);
   const remaining = fileNames.length - MAX_SHOWN;
 
-  const itemLabel = isDirectory
-    ? (fileNames.length === 1 ? t("deleteConfirm.folderSingle") : t("deleteConfirm.folderMultiple", { count: fileNames.length }))
-    : (fileNames.length === 1 ? t("deleteConfirm.messageSingle") : t("deleteConfirm.messageMultiple", { count: fileNames.length }));
+  const itemLabel = fileNames.length === 1
+    ? (isDirectory ? t("deleteConfirm.folderSingle") : t("deleteConfirm.messageSingle"))
+    : t("deleteConfirm.messageMultiple", { count: fileNames.length });
 
   return (
     <Dialog
