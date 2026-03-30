@@ -27,7 +27,8 @@ export default function ArchivesForm() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const handleSendFile = useCallback(
     (fields: any) => {
-      if (!file?.doc?._id) {
+      const fileId = file?._id || file?.doc?._id;
+      if (!fileId) {
         enqueueSnackbar(
           t("archives.cannotArchiveDirectly"),
           { variant: "error" }
@@ -37,7 +38,7 @@ export default function ArchivesForm() {
       }
       const data = {
         ...fields,
-        doc: file.doc._id,
+        doc: fileId,
         type: {
           type: fields.type,
           subType: fields.subType || undefined,
@@ -132,7 +133,7 @@ export default function ArchivesForm() {
     <Dialog
       open={!!file}
       PaperProps={{
-        sx: { overflow: "hidden", maxWidth: 600 },
+        sx: { overflow: "hidden", maxWidth: 600, border: 1, borderColor: "divider" },
       }}
       slotProps={{
         backdrop: {

@@ -9,10 +9,12 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import getFileInfos from "@/utils/getFileInfos";
+import FileTypeIcon from "@/components/FileTypeIcon";
 import getFileExtension from "@/utils/getFileExtension";
+import normaliseOctetSize from "@/utils/normaliseOctetSize";
 
 interface FormContentProps {
   onClose: () => void;
@@ -20,35 +22,40 @@ interface FormContentProps {
   file?: any;
 }
 
-function formatSize(bytes: number): string {
-  if (!bytes) return "";
-  return bytes < 1024 * 1024
-    ? `${(bytes / 1024).toFixed(0)} Ko`
-    : `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
-}
-
 export default function FormContent({ onClose, onSubmit, file }: FormContentProps) {
   const { t } = useTranslation();
+  const ext = getFileExtension(file?.name ?? "") ?? "";
+  const size = file?.size ? normaliseOctetSize(file.size) : "";
+
+  // Auto-compléter la designation avec le nom du fichier sans extension
+  const nameWithoutExt = file?.name
+    ? (file.name.includes(".") ? file.name.substring(0, file.name.lastIndexOf(".")) : file.name).replace(/_/g, " ")
+    : "";
+
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm();
-
-  const fileInfo = file ? getFileInfos(file) : null;
-  const ext = file ? getFileExtension(file.name)?.toUpperCase() : "";
-  const size = file?.size ? formatSize(file.size) : "";
+  } = useForm({
+    defaultValues: {
+      designation: nameWithoutExt,
+      description: "",
+      refNumber: "",
+      tags: (file?.tags || []).join(" "),
+    },
+  });
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-      <DialogTitle component="div">
-        <Typography variant="h6" fontWeight="bold" fontSize={18}>
+      <DialogTitle sx={{ pb: 0.5 }}>
+        <Typography variant="h6" fontWeight="bold" fontSize={16}>
           {t("archives.submitTitle")}
         </Typography>
       </DialogTitle>
 
       <DialogContent sx={{ maxHeight: "75vh" }}>
+        {/* Aperçu fichier */}
         {file && (
           <Box
             sx={{
@@ -63,20 +70,13 @@ export default function FormContent({ onClose, onSubmit, file }: FormContentProp
               bgcolor: "action.hover",
             }}
           >
-            {fileInfo?.icon && (
-              <Box
-                component="img"
-                src={fileInfo.icon}
-                alt=""
-                sx={{ width: 36, height: 36, flexShrink: 0 }}
-              />
-            )}
+            <FileTypeIcon extension={ext || "txt"} size={32} />
             <Stack spacing={0} flex={1} minWidth={0}>
               <Typography variant="body2" fontWeight={600} noWrap>
                 {file.name}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {[ext, size, fileInfo?.type].filter(Boolean).join(" · ")}
+                {[ext.toUpperCase(), size, file.currentPath || ""].filter(Boolean).join(" · ")}
               </Typography>
             </Stack>
           </Box>
@@ -85,11 +85,11 @@ export default function FormContent({ onClose, onSubmit, file }: FormContentProp
         <InputsDoc errors={errors} register={register} control={control} />
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
+      <DialogActions sx={{ px: 2, py: 1 }}>
+        <Button onClick={onClose} color="inherit">
           {t("common.cancel")}
         </Button>
-        <Button type="submit" variant="outlined" color="primary">
+        <Button type="submit" variant="contained" startIcon={<SendRoundedIcon />} sx={{ textTransform: "none" }}>
           {t("archives.sendArticle")}
         </Button>
       </DialogActions>
