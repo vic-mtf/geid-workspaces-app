@@ -285,7 +285,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
         </IconButton>}
         {isBusy && <Box sx={{ position: "absolute", inset: 0, zIndex: 5, bgcolor: "rgba(0,0,0,0.25)", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}><CircularProgress size={20} sx={{ color: "common.white" }} /></Box>}
         <WrapperContent {...infos} {...file} onDoubleClickName={!isBusy ? () => setRenamingFile(file.name ?? "") : undefined}>
-          <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} renderName={makeRenderName(file)} />
+          <File {...infos} name={file.name} date={file.createdAt} url={file.url} duration={file.duration} videoWidth={file.videoWidth} videoHeight={file.videoHeight} imageWidth={file.imageWidth} imageHeight={file.imageHeight} renderName={makeRenderName(file)} />
         </WrapperContent>
       </Box>
     );

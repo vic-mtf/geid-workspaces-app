@@ -22,30 +22,27 @@ interface PhotoProps {
 
 function Photo(props: PhotoProps) {
   const { src, loading, isBlurred } = useAdaptiveThumbnail(props.url);
-  const [ratio, setRatio] = useState<number | null>(null);
+  // Ratio depuis le backend ou detecte au chargement
+  const propsRatio = props.imageWidth && props.imageHeight && props.imageHeight > 0
+    ? props.imageWidth / props.imageHeight : null;
+  const [detectedRatio, setDetectedRatio] = useState<number | null>(null);
+  const ratio = propsRatio || detectedRatio;
 
   const onLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (propsRatio) return; // deja connu
     const img = e.currentTarget;
     if (img.naturalWidth && img.naturalHeight) {
-      setRatio(img.naturalWidth / img.naturalHeight);
+      setDetectedRatio(img.naturalWidth / img.naturalHeight);
     }
-  }, []);
+  }, [propsRatio]);
 
-  // Dimensions adaptees au ratio
   const maxW = 140;
   const maxH = 120;
   let w = 100;
   let h = 120;
   if (ratio) {
-    if (ratio >= 1) {
-      // Paysage
-      w = Math.min(maxW, maxH * ratio);
-      h = w / ratio;
-    } else {
-      // Portrait
-      h = Math.min(maxH, maxW / ratio);
-      w = h * ratio;
-    }
+    if (ratio >= 1) { w = Math.min(maxW, maxH * ratio); h = w / ratio; }
+    else { h = Math.min(maxH, maxW / ratio); w = h * ratio; }
   }
 
   return (
