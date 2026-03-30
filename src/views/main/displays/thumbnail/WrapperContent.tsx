@@ -42,7 +42,7 @@ interface WrapperContentProps {
   type?: string;
   url?: string;
   isDirectory?: boolean;
-  onFolderClick?: (name: string) => void;
+  onFolderClick?: (name: string, file?: any) => void;
   onDoubleClickName?: () => void;
   [key: string]: any;
 }
@@ -154,7 +154,7 @@ export default function WrapperContent({
       if (navigatingRef.current) return;
       navigatingRef.current = true;
       setTimeout(() => { navigatingRef.current = false; }, 500);
-      onFolderClick(name);
+      onFolderClick(name, file);
       return;
     }
     // Single clic sur fichier → ouvrir le détail (après délai pour laisser le double-clic annuler)

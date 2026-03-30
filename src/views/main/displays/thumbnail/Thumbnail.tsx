@@ -88,12 +88,22 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
     return () => root?.removeEventListener("_search_data", handleSearch);
   });
 
-  const handleFolderClick = useCallback((folderName: string) => {
-    const params = new URLSearchParams(search);
-    const currentFolder = params.get("folder") || "";
-    const newFolder = currentFolder ? `${currentFolder}/${folderName}` : folderName;
-    navigate(`${pathname}?folder=${encodeURIComponent(newFolder)}`);
-  }, [search, pathname, navigate]);
+  const isSpecialView = !pathname.startsWith("/files");
+
+  const handleFolderClick = useCallback((folderName: string, file?: any) => {
+    if (isSpecialView && file) {
+      // Dans Recents/Favoris → aller à l'emplacement du dossier dans Mes fichiers
+      const folderPath = file.currentPath ? `${file.currentPath}/${folderName}` : folderName;
+      document.getElementById("root")?.dispatchEvent(
+        new CustomEvent("_go_to_location", { detail: { file: { ...file, currentPath: folderPath } } })
+      );
+    } else {
+      const params = new URLSearchParams(search);
+      const currentFolder = params.get("folder") || "";
+      const newFolder = currentFolder ? `${currentFolder}/${folderName}` : folderName;
+      navigate(`${pathname}?folder=${encodeURIComponent(newFolder)}`);
+    }
+  }, [search, pathname, navigate, isSpecialView]);
 
   const handleRenameConfirm = useCallback(async (oldName: string, newValue: string) => {
     setRenamingFile(null);
