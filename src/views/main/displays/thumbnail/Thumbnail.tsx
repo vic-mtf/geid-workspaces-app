@@ -337,7 +337,7 @@ export default function Thumbnail({ data: _data, loading, selectedFiles = EMPTY_
         <Box sx={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden", p: 1 }}>
           <Box sx={{ display: "grid", gridTemplateColumns: GRID_COLS, gap: 0.5 }}>
             {data.map((_, i) => (
-              <Box key={`${i}_${data[i]?.name}`} data-filename={data[i]?.name} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+              <Box key={data[i]?._id || `${i}_${data[i]?.name}`} data-filename={data[i]?.name} sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
                 {renderItem(i)}
               </Box>
             ))}

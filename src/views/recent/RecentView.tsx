@@ -66,7 +66,7 @@ export default function RecentView({ selectedFiles = new Set(), onToggleSelect }
             if (sort === 'name' || !sort) return (a.name || '').localeCompare(b.name || '');
             if (sort === 'date' || sort === 'modified') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             if (sort === 'size') return (a.size || 0) - (b.size || 0);
-            if (sort === 'type') return (a.name || '').split('.').pop()!.localeCompare((b.name || '').split('.').pop()!);
+            if (sort === 'type') return ((a.name || '').split('.').pop() || '').localeCompare((b.name || '').split('.').pop() || '');
             return 0;
         };
         const dirs = [...result.filter((f) => f.isDirectory)].sort(sortFn);

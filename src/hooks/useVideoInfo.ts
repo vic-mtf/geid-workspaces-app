@@ -39,7 +39,7 @@ export default function useVideoInfo(
 
   const [info, setInfo] = useState<VideoInfo>(() => {
     if (hasPropsInfo) {
-      return { duration: propsDuration!, ratio: propsWidth! / propsHeight! };
+      return { duration: propsDuration!, ratio: propsHeight! > 0 ? propsWidth! / propsHeight! : 16 / 9 };
     }
     if (fileUrl && videoInfoCache.has(fileUrl)) {
       return videoInfoCache.get(fileUrl)!;

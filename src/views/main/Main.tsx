@@ -95,7 +95,7 @@ export default function Main() {
       enqueueSnackbar(`${socketData.accepterName || "L'utilisateur"} a accepte votre partage de « ${socketData.invitation?.fileName || "votre fichier"} ».`, { variant: "success" });
     }
     document.getElementById("root")?.dispatchEvent(new CustomEvent("_reload_shared"));
-  }, [enqueueSnackbar]));
+  }, [enqueueSnackbar, dispatch]));
 
   const FILES_LABEL = t("nav.files");
 
@@ -325,7 +325,7 @@ export default function Main() {
       if (sort === "date") return new Date(a?.createdAt).getTime() - new Date(b?.createdAt).getTime();
       if (sort === "size") return (a?.size || 0) - (b?.size || 0);
       if (sort === "modified") return new Date(a?.lastAccessedAt || a?.createdAt).getTime() - new Date(b?.lastAccessedAt || b?.createdAt).getTime();
-      if (sort === "type") return (a?.name || "").split(".").pop()!.localeCompare((b?.name || "").split(".").pop()!);
+      if (sort === "type") return ((a?.name || "").split(".").pop() || "").localeCompare((b?.name || "").split(".").pop() || "");
       return 0;
     };
     dirs.sort(sortFn);
