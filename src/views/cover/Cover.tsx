@@ -114,9 +114,20 @@ export default function Cover({ setOpened }: CoverProps) {
                         {t('cover.personalSpace')}
                     </Typography>
                 </Stack>
-                {loading && (
-                    <CircularProgress size={18} sx={{ color: 'text.primary', mt: 2 }} />
-                )}
+                <Box position="relative" py={2} display="flex" justifyContent="center" alignItems="center">
+                    {loading && (
+                        <CircularProgress
+                            size={15}
+                            sx={{
+                                color: 'text.primary',
+                                position: 'absolute',
+                                left: '50%',
+                                top: '50%',
+                                transform: 'translate(-50%, -50%)',
+                            }}
+                        />
+                    )}
+                </Box>
             </Stack>
 
             {/* Footer — toujours visible en bas */}
